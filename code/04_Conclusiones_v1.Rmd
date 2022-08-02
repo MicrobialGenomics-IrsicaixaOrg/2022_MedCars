@@ -1,0 +1,52 @@
+---
+site: workflowr::wflow_site
+title: "Conclusiones"
+author: "Marc Noguera-Julian, PhD. TreeTopUnder"
+date: "`r format(Sys.time(), '%Y-%m-%d')`"
+header-includes:
+- \usepackage{fancyhdr}
+- \usepackage{lipsum}
+- \pagestyle{fancy}
+- \fancyhead[CO,CE]{Microbioma intestinal canino en intervencion nutricional}
+- \fancyfoot[LO,RE]{Marc Noguera-Julian, TreeTopUnder}
+- \fancyhead[LE,RO]{\thepage}
+- \fancyfoot[CO,CE]{}
+- \usepackage[default]{sourcesanspro}
+- \usepackage[T1]{fontenc}
+- \usepackage{eso-pic,graphicx,transparent}
+mainfont: Helvetica
+output:
+  workflowr::wflow_html:
+    toc: false
+editor_options:
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+El objetivo de este estudio es describir el microbioma intestinal de varios ejemplares perro doméstico a los que se somete a un cambio de dieta. Los animales se dividen en tres grupos según el tipo de dieta: dieta seca, dieta seca + húmeda o dieta seca+2\*húmeda. Además, cada animal puede estar castrado o no, un factor que puede estar ligado a la respuesta a la intervención dietética.
+
+-   Los datos de secuenciación obtenidos son de calidad suficiente para la caracterización del microbioma intestinal en esta población.
+
+-   No se observa una relación de la castración con la composición global del microbioma intestinal.
+
+-   Se observa una relación entre el tipo de dieta (variable *treatment* y *dry_wet*) con la composición global del microbioma intestinal, que explica un 17% de los cambios observador. Esta relación no se observa en las muestras del punto basal, por lo que esta relacionada con la intervención.
+
+-   En el análisis longitudinal estratificado por grupos de tratamiento:
+
+    -   Los cambios longitudinales en beta-diversidad y alfa-diversidad son mayores en el grupo *w2* que en el *w1* y no se observan en el grupo de dieta seca
+
+    -   En el grupo *w2* la variable *time_point* (antes y después del cambio de dieta) se asocia a un 34% de los cambios observados en el microbioma. Esta variable no es significativa en los grupos *d* y *w1*.
+
+    -   Para variable agrupada *dry_wet*, en las muestras que tienen los valores "w", correspondientes a las dos dietas con componente de dieta húmeda ( *w1* y *w2*) no se observa que la variable time_point sea significativa
+
+    -   En el grupo *w2*, después de la dieta hay un cambio significativo en varios géneros bacterianos que se produce de forma consistente en todos los animales del grupo:
+
+        -   Aumento en los géneros *Blautia*, *R. torques*, *R. gnavus*, *Dorea*, *Escherichia-Shigella*, *Turicibacter*, *Proteus* y otros
+        -   Disminución en los generos *Peptoclostridium*, *Prevotella_9*, *Megamonas*, *Alloprevotella*, *Sutterella*, *Faecalibacterium* y otros. En algunos casos con la total desaparición del genero Bacteriano ( p.ej *Megamonas*, *Prevotella_9*, *Alloprevotella* ) disminuyendo la diversidad filogenética del microbioma de la muestra en t1, para este grupo ( *w2* )
+
+```{r sessionInfo, echo=FALSE, results='hide',fig.keep='all',fig.cap="Análisis de ordenacion NMDS/WUnifrac. En color se representa la especie del individuo.", message=FALSE, warning=FALSE, paged.print=FALSE,results='hide',}
+pander::pander(sessionInfo())
+```

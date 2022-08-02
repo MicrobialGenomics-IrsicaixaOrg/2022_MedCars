@@ -1,11 +1,32 @@
 ---
-title: "Home"
 site: workflowr::wflow_site
-output:
-  workflowr::wflow_html:
-    toc: false
-editor_options:
-  chunk_output_type: console
+title: "Nutritional workcenter intervention based on mediterranean diet linked to microbiome changes in the gut microbiome"
+author: "Marc Noguera-Julian, PhD. "
+date: "`r format(Sys.time(), '%Y-%m-%d')`"
+header-includes:
+- \usepackage{fancyhdr}
+- \usepackage{lipsum}
+- \pagestyle{fancy}
+- \fancyhead[CO,CE]{Microbioma intestinal en intervencion nutricional}
+- \fancyfoot[LO,RE]{Marc Noguera-Julian, IrsiCaixa}
+- \fancyhead[LE,RO]{\thepage}
+- \fancyfoot[CO,CE]{}
+- \usepackage[default]{sourcesanspro}
+- \usepackage[T1]{fontenc}
+- \usepackage{eso-pic,graphicx,transparent}
+mainfont: Helvetica
+output: html_document
 ---
 
-Welcome to my research website.
+## Introduction   
+
+This is the shared analysis workflow for the MedCars study, microbiome substudy. MedCars is a nutritional intervention study based on the mediterranean diet. Participants are health individuals between 18 and 65 years of age that work at either working center (C01 or C02). The clustered randomized design results in focusing the nutritional intervention in one of two workcenters, while the other serves as control. 
+
+Nutritional intervention is based on:
+ * high fiber bread sandwich, instead of standard sandwich.
+ * 5L Extra Virgin Olive Oil(EVOO) given to each participant each month
+ * Healthy food in vending machines
+ * Nutritional counseling for a healthy lifestyle
+ * 6 month follow-up
+ 
+Fecal samples are taken before intervention start and after 6 month follow-up. Gut microbiome is characterized using standard procedures.

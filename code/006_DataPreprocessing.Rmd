@@ -1,0 +1,252 @@
+---
+site: workflowr::wflow_site
+title: "Data Preprocessing"
+author: "Marc Noguera-Julian, PhD. "
+date: "`r format(Sys.time(), '%Y-%m-%d')`"
+header-includes:
+- \usepackage{fancyhdr}
+- \usepackage{lipsum}
+- \pagestyle{fancy}
+- \fancyhead[CO,CE]{Microbioma intestinal en intervencion nutricional}
+- \fancyfoot[LO,RE]{Marc Noguera-Julian, IrsiCaixa}
+- \fancyhead[LE,RO]{\thepage}
+- \fancyfoot[CO,CE]{}
+- \usepackage[default]{sourcesanspro}
+- \usepackage[T1]{fontenc}
+- \usepackage{eso-pic,graphicx,transparent}
+mainfont: Helvetica
+output: html_document
+---
+
+```{r setup, include=T,eval=T}
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_knit$set(root.dir = here::here())
+```
+
+## Explanation
+
+This code obtains different data from different sources:
+
+* Taxonomical Compisition data derived from Metaphlan3/motus2/kraken2/dada2 analysis. This data is obtained the the AWS/Batch/WMGS pipelind as standard R::phyloseq objects
+* Gene Function Data. Derived from FMAP/HUMANN3/IGC/VIRGO catalogs or tools. This data is obtained the the AWS/Batch/WMGS pipelind as standard R::phyloseq objects
+* Gene Richness or diversity, obtained fro either IGC/VIRGO catalogs or dada2.
+* Metadata. Obtained from the study data source. Metadata is probably formatted and curated beforehand and linke td taxonomical and function data during the construction of the two previous data soruces.
+* Other: In this code, it is the moment to alter the original data sources in any way: modfication, removeal, addition of variables.
+
+Data is obtained, merged and provided a consistent starting point for statistical analysis. Metadata is also described separately to produce a metadata-only report.
+
+Finally a MRE object is created that is used downstream as the starting point for all analysis and (automatic) reporting.
+
+## Read Data and Create metar object
+```{r recover ps_silva ,echo=F,include=F,message=F, eval=T}
+suppressMessages(require(DataExplorer))
+suppressMessages(require(phyloseq))
+suppressMessages(require(ggstatsplot))
+suppressMessages(require(ggplot2))
+suppressMessages(require(here))
+suppressMessages(require(knitr))
+# Load package from local copy
+
+### Load data and create MRE Object
+devtools::load_all("~/Documents/Work/Development/WMGSPipeline/")### Change to require/library/load local package
+# require(metar)
+
+### Recover phyloseq object from old DADA2 Session file
+load("data/raw/DADA2/DADA2_Rsession_raw.RData")
+my_otu_table<-otu_table(ps_silva)%>% t()
+my_tax_table<-tax_table(ps_silva)
+my_tree<-phy_tree(ps_silva)
+my_metadata<-read.csv("data/raw/Metadata/Metadata_v2.0.csv",sep=";")
+rownames(my_metadata)<-my_metadata$SampleID
+
+my_phyloseq<-phyloseq(my_otu_table, my_tax_table,my_tree)
+sample_names(my_phyloseq)
+sample_data(my_phyloseq)<-my_metadata
+
+#### If taxa needs to be filtered, this should be done here.
+
+####
+saveRDS(my_phyloseq,"data/raw/DADA2/ps_silva.rds")
+rm(list = ls(all.names = TRUE)) #will clear all objects includes hidden objects.
+gc() #free up memrory and report the memory usage.
+```
+
+### Sequencing effort
+
+In this project, dataset is quite huge. Number of ASV is also huge. BEfore filtering and collapsing to Genus for manageability we'll extract diversity parameters and producte rarefaction curves to assess sequencing effort. (Note that rarefaction curves are obtained for a random subset of 10% of samples)
+
+It is important to assess whether the obtained sequencing effort is sufficient to sample microbiome diversity. For that, we plot the number of new taxa vs the number of sequencing reads. As expected, the higher the number of quality sequences, the higher the number of taxons detected. When the sequencing effort is sufficient, additional sequencing reads will not be adding a significant amount of new taxa, so our detection capability of new taxons is saturated. This is desirable.
+
+
+
+```{r rarefaction with raw data, echo=F, include=F, message=F, eval=T}
+suppressMessages(require(microbiome))
+suppressMessages(require(vegan))
+suppressMessages(require(picante))
+suppressMessages(require(dplyr))
+ps_silva <- readRDS("data/raw/DADA2/ps_silva.rds")
+x.2.0<-ps_silva
+### Rarefaction is performed with the raw dataset
+sampleIndexes<-sample(nsamples(x.2.0),0.5*nsamples(x.2.0))
+sampleData<-phyloseq::sample_data(ps_silva) %>% as.data.frame()
+# rarecurve(data.frame((otu_table(x.2.0))),step=20,label=F,main="Obs.Species/Seq. Depth ")
+# pdf("output/Deliverables/RarefactionCurve_Center.pdf")
+# myColors<-(RColorBrewer::brewer.pal(name = "Set2",n=2))[1:2]
+# rarecurve(data.frame(t(otu_table(x.2.0))),step=200,col=myColors[as.factor(sampleData[,"Center"])],label=F,main="Obs.Species/Seq. Depth vs Center")
+# dev.off()
+# 
+# pdf("output/Deliverables/RarefactionCurve_Treatment.pdf")
+# myColors<-(RColorBrewer::brewer.pal(name = "Set2",n=3))
+# rarecurve(data.frame(t(otu_table(x.2.0))[sampleIndexes,]),step=200,col=myColors[as.factor(sampleData[sampleIndexes,"Treatment"])],label=F,main="Obs.Species/Seq. Depth vs Treatment")
+# dev.off()
+# 
+# myColors<-(RColorBrewer::brewer.pal(name = "Set2",n=3))
+# rarecurve(data.frame(t(otu_table(x.2.0))[sampleIndexes,]),step=200,col=myColors[as.factor(sampleData[sampleIndexes,"Center"])],label=F,main="Obs.Species/Seq. Depth vs Center")
+
+if( ! grepl("diversity_shannon",colnames(sample_data(ps_silva))) ){
+ 
+  ### Save Richness & Diversity parameters
+  # x.2.0<-filter_taxa(x.2.0, function (x) {sum(x > 0) > 1}, prune=TRUE)
+  otu_counts<-colSums(otu_table(x.2.0))
+  x.2.0_RR<-rarefy_even_depth(x.2.0,min(rowSums(t(otu_table(x.2.0)))),rngseed = 1234,quantile(otu_counts,probs = 0.01))
+  
+  saveRDS(x.2.0_RR,"data/processed/ps_silva_RR.rds")
+  
+  richnessDF<-alpha(x.2.0)
+  pd_df<-picante::pd(t(otu_table(x.2.0)),phy_tree(x.2.0),include.root = F)
+  richnessDF<-merge(richnessDF,pd_df,by="row.names")
+  richnessDF$SampleID<-richnessDF$Row.names
+  rownames(richnessDF)<-richnessDF$SampleID
+  richnessDF[1:5,c("observed","diversity_shannon","PD")] %>% knitr::kable()
+ 
+  xlsx::write.xlsx(richnessDF,file="output/Deliverables/AlphaDiversityEstimation.xls")
+
+  
+  sampleData<-phyloseq::sample_data(ps_silva) %>% data.frame()
+  
+  sampleData<-merge(sampleData,richnessDF,by.x="SampleID", by.y="SampleID") %>% dplyr::select(-Row.names)
+  rownames(sampleData)<-sampleData$SampleID
+  sample_data(ps_silva)<-sampleData
+  ### ps_silva will be the starting point for all of the analysis
+  ### We'll collapse to genus
+  ps_silva<-phyloseq::tax_glom(ps_silva,taxrank="Genus",NArm = F)
+  wh0=genefilter_sample(ps_silva,filterfun_sample(function(x) x>1), A=2) # Remove singletons
+  ps_silva<-prune_taxa(wh0,ps_silva)
+  saveRDS(ps_silva,"data/processed/DADA2/ps_silva.rds")
+  ### ps_silva should contain data at the genus level and diveristy/richness measures as metadata
+}
+
+
+
+```
+
+
+```{r create metar object,echo=F,include=F,message=F, eval=T}
+#### Create MRE object, needs environment-defined AWS credentials, see aws.s3
+suppressMessages(require(DataExplorer))
+suppressMessages(require(phyloseq))
+suppressMessages(require(ggstatsplot))
+suppressMessages(require(ggplot2))
+suppressMessages(require(here))
+suppressMessages(require(knitr))
+# Load package from local copy
+
+### Load data and create MRE Object
+devtools::load_all("~/Documents/Work/Development/WMGSPipeline/")### Change to require/library/load local package
+
+myMREObject<-metar::metarExperiment(wd="data/processed/")
+
+## Ensure Metadata Correctness and coherence among phyloseq objects and metadata slots before proceeding.
+
+myMREObject@wd<-"output/mre_data/"
+dir.create("data/processed/")
+
+saveRDS(myMREObject,"data/processed/mreObject.rds")
+# aws.s3::s3saveRDS(myMREObject,bucket=bucket,object = paste0(bucketDir,"/MREObject.rds"))
+
+```
+A metar(MRE) object contains different slots, each one containing different types of data for the study bein analysed. A brief description of the available data for this project is:
+
+```{r metar_object_characteristics,echo=F,include=F,message=F, eval=T}
+myMREObject
+# myMREObject<-metar::filter_taxa(myMREObject,.f = function(x) sum(x > 0) >= (0.01 * length(x)) , type="dada2")
+# saveRDS(myMREObject,"data/processed/mreObject.rds")
+```
+
+### Create and store MRE object for subsets of data
+
+We also create subsets of data that can be handy and that respond to the project-specific design.
+
+```{r create subsets Baseline,echo=F,include=F,message=F, eval=T}
+### This is an example on how to filter samples to form a consisten subset.
+set.seed(1234)
+require(genefilter)
+
+# Samples within Baseline - Create a new metar object, define wd accordingly
+dir.create("data/internal/baseline/",recursive=T,showWarnings = F)
+auxMREObject <- get_meta(myMREObject) %>% 
+  dplyr::filter(Timepoint=="BL") %>%
+  dplyr::pull(SampleID) %>%
+  metar::filter_samples(sample_ids = .,mre=myMREObject)
+auxMREObject@wd<-"output/mre_data/baseline/"
+
+auxMREObject@metadata@categorical_vals<- auxMREObject@metadata@categorical_vals %>%
+  dplyr::filter(CategoricalVariable != "Timepoint")
+
+# Avoid all-0 taxa -metar::filter_phy_default(myMREObject) can also be used
+flist<-genefilter::filterfun(genefilter::kOverA(1,0))
+ent.logi<-phyloseq::filter_taxa(metar::get_phyloseq(auxMREObject,type="dada2"), flist)
+auxMREObject@taxa@dada2@phyloseq <- phyloseq::filter_taxa(metar::get_phyloseq(auxMREObject,type="dada2"), flist, TRUE)
+
+saveRDS(auxMREObject,"data/internal/baseline/mreObject.rds")
+
+```
+
+```{r create subsets Treatment,echo=F,include=F,message=F, eval=T}
+### This is an example on how to filter samples to form a consisten subset.
+set.seed(1234)
+require(genefilter)
+
+# Samples within center under dietary treatment (C01) - Create a new metar object, define wd accordingly
+dir.create("data/internal/treatment/",recursive=T,showWarnings = F)
+auxMREObject <- get_meta(myMREObject) %>% 
+  dplyr::filter(Center=="C01") %>%
+  dplyr::pull(SampleID) %>%
+  metar::filter_samples(sample_ids = .,mre=myMREObject)
+auxMREObject@wd<-"output/mre_data/treatment/"
+
+auxMREObject@metadata@categorical_vals<- auxMREObject@metadata@categorical_vals %>%
+  dplyr::filter(CategoricalVariable != "Center")
+
+# Avoid all-0 taxa -metar::filter_phy_default(myMREObject) can also be used
+flist<-genefilter::filterfun(genefilter::kOverA(1,0))
+ent.logi<-phyloseq::filter_taxa(metar::get_phyloseq(auxMREObject,type="dada2"), flist)
+auxMREObject@taxa@dada2@phyloseq <- phyloseq::filter_taxa(metar::get_phyloseq(auxMREObject,type="dada2"), flist, TRUE)
+
+saveRDS(auxMREObject,"data/internal/treatment/mreObject.rds")
+```
+
+
+```{r create subsets  Placebo,echo=F,include=F,message=F, eval=T}
+### This is an example on how to filter samples to form a consisten subset.
+set.seed(1234)
+require(genefilter)
+
+# Samples within center under placebo treatment (C02) - Create a new metar object, define wd accordingly
+dir.create("data/internal/placebo/",recursive=T,showWarnings = F)
+auxMREObject <- get_meta(myMREObject) %>% 
+  dplyr::filter(Center=="C02") %>%
+  dplyr::pull(SampleID) %>%
+  metar::filter_samples(sample_ids = .,mre=myMREObject)
+auxMREObject@wd<-"output/mre_data/placebo/"
+
+auxMREObject@metadata@categorical_vals<- auxMREObject@metadata@categorical_vals %>%
+  dplyr::filter(CategoricalVariable != "Center")
+
+# Avoid all-0 taxa -metar::filter_phy_default(myMREObject) can also be used
+flist<-genefilter::filterfun(genefilter::kOverA(1,0))
+ent.logi<-phyloseq::filter_taxa(metar::get_phyloseq(auxMREObject,type="dada2"), flist)
+auxMREObject@taxa@dada2@phyloseq <- phyloseq::filter_taxa(metar::get_phyloseq(auxMREObject,type="dada2"), flist, TRUE)
+
+saveRDS(auxMREObject,"data/internal/placebo/mreObject.rds")
+```

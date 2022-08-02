@@ -1,10 +1,20 @@
 name: "2022_MedCars"
 output_dir: ../docs
 navbar:
-  title: "2022_MedCars"
+  title: "MedCars"
   left:
   - text: Home
     href: index.html
+  - text: Data Exploration
+    href: 201_exploratory_analysis.html
+  - text: Baseline Analysis
+    href: 210_baseline_analysis.html
+  - text: Intervention
+    href: 220_intervention_analysis.html
+  - text: Mediterranean Diet
+    href: 230_MedDietScore.html
+  - text: Abstract
+    href: 901_Abstract.html
   - text: About
     href: about.html
   - text: License

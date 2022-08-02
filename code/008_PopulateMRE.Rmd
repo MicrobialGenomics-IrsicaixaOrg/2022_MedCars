@@ -1,0 +1,187 @@
+---
+title: "Populate MRE Object"
+author: "Marc Noguera"
+date: "2/16/2022"
+output: html_document
+---
+```{r setup, include=T,echo=F,message=F, eval=T}
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_knit$set(root.dir = here::here())
+
+```
+
+## Initial Analysis
+
+Using the initial MRE object which has all results slots empty, we then populate these slots through pre-programmed functions that use project-specifci categorical and numerical variables to run statistical testing of different nature:
+
+* Ordination:
+* Differential Abundance:
+* Correlation:
+* Gene Richness:
+* Biomarker Discovery:
+* Gene Function:
+* Other: Project specific analysis may be programmed from scratch or can take advantage from pre-run statistical testing. 
+
+All analysis generate by default a set of result files that are stored into disk, generally pdf or csv that allow result exploration.
+Once all te tests have been run, the MRE is populated with the correspoonding results and saved into disk/AWS.
+
+```{r embedded populate slots, echo=T, include=T, message=T, eval=T}
+require(phyloseq)
+require(ggstatsplot)
+require(ggplot2)
+require(here)
+
+# Load package from local copy
+devtools::load_all("~/Documents/Work/Development/WMGSPipeline/")### Change to require/library/load local package
+# require(metar)
+
+# myMREObject<-readRDS("data/processed/mreObject.rds")
+myMREObject<-readRDS("data/processed/mreObject.rds")
+
+# # ## QC
+# myMREObject <- myMREObject %>%
+#    dada2_qc(save_files = T) ### Not keeping rarefaction result slot, too big.
+# # # 
+# # # ## Alpha Diversity
+myMREObject <- myMREObject %>%
+  dada2_rarefaction() ### dada2_rarefaction tries to use GeneRichness --> Needs to be corrected
+
+# myMREObject <- myMREObject %>%
+#     dada2_richness()
+
+### BARPLOTS
+myMREObject<-myMREObject %>%
+  dada2_barplots(tax_level="Phylum") %>% 
+   dada2_barplots(tax_level="Genus",top_n = 50)
+### Heatmap
+myMREObject<-myMREObject %>%
+  dada2_heatmap(tax_level = "Genus")
+### NMDS
+
+myMREObject<-myMREObject%>%
+    dada2_nmds(tax_level="Genus")
+
+myMREObject<-myMREObject %>%
+    dada2_lefse() 
+
+saveRDS(myMREObject,paste0(here::here(),"/data/processed/mreObject.rds"))
+# aws.s3::s3saveRDS(myMREObject,bucket=bucket,object = paste0(bucketDir,"/MREObject.rds"))
+
+```
+
+
+```{r embedded populate slots Baseline, echo=T, include=T, message=T, eval=T}
+require(phyloseq)
+require(ggstatsplot)
+require(ggplot2)
+require(here)
+
+# Load package from local copy
+devtools::load_all("~/Documents/Work/Development/WMGSPipeline/")### Change to require/library/load local package
+
+myMREObject<-readRDS("data/internal/baseline/mreObject.rds")
+
+# ## QC
+# myMREObject <- myMREObject %>%
+#    dada2_qc(save_files = T) ### Not keeping rarefaction result slot, too big.
+# # 
+# # # ## Alpha Diversity
+myMREObject <- myMREObject %>%
+  dada2_rarefaction() ### dada2_rarefaction tries to use GeneRichness --> Needs to be corrected
+# 
+# myMREObject <- myMREObject %>%
+#     dada2_richness()
+
+
+### BARPLOTS
+myMREObject<-myMREObject %>%
+  dada2_barplots(tax_level="Phylum") %>% 
+   dada2_barplots(tax_level="Genus",top_n = 50)
+myMREObject<-myMREObject %>%
+  dada2_heatmap(tax_level = "Genus")
+myMREObject<-myMREObject%>%
+    dada2_nmds(tax_level="Genus")
+myMREObject<-myMREObject %>%
+    dada2_lefse() 
+saveRDS(myMREObject,paste0(here::here(),"/data/internal/baseline/mreObject.rds"))
+# aws.s3::s3saveRDS(myMREObject,bucket=bucket,object = paste0(bucketDir,"/MREObject.rds"))
+
+```
+
+
+```{r embedded populate slots Treatment, echo=T, include=T, message=T, eval=T}
+require(phyloseq)
+require(ggstatsplot)
+require(ggplot2)
+require(here)
+
+# Load package from local copy
+devtools::load_all("~/Documents/Work/Development/WMGSPipeline/")### Change to require/library/load local package
+
+myMREObject<-readRDS("data/internal/treatment/mreObject.rds")
+
+# ## QC
+# myMREObject <- myMREObject %>%
+#    dada2_qc(save_files = T) ### Not keeping rarefaction result slot, too big.
+# # 
+# # # ## Alpha Diversity
+myMREObject <- myMREObject %>%
+  dada2_rarefaction() ### dada2_rarefaction tries to use GeneRichness --> Needs to be corrected
+
+# myMREObject <- myMREObject %>%
+#     dada2_richness()
+
+
+### BARPLOTS
+myMREObject<-myMREObject %>%
+  dada2_barplots(tax_level="Phylum") %>% 
+   dada2_barplots(tax_level="Genus",top_n = 50)
+myMREObject<-myMREObject %>%
+  dada2_heatmap(tax_level = "Genus")
+myMREObject<-myMREObject%>%
+    dada2_nmds(tax_level="Genus")
+myMREObject<-myMREObject %>%
+    dada2_lefse() 
+saveRDS(myMREObject,paste0(here::here(),"/data/treatment/baseline/mreObject.rds"))
+# aws.s3::s3saveRDS(myMREObject,bucket=bucket,object = paste0(bucketDir,"/MREObject.rds"))
+
+```
+
+
+```{r embedded populate slots Control, echo=T, include=T, message=T, eval=T}
+require(phyloseq)
+require(ggstatsplot)
+require(ggplot2)
+require(here)
+
+# Load package from local copy
+devtools::load_all("~/Documents/Work/Development/WMGSPipeline/")### Change to require/library/load local package
+
+myMREObject<-readRDS("data/internal/placebo/mreObject.rds")
+
+# ## QC
+# myMREObject <- myMREObject %>%
+#    dada2_qc(save_files = T) ### Not keeping rarefaction result slot, too big.
+# 
+# # ## Alpha Diversity
+# myMREObject <- myMREObject %>%
+#   dada2_rarefaction() ### dada2_rarefaction tries to use GeneRichness --> Needs to be corrected
+
+# myMREObject <- myMREObject %>% 
+#     dada2_richness()
+
+
+### BARPLOTS
+myMREObject<-myMREObject %>%
+  dada2_barplots(tax_level="Phylum") %>% 
+   dada2_barplots(tax_level="Genus",top_n = 50)
+myMREObject<-myMREObject %>%
+  dada2_heatmap(tax_level = "Genus")
+myMREObject<-myMREObject%>%
+    dada2_nmds(tax_level="Genus")
+myMREObject<-myMREObject %>%
+    dada2_lefse() 
+saveRDS(myMREObject,paste0(here::here(),"/data/placebo/baseline/mreObject.rds"))
+# aws.s3::s3saveRDS(myMREObject,bucket=bucket,object = paste0(bucketDir,"/MREObject.rds"))
+
+```
