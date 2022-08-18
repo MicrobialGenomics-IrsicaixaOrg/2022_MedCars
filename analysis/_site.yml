@@ -13,8 +13,6 @@ navbar:
     href: 220_intervention_analysis.html
   - text: Mediterranean Diet
     href: 230_MedDietScore.html
-  - text: Abstract
-    href: 901_Abstract.html
   - text: About
     href: about.html
   - text: License
