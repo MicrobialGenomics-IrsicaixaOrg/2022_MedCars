@@ -20,13 +20,16 @@ output: html_document
 
 ## Introduction   
 
-This is the shared analysis workflow for the MedCars study, microbiome substudy. MedCars is a nutritional intervention study based on the mediterranean diet. Participants are health individuals between 18 and 65 years of age that work at either working center (C01 or C02). The clustered randomized design results in focusing the nutritional intervention in one of two workcenters, while the other serves as control. 
+This is the shared analysis workflow for the MedCars study, microbiome substudy. MedCars is a nutritional intervention study based on the mediterranean diet. Participants are health individuals between 18 and 65 years of age that work at either working center (C01 or C02). The clustered randomized design results in focusing the nutritional intervention in one of two workcenters, while the other serves as control.  C01 Serves as Intervention Group (IG) hile C02 serves as Control Group(CG)
 
-Nutritional intervention is based on:
- * high fiber bread sandwich, instead of standard sandwich.
- * 5L Extra Virgin Olive Oil(EVOO) given to each participant each month
- * Healthy food in vending machines
- * Nutritional counseling for a healthy lifestyle
- * 6 month follow-up
+Nutritional intervention is based on different actions taken at the workplace, some of them being common to both IG and CG or exclusive to IG:
+
+ * High fiber bread sandwich, instead of standard sandwich (IG).
+ * 5L Extra Virgin Olive Oil(EVOO) given to each participant each month (IG).
+ * 30 g/day nuts(IG).
+ * Healthy food in vending machines(IG).
+ * Nutritional counseling for a healthy lifestyle(CG & IG)
+ * Psychological counselling(CG & IG).
+ * 6 month follow-up(CG & IG).
  
-Fecal samples are taken before intervention start and after 6 month follow-up. Gut microbiome is characterized using standard procedures.
+Fecal samples are taken before intervention start and after 6 month follow-up. Gut microbiome is characterized using standard procedures for 16s rDNA sequencing.
