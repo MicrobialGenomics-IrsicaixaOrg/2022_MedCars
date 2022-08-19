@@ -33,3 +33,18 @@ Nutritional intervention is based on different actions taken at the workplace, s
  * 6 month follow-up(CG & IG).
  
 Fecal samples are taken before intervention start and after 6 month follow-up. Gut microbiome is characterized using standard procedures for 16s rDNA sequencing.
+
+## Methods
+
+### Microbiome Analysis
+
+Genomic DNA from all samples was extracted utilizing the Qiagen Powerfecal DNA Kit (Cat # 12888–50) and quantified via Quant-iT PicoGreen dsDNA Assay (Cat # P11496). The 16s V3-V4 region was amplified through 30 cycles PCR with an F515 locus specific primer (5’-TCGTCGGCAGCGTCAGA-TGTGTATAAGAGACAG-3’) and an 806R-locus specific primer (5’-GTCTCGTGGGC-TCGGAGATGTGTATAAGAGACAG-3’) both with compatible overhang regions for index attachment. [22] PCR cleanup was performed using Agencourt AmpureXP magnetic beads (Cat # A63880). V3-V4 fragments for all samples were indexed utilizing a second PCR reaction with Illumina Nextera XT Index Kit (Cat # FC-121–1012) and index-adhering primers (1.1: 5’- AATGATACGGCGACCACCGAGAT-3’; 2.1: 5’-CAAGCAGAAGACGGCATACGA-3’). Indexed fragments were purified with Ampure XP beads, quantified with dsDNA Picogreen, and pooled with respect to achieving equal molecular concentrations for all samples in the final library. About 300 paired-end sequencing was performed on the MiSeq platform using an Illumina MiSeq Version 2 500-cycle Kit (Cat # MS-102–2003) at a loading concentration of 10 picomolar. An Illumina PhiX control (Cat # FC-110–3001) was utilized in all MiSeq runs as recommended in the MiSeq System User Guide for metagenomic samples.
+
+### 16S Data Analysis
+
+Raw fastq files were process within the R::DADA2 pipeline. We used default parameters except in the filtering step when we set maxEE to 2, 10 to account for the lower quality of reverse reads inherent in Illumina technology. We removed chimeric reads using the removeBimeraDenovo function in the same package. ASV sequences were annotated using RDP algorithm against Silva database. ASV representative sequences were used to build and alignment with MAFFT and the corresponding phylogenetic tree with FastTree. Downstream analysis was based on phyloseq v1.22.39. All ASVs assigned to neither Bacteria nor Archaea or not present in at least 1% of the samples were removed.
+
+### Statistical Testing: Alpha/Beta Diversity and Differential Abundance.
+
+We calculated Chao1 and Shannon diversity index for every sample using the phyloseq estimate_richness function. Phylogenetic distance was calculated using R::Picante package. We performed t-test/Wilcoxon to test for differences in richness between groups of interest. Weighted unifrac distances based on the calculated phylogenetic tree were used as microbiome beta-diversity measures for the calculation on non-metric multidimensional analysis (NMDS) and permanova tests. R::LEFsEr packages was used to perform all tests on differential abundance between groups. 
+
