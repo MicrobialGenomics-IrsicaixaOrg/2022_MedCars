@@ -63,5 +63,17 @@ getN <- function(x) sum(getUniques(x))
 track <- cbind(out, sapply(dadaFs, getN), sapply(mergers, getN), rowSums(seqtab), rowSums(seqtab.nochim))
 colnames(track) <- c("input", "filtered", "denoised", "merged", "tabled", "nonchim")
 rownames(track) <- sample.files.name
+track<-data.frame(track)
+track$SampleID<-rownames(track)
 head(track)
 summary(track)
+
+
+track %>%
+  dplyr::summarise(input_pct=100*(input/input),filtered=100*(filtered/input),denoised=100*(denoised/input),
+                   merged=100*(merged/input),nonchim=100*(nonchim/input)) %>%
+  dplyr::rename(input=input_pct) %>%
+  tidyr::pivot_longer(cols = c("input", "filtered", "denoised", "merged", "nonchim")) %>%
+  dplyr::mutate(name=forcats::fct_relevel(name,c("input", "filtered", "denoised", "merged","nonchim"))) %>%
+  ggstatsplot::ggwithinstats(.,name,value,pairwise.display ="none")
+

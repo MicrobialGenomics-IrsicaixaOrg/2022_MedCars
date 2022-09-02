@@ -1,0 +1,60 @@
+---
+title: "Mediterranean Diet Intervention"
+author:
+- name: Marc Noguera-Julian
+  affiliation: IrsiCaixa AIDS Research Institute. FLS. Infectious Diseases Department.
+    Hospital Universitàri “Germans Trias i Pujol”, Badalona, UVIC-UCC, Universitat
+    Autònoma de Barcelona, Barcelona.
+- name: Roger Paredes
+  affiliation: IrsiCaixa AIDS Research Institute. FLS. Infectious Diseases Department.
+    Hospital Universitàri “Germans Trias i Pujol”, Badalona, UVIC-UCC, Universitat
+    Autònoma de Barcelona, Barcelona.
+- name: Bonaventura Clotet
+  affiliation: IrsiCaixa AIDS Research Institute. FLS. Infectious Diseases Department.
+    Hospital Universitàri “Germans Trias i Pujol”, Badalona, UVIC-UCC, Universitat
+    Autònoma de Barcelona, Barcelona.
+- name: Mónica Domenech
+- name: Ramon Estruch
+- name: Laura Solana
+- name: Mercedes Sotos-Prieto
+- name: Stefanos N. Kales
+- name: Josep Pla
+- name: Jose Maria Navarrete
+- name: Antonio Torrejon
+- name: Xavier Ros
+- name: Patricia Such
+date: "`r format(Sys.time(), '%Y-%m-%d')`"
+output: word_document
+mainfont: Helvetica
+header-includes:
+- \usepackage{fancyhdr}
+- \usepackage{lipsum}
+- \pagestyle{fancy}
+- \fancyhead[CO,CE]{Gut microbiome and nutritional intervention}
+- \fancyfoot[LO,RE]{Marc Noguera-Julian, IrsiCaixa}
+- \fancyhead[LE,RO]{\thepage}
+- \fancyfoot[CO,CE]{}
+- \usepackage[default]{sourcesanspro}
+- \usepackage[T1]{fontenc}
+- \usepackage{eso-pic,graphicx,transparent}
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Introduction
+
+Diet is a key component of a healthy lifestyle, especially in an improvement of cardiovascular risk profile. Nutritional interventions including dietary and lifestyle counseling in the workplace hold potential to improve general health profiles of workers and reduce the burden of cardiovascular disease. Mediterranean diet (MD) has been associated with healthier cardiovascular risk parameters, including cholesterol l 
+There is evidence of the interplay between diet and the gut microbiome.
+
+## Methods
+MedCars was a cluster-randomized 6 month nutritional intervention in two work-centers. The intervention workcenter group (IG) received xxx while the control workcenter group (CG) receeived yyy.  Fecal samples were obtained at baseline and after a 6-month followup and used for 16s-based microbiome profiling. Sequence data was analyzed using standard DADA2 pipeline while alpha and beta- diversity wass assesed by measuring Chao1 estimator, Shannon indexes and Weighetd-Unifrac distance . Medical checkups were accomapnied by administration of a 45-item lifestyle and 14-item dietary questionnaires, to evaluate MD adherence.
+
+## Results
+
+A total of 494 participants (IG=277, CG=217) had complete follow-up information and paired fecal samples. Nutritional intervention was effective in increasing adherence to MD. IG showed an improvement in MD-adherence score, while the CG did not. A median high quality 11.000 sequences/sample were obtained. After 6 months follow-up there was a significant decrease in richness (Chao1) and diversity(Shannon) in both IG and CG but alpha-diversity was not linked to MD adherence. Microbiome composition changes (WUnifrac distance) were significantly larger in the IG than in the CG (p<0.005), but according to PERMANOVA there was no significant structural change in any of the center associated to the intervention. Nevertheless,Differential abundance testing, showed slight depletion in several bacterial genus (Bacteroides, Odoribacter Clostridiales) or enrichment( Roseburia, Faecalibacterium, Lachnospira) after the intervention, but no significant differentially abundant genus were found in the CG. Correlation analysis indicated an weak but signiciant association between MD adherence score and several bacterial genera, including Lachnospira, Coprococcus and Ruminococcus.
+
+## Discussion
+The effect of a large-scale, MD-based nutritional intervention in the workplace results in improvement in adherence to MD which correlated to subtle but significant changes in the gut microbiome of participants. The butyrate producer Lachnospira did both correlate with MD adherence at baseline and showed to increase after nutritional intervention, as a potential effect of the increased fiber content of the nutritional intervention.
+
