@@ -13,6 +13,8 @@ navbar:
     href: 220_intervention_analysis.html
   - text: Mediterranean Diet
     href: 230_MedDietScore.html
+  - text: Physical Activity
+    href: 250_PhysicalActivity.html
   - text: Firmicutes/Bacteroidetes
     href: 260_FirmicutesBacteroides.html
   - text: About
