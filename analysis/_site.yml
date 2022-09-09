@@ -17,6 +17,8 @@ navbar:
     href: 250_PhysicalActivity.html
   - text: Firmicutes/Bacteroidetes
     href: 260_FirmicutesBacteroides.html
+  - text: Functional Analysis
+    href: 260_FirmicutesBacteroides.html
   - text: About
     href: about.html
   - text: License
