@@ -1,0 +1,98 @@
+---
+site: workflowr::wflow_site
+title: "Microbiome association with Mediterranean diet"
+author: "Marc Noguera-Julian, PhD. "
+date: "`r format(Sys.time(), '%Y-%m-%d')`"
+header-includes:
+- \usepackage{fancyhdr}
+- \usepackage{lipsum}
+- \pagestyle{fancy}
+- \fancyhead[CO,CE]{Microbioma intestinal en intervencion nutricional}
+- \fancyfoot[LO,RE]{Marc Noguera-Julian, IrsiCaixa}
+- \fancyhead[LE,RO]{\thepage}
+- \fancyfoot[CO,CE]{}
+- \usepackage[default]{sourcesanspro}
+- \usepackage[T1]{fontenc}
+- \usepackage{eso-pic,graphicx,transparent}
+mainfont: Helvetica
+output: html_document
+---
+
+```{r setup, include=TRUE, echo=F, message=FALSE, warning=FALSE, paged.print=FALSE, tidy=F}
+knitr::opts_chunk$set(echo = FALSE)
+knitr::opts_knit$set(root.dir = here::here())
+rmd_env <- "devel"
+```
+
+## Temporal Analysis
+
+Since MedCars is a longitudinal study, we need to be awar of temporal trends that may be affecting our results.
+
+We can see that there is a clear difference in the timing of visits in different centers. CG seems to have planned visits later on (12 days later, median difference). Can this affect results?
+
+```{r follow-up chunk1, include=TRUE, echo=T, message=FALSE, warning=FALSE, paged.print=FALSE, tidy=T}
+suppressWarnings(require(phyloseq))
+suppressWarnings(require(phylosmith))
+suppressWarnings(require(patchwork))
+suppressWarnings(require(vegan))
+suppressWarnings(require(ggstatsplot))
+suppressWarnings(require(xlsx))
+# Load package from local copy
+suppressWarnings(devtools::load_all("~/Documents/Work/Development/WMGSPipeline/"))
+ps_silva<-readRDS("data/cfu/DADA2/ps_silva.rds")
+myMREObject<-readRDS("data/cfu/mreObject.rds")
+myMREObject@wd<-"output/mre_data/cfu"
+
+metar::get_meta(myMREObject) %>% dplyr::select(Visita)
+
+metadata_df<-read.xlsx("data/raw/Metadata/FullMetadata_v1.0.xlsx",sheetIndex = 1) %>% 
+  dplyr::select(Participante,visitDate,Center,Timepoint)
+
+metadata_df<-metadata_df %>% 
+  tidyr::pivot_wider(id_cols = Participante,names_from = Timepoint,values_from = visitDate) %>% 
+  dplyr::mutate(BL=as.Date(BL,format = "%m/%d/%y")) %>% 
+  dplyr::mutate(Month6=BL+240) %>% 
+  tidyr::pivot_longer(cols = c("BL","Month6"),names_to = "Timepoint",values_to = "Date") %>% 
+  dplyr::left_join(metadata_df,by=c("Timepoint","Participante")) %>% 
+  dplyr::select(-visitDate) %>% 
+  dplyr::rename(visitDate=Date)
+
+metadata_df<-metadata_df %>% 
+  dplyr::right_join(metar::get_meta(myMREObject),by=c("Participante","Center","Timepoint")) %>% 
+  dplyr::mutate(visitDate=as.Date(visitDate,format = "%m/%d/%y"))
+
+# metadata_df %>%
+#   ggplot(.,aes(x=visitDate,y=Participante,group=Participante,color=Center))+geom_point()+geom_line()
+
+metadata_df %>% 
+  dplyr::filter(Timepoint=="BL") %>% 
+  dplyr::mutate(days=lubridate::yday(visitDate)) %>%
+  ggstatsplot::ggbetweenstats(.,y = days,x=Center,title = "Date of visit")
+```
+
+### Time of Visit and microbiome
+
+Let's see if there is a major trend in visit date vs microbiome composition. There is no apparent trend depending on time og visit. That's reassuring.
+
+```{r follow-up chunk1, include=TRUE, echo=T, message=FALSE, warning=FALSE, paged.print=FALSE, tidy=T}
+phylum_df<-metar::get_phyloseq(myMREObject,type="dada2") %>% 
+  microbiome::transform(.,transform="compositional") %>% 
+  phyloseq::tax_glom(.,taxrank="Phylum",NArm=F) %>% 
+  phyloseq::psmelt() %>% 
+  dplyr::left_join(metadata_df %>%
+                     dplyr::select(c("Center","Participante","Timepoint","visitDate")),by=c("Center","Participante","Timepoint")) %>%
+  dplyr::filter(Timepoint=="BL")
+
+phylums<-phylum_df$Phylum %>% unique()
+
+phylum_df %>% 
+  dplyr::group_by(Phylum,visitDate,Center) %>% 
+  dplyr::summarise(Abundance=mean(Abundance)) %>% 
+  ggplot(.,aes(x=visitDate,y=Abundance,fill=Phylum))+geom_area()+facet_grid(~Center)
+
+phylum_df %>% 
+  dplyr::filter(Phylum == "Bacteroidetes") %>% 
+  ggplot(.,aes(x=visitDate,y=Abundance))+geom_point()
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.

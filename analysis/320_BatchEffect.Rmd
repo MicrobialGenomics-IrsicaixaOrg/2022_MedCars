@@ -1,0 +1,131 @@
+---
+site: workflowr::wflow_site
+title: "Microbiome association with Mediterranean diet"
+author: "Marc Noguera-Julian, PhD. "
+date: "`r format(Sys.time(), '%Y-%m-%d')`"
+header-includes:
+- \usepackage{fancyhdr}
+- \usepackage{lipsum}
+- \pagestyle{fancy}
+- \fancyhead[CO,CE]{Microbioma intestinal en intervencion nutricional}
+- \fancyfoot[LO,RE]{Marc Noguera-Julian, IrsiCaixa}
+- \fancyhead[LE,RO]{\thepage}
+- \fancyfoot[CO,CE]{}
+- \usepackage[default]{sourcesanspro}
+- \usepackage[T1]{fontenc}
+- \usepackage{eso-pic,graphicx,transparent}
+mainfont: Helvetica
+output: html_document
+---
+
+```{r setup, include=TRUE, echo=F, message=FALSE, warning=FALSE, paged.print=FALSE, tidy=F}
+knitr::opts_chunk$set(echo = FALSE)
+knitr::opts_knit$set(root.dir = here::here())
+rmd_env <- "devel"
+```
+
+## R Markdown
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+```{r Batch effect chunk1,include=TRUE, echo=T, message=FALSE, warning=FALSE, paged.print=FALSE, tidy=T}
+suppressWarnings(require(phyloseq))
+suppressWarnings(require(phylosmith))
+suppressWarnings(require(patchwork))
+suppressWarnings(require(vegan))
+suppressWarnings(require(ggstatsplot))
+suppressWarnings(require(xlsx))
+# Load package from local copy
+suppressWarnings(devtools::load_all("~/Documents/Work/Development/WMGSPipeline/"))
+ps_silva<-readRDS("data/cfu/DADA2/ps_silva.rds")
+myMREObject<-readRDS("data/cfu/mreObject.rds")
+myMREObject@wd<-"output/mre_data/cfu"
+
+metadata_df<-read.xlsx("data/raw/Metadata/Runs.xlsx",sheetIndex = 1) 
+metadata_df$Run<-as.factor(metadata_df$Run)
+metadata_df$SampleID<-as.factor(metadata_df$SampleID)
+
+summary(metadata_df)
+
+metadata_df<-metadata_df %>% 
+  dplyr::right_join(metar::get_meta(myMREObject)) 
+
+table(metadata_df$Run,metadata_df$Center) %>%  chisq.test() ### Wel balanced
+table(metadata_df$Run,metadata_df$Timepoint) %>%  chisq.test() ### Well balanced 
+```
+
+## Alpha Diversity
+
+You can also embed plots, for example:
+
+```{r batch effects on alpha diversity,include=TRUE, echo=T, message=FALSE, warning=FALSE, paged.print=FALSE, tidy=T}
+alpha_df<-phyloseq::estimate_richness(get_phyloseq(myMREObject,type="dada2")) %>% as.data.frame()
+rownames(alpha_df)<-gsub("X","",rownames(alpha_df))
+alpha_df$SampleID<-rownames(alpha_df)
+metadata_df<-metadata_df %>% 
+  dplyr::left_join(alpha_df) 
+  
+metadata_df %>% ggstatsplot::ggbetweenstats(.,x=Run,
+                              y=Chao1,
+                              type = "parametric", 
+                              centrality.plotting=T,bf.message = FALSE,
+                              p.adjust.method = "BH",pairwise.display = F, title =  "Chao1 vs Run ",
+                              annotation.args = list(title = "Chao1 index vs Run",
+                                                         theme = ggplot2::theme(
+                                                                plot.subtitle = ggplot2::element_text(size = 13),
+                                                                plot.title = ggplot2::element_text(size = 14)
+                                                                )
+                                                         ))
+
+metadata_df %>% ggstatsplot::ggbetweenstats(.,x=Run,
+                              y=Shannon,
+                              type = "parametric", 
+                              centrality.plotting=T,bf.message = FALSE,
+                              p.adjust.method = "BH",pairwise.display = F, title =  "Chao1 vs Run ",
+                              annotation.args = list(title = "Shannon index vs Run",
+                                                         theme = ggplot2::theme(
+                                                                plot.subtitle = ggplot2::element_text(size = 13),
+                                                                plot.title = ggplot2::element_text(size = 14)
+                                                                )
+                                                         ))
+
+metadata_df %>% ggstatsplot::grouped_ggbetweenstats(.,x=Center,
+                              y=Shannon,grouping.var = Run,
+                              type = "parametric", 
+                              centrality.plotting=T,bf.message = FALSE,
+                              p.adjust.method = "BH",pairwise.display = F, 
+                              annotation.args = list(title = "Shannon index vs Run",
+                                                         theme = ggplot2::theme(
+                                                                plot.subtitle = ggplot2::element_text(size = 13),
+                                                                plot.title = ggplot2::element_text(size = 14)
+                                                                )
+                                                         ))
+
+metadata_df %>% 
+  dplyr::filter(Center=="C01") %>% 
+  lm(Shannon ~Timepoint * Run,data=.) %>% summary()
+  
+metadata_df %>% 
+  dplyr::filter(Center=="C02") %>% 
+  glm(Shannon ~Timepoint * Run,data=.) %>% summary()
+```
+
+## Beta Diversity
+
+You can also embed plots, for example:
+
+```{r beta diversity chunk 1, echo=F, message=FALSE, warning=FALSE, paged.print=FALSE, tidy=F, fig.cap="NMDS ordination plot for baseline samples. Color ellipse indicates plot area containing 95% of sample  for each specific group"}
+suppressWarnings(require(phyloseq))
+suppressWarnings(require(phylosmith))
+suppressWarnings(require(patchwork))
+suppressWarnings(require(vegan))
+# Load package from local copy
+devtools::load_all("~/Documents/Work/Development/WMGSPipeline/")
+ps_silva<-readRDS("data/cfu/DADA2/ps_silva.rds")
+myMREObject<-readRDS("data/cfu/mreObject.rds")
+myMREObject@wd<-"output/mre_data/cfu"
+
+
+```

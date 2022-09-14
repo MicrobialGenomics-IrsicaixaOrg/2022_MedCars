@@ -1,0 +1,142 @@
+---
+site: workflowr::wflow_site
+title: "Microbiome association with Mediterranean diet"
+author: "Marc Noguera-Julian, PhD. "
+date: "`r format(Sys.time(), '%Y-%m-%d')`"
+header-includes:
+- \usepackage{fancyhdr}
+- \usepackage{lipsum}
+- \pagestyle{fancy}
+- \fancyhead[CO,CE]{Microbioma intestinal en intervencion nutricional}
+- \fancyfoot[LO,RE]{Marc Noguera-Julian, IrsiCaixa}
+- \fancyhead[LE,RO]{\thepage}
+- \fancyfoot[CO,CE]{}
+- \usepackage[default]{sourcesanspro}
+- \usepackage[T1]{fontenc}
+- \usepackage{eso-pic,graphicx,transparent}
+mainfont: Helvetica
+output: html_document
+---
+
+```{r setup, include=TRUE, echo=F, message=FALSE, warning=FALSE, paged.print=FALSE, tidy=F}
+knitr::opts_chunk$set(echo = FALSE)
+knitr::opts_knit$set(root.dir = here::here())
+rmd_env <- "devel"
+```
+
+## Functional Analysis
+
+We are analysing 16S data. This kind of data, by definition, does not contain any sequence other than 16S gene. We can not directly quantify presence of bacterial genes in it. However, we can inferr the abundance of these genes by using bacterial genomics catalogs and bacterial abundance. This is done by Picrust2 and others softwares that take ASV/Genus counts and their representative sequences and looks for probable gene content in genome catalogs. 
+
+
+### PiCrust2 files generation
+
+First of all we need to transform data located within our R objects and files into somethin that Picrust can use as input. 
+
+```{r generate files for picrust, include=TRUE, echo=T, message=FALSE, warning=FALSE, paged.print=FALSE, tidy=T,eval=F}
+suppressWarnings(require(phyloseq))
+suppressWarnings(require(biomformat))
+ps_silva<-readRDS("data/cfu/DADA2/ps_silva.rds")
+## Create Biom file
+biomformat::write_biom(biomformat::make_biom(data=otu_table(ps_silva) %>% as.data.frame(),
+                                             sample_metadata=phyloseq::sample_data(ps_silva) %>% as.data.frame(),
+                                             tax_table(ps_silva) %>% as.data.frame(),
+                                             id="MedCars-Microbiome"),
+                        biom_file="data/cfu/DADA2/ps_silva.biom")
+
+## Create Text file for ASV
+my_otu_df<-otu_table(ps_silva,taxa_are_rows = T) %>% data.frame()
+colnames(my_otu_df)<-colnames(otu_table(ps_silva,taxa_are_rows = T))
+readr::write_delim(my_otu_df %>% tibble::rownames_to_column(),file="data/cfu/DADA2/ps_silva_ASV.txt",delim = "\t")
+
+## Create Sequence file - need to filter for ASV present in ps_silva
+load("data/raw/DADA2/DADA2_Rsession_raw.RData")
+ps_silva<-readRDS("data/cfu/DADA2/ps_silva.rds")
+aux_df<-colnames(seqtab.nochim.bkp) %>% as.data.frame()
+colnames(aux_df)<-"otu_id"
+aux_df<-aux_df %>% 
+  dplyr::filter(otu_id %in% c(ps_silva %>% otu_table() %>% rownames()))
+aux_df$Sequence<-rownames(aux_df)
+rownames(aux_df)<-aux_df$otu_id
+print("Creating fasta file")
+file.remove("data/cfu/DADA2/ps_silva.fas")
+for(i in 1:nrow(aux_df)){
+  write(paste(">",aux_df[i,"otu_id"],"\n",aux_df[i,"Sequence"],sep=""),file="data/cfu/DADA2/ps_silva.fas",append=T)
+}
+
+```
+
+### Picrust run
+
+Now we run picrust and performe the gene content inference. This step takes a while and is only run once to producte the inferred gene content.
+
+```{bash run picrust2, include=TRUE, echo=T, message=FALSE, warning=FALSE, paged.print=FALSE, tidy=T,eval=F}
+source activate picrust2 ### Need a conda environement (conda create -n picrust2 -c bioconda picrust2)
+picrust2_pipeline.py -s data/cfu/DADA2/ps_silva.fas -i  data/cfu/DADA2/ps_silva_ASV.txt -t epa-ng -o data/cfu/DADA2/picrust2_out_pipeline -p 4
+```
+
+### Analysis
+
+```{r Functional Analysis chunk 1 Pathways, echo=F, message=FALSE, warning=FALSE, paged.print=FALSE, tidy=F}
+suppressWarnings(require(phyloseq))
+suppressWarnings(require(phylosmith))
+suppressWarnings(require(patchwork))
+suppressWarnings(require(vegan))
+suppressWarnings(require(ggstatsplot))
+suppressWarnings(require(dplyr))
+# Load package from local copy
+suppressWarnings(devtools::load_all("~/Documents/Work/Development/WMGSPipeline/"))
+ps_silva<-readRDS("data/cfu/DADA2/ps_silva.rds")
+myMREObject<-readRDS("data/cfu/mreObject.rds")
+myMREObject@wd<-"output/mre_data/cfu"
+
+# Import picrust2 data - Pathways 
+
+my_pathway_df<-read.delim("data/cfu/DADA2/picrust2_out_pipeline/pathways_out/path_abun_unstrat.tsv")
+colnames(my_pathway_df)<-colnames(my_pathway_df) %>% gsub("X","",.)
+
+# colSums(my_pathway_df %>% dplyr::select(-pathway)) ### Not normalized
+
+my_pathway_df<-my_pathway_df %>% mutate_if(is.numeric, ~./sum(.))
+
+colSums(my_pathway_df %>% dplyr::select(-pathway)) ### Normalized
+
+my_pathway_df<-my_pathway_df %>% 
+  dplyr::group_by(pathway) %>% 
+  tidyr::pivot_longer(names_to="SampleID",values_to="Abundance",!pathway) %>% 
+  dplyr::left_join(metar::get_meta(myMREObject)) %>% 
+  dplyr::select(pathway,SampleID,Participante,Center,Timepoint,Abundance)
+
+non_zero<-my_pathway_df %>% 
+  dplyr::group_by(pathway) %>% 
+  dplyr::summarise(sum=sum(Abundance)) %>% 
+  dplyr::filter(sum>=0)
+
+pathways_to_exclude<-c("PWY-7159","PWY-5531","CHLOROPHYLL-SYN","PWY-7616")
+my_pathway_df<-my_pathway_df %>% 
+  dplyr::filter(! pathway %in% pathways_to_exclude )
+
+for (pth in unique(my_pathway_df$pathway)){
+  if(! pth %in% non_zero_C01$pathway){next}
+  print(pth)
+  test_res<-my_pathway_df %>% 
+    dplyr::filter(Center=="C01") %>% 
+    dplyr::filter(pathway==pth) %>% 
+    rstatix::wilcox_test(Abundance~Timepoint,)
+  eff_size<-my_pathway_df %>% 
+    dplyr::filter(Center=="C01") %>% 
+    dplyr::filter(pathway==pth) %>% 
+    rstatix::wilcox_effsize(formula = Abundance~Timepoint,data=.)
+  test_res<-test_res %>% left_join(eff_size,by=c("group1","group2","n1","n2","pathway",".y."))
+  if(test_res$p<0.005){
+    print("Significant")
+    p0<-my_pathway_df %>% 
+    dplyr::filter(Center=="C01") %>% 
+    dplyr::filter(pathway==pth) %>% 
+    dplyr::arrange(Participante) %>% 
+    ggstatsplot::ggwithinstats(.,Timepoint,Abundance,type="np",bf.message = NULL,pairwise.comparisons = T) 
+      ggsave(p0,filename = paste0("output/Deliverables/boxplots/Functional/",pth,"_C01_vs_Timepoint.pdf"))
+  }
+}
+
+```

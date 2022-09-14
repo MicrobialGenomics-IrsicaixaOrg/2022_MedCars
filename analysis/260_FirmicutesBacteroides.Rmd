@@ -1,0 +1,207 @@
+---
+site: workflowr::wflow_site
+title: "Firmicutes/Bacteroides"
+author: "Marc Noguera-Julian, PhD. "
+date: "`r format(Sys.time(), '%Y-%m-%d')`"
+header-includes:
+- \usepackage{fancyhdr}
+- \usepackage{lipsum}
+- \pagestyle{fancy}
+- \fancyhead[CO,CE]{Microbioma intestinal en intervencion nutricional}
+- \fancyfoot[LO,RE]{Marc Noguera-Julian, IrsiCaixa}
+- \fancyhead[LE,RO]{\thepage}
+- \fancyfoot[CO,CE]{}
+- \usepackage[default]{sourcesanspro}
+- \usepackage[T1]{fontenc}
+- \usepackage{eso-pic,graphicx,transparent}
+mainfont: Helvetica
+output: html_document
+---
+
+```{r setup, include=TRUE, echo=F, message=FALSE, warning=FALSE, paged.print=FALSE, tidy=F}
+knitr::opts_chunk$set(echo = FALSE)
+knitr::opts_knit$set(root.dir = here::here())
+rmd_env <- "devel"
+```
+
+## Firmicutes/Bacteroides
+
+### Baseline & Intervention
+
+Having seen some association between Lachnospiraceae Family members and multifactorial intervention, we want to explore whether some upper taxonomical level can better reflect intervention effects on the gut microbiome composition, It appears that there is an increase of the Firmicutes/Bacteroidetes ratio which is specific to the IG.
+
+This ratio has been thoroughly associated with gut health and homeostatis, while extreme values are associated to obesity, inflammatory bowel disease and  [https://www.ncbi.nlm.nih.gov/pmc/articles/PMC7285218/] others.
+
+In this case we find that F/B ratio seems to be significantly higher in the CG vs IG, at baseline. In addition, F/B ratio does not change at CG but it does, significantly, in the IG. Interestingly there is a weak correlation between bmi and F/B ratio. This somehow contradicts published research on the relationship between F/B and obesity. 
+
+```{r F_to_B Ratio at Baseline, echo=F, message=FALSE, warning=FALSE, paged.print=FALSE, tidy=F}
+suppressWarnings(require(phyloseq))
+suppressWarnings(require(phylosmith))
+suppressWarnings(require(patchwork))
+suppressWarnings(require(vegan))
+suppressWarnings(require(ggstatsplot))
+# Load package from local copy
+suppressWarnings(devtools::load_all("~/Documents/Work/Development/WMGSPipeline/"))
+ps_silva<-readRDS("data/cfu/DADA2/ps_silva.rds")
+myMREObject<-readRDS("data/cfu/mreObject.rds")
+myMREObject@wd<-"output/mre_data/cfu"
+
+
+tax_glom(ps_silva,taxrank="Phylum", NArm = F) %>% 
+  phyloseq::psmelt( ) %>% 
+  dplyr::select(Center,Timepoint,Participante,Phylum, Abundance) %>% 
+  dplyr::filter(Phylum %in% c("Firmicutes","Bacteroidetes")) %>% 
+  tidyr::pivot_wider(names_from=Phylum,values_from = Abundance) %>% 
+  dplyr::arrange(Participante) %>% 
+  dplyr::mutate(ratio=Firmicutes/Bacteroidetes) %>% 
+  dplyr::filter(Timepoint=="BL") %>%
+  ggstatsplot::ggbetweenstats(Center,ratio,type="np",bf.message = NULL,title = "Firmicutes/Bacteroidetes vs Center | BL")
+
+tax_glom(ps_silva,taxrank="Phylum", NArm = F) %>%
+  phyloseq::psmelt( ) %>%
+  dplyr::select(Center,Timepoint,Participante,Phylum, Abundance,Talla,Peso) %>%
+  dplyr::filter(Phylum %in% c("Firmicutes","Bacteroidetes")) %>%
+  tidyr::pivot_wider(names_from=Phylum,values_from = Abundance) %>%
+  dplyr::arrange(Participante) %>%
+  dplyr::mutate(ratio=Firmicutes/Bacteroidetes) %>%
+  dplyr::filter(Timepoint=="BL") %>%
+  dplyr::mutate(bmi=(Peso/((Talla/100)^2))) %>%
+  ggstatsplot::ggscatterstats(ratio,bmi,type = "nonparametric",title="BMI vs Firm/Bact ratio | BL")
+
+
+tax_glom(ps_silva,taxrank="Phylum", NArm = F) %>% 
+  phyloseq::psmelt( ) %>% 
+  dplyr::select(Center,Timepoint,Participante,Phylum, Abundance) %>% 
+  dplyr::filter(Phylum %in% c("Firmicutes","Bacteroidetes")) %>% 
+  tidyr::pivot_wider(names_from=Phylum,values_from = Abundance) %>% 
+  dplyr::mutate(ratio=Firmicutes/Bacteroidetes) %>% 
+  dplyr::filter(Center=="C01") %>% 
+  dplyr::arrange(Participante) %>% 
+  ggstatsplot::ggwithinstats(Timepoint,ratio,pairwise.comparisons = T,type="np",bf.message = NULL,title = "Firmicutes/Bacteroidetes vs Timepoint | C01")
+
+tax_glom(ps_silva,taxrank="Phylum", NArm = F) %>% 
+  phyloseq::psmelt( ) %>% 
+  dplyr::select(Center,Timepoint,Participante,Phylum, Abundance) %>% 
+  dplyr::filter(Phylum %in% c("Firmicutes","Bacteroidetes")) %>% 
+  tidyr::pivot_wider(names_from=Phylum,values_from = Abundance) %>% 
+  dplyr::arrange(Participante) %>% 
+  dplyr::mutate(ratio=Firmicutes/Bacteroidetes) %>% 
+  dplyr::filter(Center=="C02") %>% 
+  ggstatsplot::ggwithinstats(Timepoint,ratio,type="np",pairwise.comparisons = T,bf.message = NULL,title = "Firmicutes/Bacteroidetes vs Timepoint | C02")
+
+
+
+```
+
+### vs. MDScore and Physcal Activity
+
+Is there a relationship between this ratio and:
+
+* MDSCore at baseline: No
+* MDScoreIncrease after intervention, are changes in the ratio related to changes in MDScore? No
+* Physical Activity at Baseline: No
+* Changes in Physical Activity after intervention, are changes in the ratio related to changes in physical activity? No
+
+
+```{r F_to_B Ratio and MDScore BL chunk 1, echo=F, message=FALSE, warning=FALSE, paged.print=FALSE, tidy=F}
+suppressWarnings(require(phyloseq))
+suppressWarnings(require(phylosmith))
+suppressWarnings(require(patchwork))
+suppressWarnings(require(vegan))
+suppressWarnings(require(ggstatsplot))
+# Load package from local copy
+suppressWarnings(devtools::load_all("~/Documents/Work/Development/WMGSPipeline/"))
+ps_silva<-readRDS("data/cfu/DADA2/ps_silva.rds")
+myMREObject<-readRDS("data/cfu/mreObject.rds")
+myMREObject@wd<-"output/mre_data/cfu"
+
+
+tax_glom(ps_silva,taxrank="Phylum", NArm = F) %>% 
+  phyloseq::psmelt( ) %>% 
+  dplyr::rename(MDScore=MedDietscore) %>% 
+  dplyr::select(Center,Timepoint,Participante,Phylum, MDScore,Abundance) %>% 
+  dplyr::filter(Phylum %in% c("Firmicutes","Bacteroidetes")) %>% 
+  tidyr::pivot_wider(names_from=Phylum,values_from = Abundance) %>% 
+  dplyr::arrange(Participante) %>% 
+  dplyr::mutate(ratio=Firmicutes/Bacteroidetes) %>% 
+  dplyr::filter(Timepoint=="BL") %>% 
+  ggstatsplot::ggscatterstats(MDScore,ratio,type="np",bf.message = NULL,title = "Firmicutes/Bacteroidetes vs MDScore | BL")
+
+# tax_glom(ps_silva,taxrank="Phylum", NArm = F) %>% 
+#   phyloseq::psmelt( ) %>% 
+#   dplyr::rename(IPAQ=METActividadFisicabasaltotal) %>% 
+#   dplyr::select(Center,Timepoint,Participante,Phylum, IPAQ,Abundance) %>% 
+#   dplyr::filter(Phylum %in% c("Firmicutes","Bacteroidetes")) %>% 
+#   tidyr::pivot_wider(names_from=Phylum,values_from = Abundance) %>% 
+#   dplyr::arrange(Participante) %>% 
+#   dplyr::mutate(ratio=Firmicutes/Bacteroidetes) %>% 
+#   dplyr::filter(Timepoint=="BL") %>% 
+#   ggstatsplot::ggscatterstats(IPAQ,ratio,type="np",bf.message = NULL,title = "Firmicutes/Bacteroidetes vs IPAQ | BL")
+
+# tax_glom(ps_silva,taxrank="Phylum", NArm = F) %>% 
+#   phyloseq::psmelt( ) %>% 
+#   dplyr::rename(IPAQ=METActividadFisicabasaltotal) %>% 
+#   dplyr::select(Center,Timepoint,Participante,Phylum, IPAQ,Peso, Talla,Abundance) %>% 
+#   dplyr::filter(Phylum %in% c("Firmicutes","Bacteroidetes")) %>% 
+#   tidyr::pivot_wider(names_from=Phylum,values_from = Abundance) %>% 
+#   dplyr::arrange(Participante) %>% 
+#   dplyr::mutate(ratio=Firmicutes/Bacteroidetes) %>% 
+#   dplyr::filter(Timepoint=="BL") %>% 
+#   dplyr::mutate(bmi=(Peso/((Talla/100)^2))) %>%
+#   ggstatsplot::ggscatterstats(IPAQ,ratio,type="np",bf.message = NULL,title = "Firmicutes/Bacteroidetes vs bmi | BL")
+
+```
+
+
+```{r F_to_B Ratio and MDScore changes chunk 1, echo=F, message=FALSE, warning=FALSE, paged.print=FALSE, tidy=F}
+suppressWarnings(require(phyloseq))
+suppressWarnings(require(phylosmith))
+suppressWarnings(require(patchwork))
+suppressWarnings(require(vegan))
+suppressWarnings(require(ggstatsplot))
+# Load package from local copy
+suppressWarnings(devtools::load_all("~/Documents/Work/Development/WMGSPipeline/"))
+ps_silva<-readRDS("data/cfu/DADA2/ps_silva.rds")
+myMREObject<-readRDS("data/cfu/mreObject.rds")
+myMREObject@wd<-"output/mre_data/cfu"
+
+ratio_df<-tax_glom(ps_silva,taxrank="Phylum", NArm = F) %>% 
+  phyloseq::psmelt( ) %>% 
+  dplyr::rename(MDScore=MedDietscore) %>% 
+  dplyr::select(Center,Timepoint,Participante,Phylum,Abundance) %>% 
+  dplyr::filter(Phylum %in% c("Firmicutes","Bacteroidetes")) %>% 
+  tidyr::pivot_wider(names_from=Phylum,values_from = Abundance) %>% 
+  dplyr::arrange(Participante) %>% 
+  dplyr::mutate(ratio=Firmicutes/Bacteroidetes) %>%
+  dplyr::select(-Firmicutes,-Bacteroidetes) %>% 
+  tidyr::pivot_wider(values_from = ratio ,names_from = Timepoint) %>% 
+  dplyr::mutate(RatioDiff=(Month6-BL))
+
+mddiff_data<-phyloseq::sample_data(ps_silva) %>% data.frame() %>% 
+  dplyr::select(Participante,Center,MedDietscore,Timepoint) %>% 
+  dplyr::group_by(Participante) %>% 
+  tidyr::pivot_wider(values_from = MedDietscore,names_from = Timepoint) %>% 
+  dplyr::mutate(MDScoreDiff=(Month6-BL)) %>% 
+  dplyr::mutate(MDScoreRelDiff=(Month6-BL)/(Month6+BL)) %>% 
+  dplyr::rename(MDMonth6=Month6,MDBL=BL)
+    
+ipaqdiff_data<-phyloseq::sample_data(ps_silva) %>% data.frame() %>% 
+  dplyr::rename(IPAQ=METActividadFisicabasaltotal) %>% 
+  dplyr::select(Participante,Center,IPAQ,Timepoint) %>% 
+  dplyr::group_by(Participante) %>% 
+  tidyr::pivot_wider(values_from = IPAQ,names_from = Timepoint) %>% 
+  dplyr::mutate(IPAQDiff=(Month6-BL)) %>% 
+  dplyr::mutate(IPAQRelDiff=(Month6-BL)/(Month6+BL)) %>% 
+  dplyr::rename(MDMonth6=Month6,MDBL=BL)
+
+ratio_df %>% 
+  dplyr::left_join(mddiff_data,by=c("Participante","Center")) %>% 
+  dplyr::filter(Center=="C01") %>% 
+  ggstatsplot::ggscatterstats(MDScoreDiff,RatioDiff,type="np",bf.message = NULL,title = "DeltaRatio vs DeltaMDScore | C01")
+
+ratio_df %>% 
+  dplyr::left_join(ipaqdiff_data,by=c("Participante","Center")) %>% 
+  dplyr::filter(Center=="C01") %>% 
+  ggstatsplot::ggscatterstats(IPAQRelDiff,RatioDiff,type="np",bf.message = NULL,title = "DeltaRatio vs DeltaIPAQ | C01")
+
+```

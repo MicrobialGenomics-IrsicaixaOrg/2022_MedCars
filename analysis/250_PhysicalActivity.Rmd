@@ -1,0 +1,134 @@
+---
+site: workflowr::wflow_site
+title: "Microbiome association with Physical Activity"
+author: "Marc Noguera-Julian, PhD. "
+date: "`r format(Sys.time(), '%Y-%m-%d')`"
+header-includes:
+- \usepackage{fancyhdr}
+- \usepackage{lipsum}
+- \pagestyle{fancy}
+- \fancyhead[CO,CE]{Microbioma intestinal en intervencion nutricional}
+- \fancyfoot[LO,RE]{Marc Noguera-Julian, IrsiCaixa}
+- \fancyhead[LE,RO]{\thepage}
+- \fancyfoot[CO,CE]{}
+- \usepackage[default]{sourcesanspro}
+- \usepackage[T1]{fontenc}
+- \usepackage{eso-pic,graphicx,transparent}
+mainfont: Helvetica
+output: html_document
+---
+
+```{r setup, include=TRUE, echo=F, message=FALSE, warning=FALSE, paged.print=FALSE, tidy=F}
+knitr::opts_chunk$set(echo = FALSE)
+knitr::opts_knit$set(root.dir = here::here())
+rmd_env <- "devel"
+```
+
+## Physical Activity - Baseline
+
+We will use the International Physical Activity Questionnaire  ([IPAQ](https://pubmed.ncbi.nlm.nih.gov/16925881/ PubMed Paper)) to assess whether participant phyisical activity shows any association with microbiome composition or derived parameters. 
+
+### Alpha Diversity - Baseline
+
+We will check, at baseline, if IPAQ shows any association with Alpha diversity measures (Chao1, Shannon, PD). Results indicate no correlation between any of the alpha-diversity parameters and MedDietScore.
+
+```{r BL Alpha Diversity Chunk 1, echo=F, message=FALSE, warning=FALSE, paged.print=FALSE, tidy=F}
+suppressWarnings(require(phyloseq))
+suppressWarnings(require(phylosmith))
+suppressWarnings(require(patchwork))
+suppressWarnings(require(vegan))
+suppressWarnings(require(ggstatsplot))
+# Load package from local copy
+suppressWarnings(devtools::load_all("~/Documents/Work/Development/WMGSPipeline/"))
+ps_silva<-readRDS("data/cfu/DADA2/ps_silva.rds")
+myMREObject<-readRDS("data/cfu/mreObject.rds")
+myMREObject@wd<-"output/mre_data/cfu"
+
+p0<-phyloseq::sample_data(ps_silva) %>% data.frame() %>% dplyr::filter(Timepoint=="BL") %>% 
+  dplyr::rename(IPAQ=METActividadFisicabasaltotal) %>% 
+  dplyr::select(IPAQ,chao1,diversity_shannon,PD) %>% 
+  ggstatsplot::ggscatterstats(x=IPAQ,y=chao1,type="np",bf.message = NULL,title = "Chao1 vs IPAQ | BL")
+
+p1 <- phyloseq::sample_data(ps_silva) %>% data.frame() %>% dplyr::filter(Timepoint=="BL") %>% 
+  dplyr::rename(IPAQ=METActividadFisicabasaltotal) %>% 
+  dplyr::select(IPAQ,chao1,diversity_shannon,PD) %>% 
+  dplyr::rename(Shannon=diversity_shannon) %>% 
+  ggstatsplot::ggscatterstats(x=IPAQ,y=Shannon,type="np",bf.message = NULL,title = "Shannon vs IPAQ | BL")
+
+p2 <- phyloseq::sample_data(ps_silva) %>% data.frame() %>% dplyr::filter(Timepoint=="BL") %>% 
+  dplyr::rename(IPAQ=METActividadFisicabasaltotal) %>% 
+  dplyr::select(IPAQ,chao1,diversity_shannon,PD) %>% 
+  dplyr::rename(Shannon=diversity_shannon) %>% 
+  dplyr::rename(PhyloDist=PD) %>% 
+  ggstatsplot::ggscatterstats(x=IPAQ,y=PhyloDist,type="np",bf.message = NULL,title = "PD vs IPAQ | BL")
+
+p0
+p1
+p2
+
+```
+
+## Including Plots
+
+You can also embed plots, for example:
+
+```{r BL Ordination chunk 1, echo=F, message=FALSE, warning=FALSE, paged.print=FALSE, tidy=F}
+suppressWarnings(require(phyloseq))
+suppressWarnings(require(phylosmith))
+suppressWarnings(require(patchwork))
+suppressWarnings(require(vegan))
+suppressWarnings(require(ggstatsplot))
+# Load package from local copy
+suppressWarnings(devtools::load_all("~/Documents/Work/Development/WMGSPipeline/"))
+ps_silva<-readRDS("data/cfu/DADA2/ps_silva.rds")
+myMREObject<-readRDS("data/cfu/mreObject.rds")
+myMREObject@wd<-"output/mre_data/cfu"
+
+### BL
+BL_samples<-myMREObject %>% 
+  metar::get_meta() %>% 
+  dplyr::filter(Timepoint=="BL")
+
+auxMREObject<-myMREObject %>%
+  metar::filter_samples(.,BL_samples$SampleID) 
+
+auxMREObject@metadata@categorical_vals<-tibble::tribble(~CategoricalVariable,~PaletteName,"METActividadFisicabasaltotal","Set1")
+
+auxMREObject@taxa@dada2@phyloseq <- auxMREObject@taxa@dada2@phyloseq %>% 
+  phyloseq::transform_sample_counts(., function(x) ((x/sum(x))))
+auxMREObject<-metar::dada2_nmds(tax_level = "Genus", mre = auxMREObject,top_n = 50, save_files = F)
+
+auxMREObject@taxa@dada2@nmds$Genus$top_50$numeric$METActividadFisicabasaltotal &
+   theme(plot.title = element_text(size=12)) &
+   theme(plot.subtitle = element_text(size=7))
+
+```
+
+## Intervention
+
+### IPAQ Changes
+
+We want to assess it there ar changes in physical activity after the intervention and if there are any differences between groups in order to assess the effectivity of the intervention. We can see that the median change in IPAQ score is close to 0 in both IG and CG, without significant differences between them.
+
+```{r Intervention chunk 1, echo=F, message=FALSE, warning=FALSE, paged.print=FALSE, tidy=F}
+suppressWarnings(require(phyloseq))
+suppressWarnings(require(phylosmith))
+suppressWarnings(require(patchwork))
+suppressWarnings(require(vegan))
+suppressWarnings(require(ggstatsplot))
+# Load package from local copy
+suppressWarnings(devtools::load_all("~/Documents/Work/Development/WMGSPipeline/"))
+ps_silva<-readRDS("data/cfu/DADA2/ps_silva.rds")
+myMREObject<-readRDS("data/cfu/mreObject.rds")
+myMREObject@wd<-"output/mre_data/cfu"
+
+phyloseq::sample_data(ps_silva) %>% data.frame() %>% 
+  dplyr::rename(IPAQ=METActividadFisicabasaltotal) %>% 
+  dplyr::select(Participante,Center,IPAQ,Timepoint) %>% 
+  dplyr::group_by(Participante) %>% 
+  tidyr::pivot_wider(values_from = IPAQ,names_from = Timepoint) %>% 
+  dplyr::mutate(IPAQDiff=(Month6-BL)) %>% 
+  dplyr::mutate(IPAQRelDiff=((Month6-BL)/(Month6+BL))) %>% 
+  ggstatsplot::ggbetweenstats(x=Center,y=IPAQRelDiff,type="robust",bf.message = NULL,title="MDScore longitudinal changes vs Center")
+
+```

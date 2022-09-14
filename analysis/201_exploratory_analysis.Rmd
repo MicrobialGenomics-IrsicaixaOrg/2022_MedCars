@@ -1,0 +1,578 @@
+---
+site: workflowr::wflow_site
+title: "Data Exploration"
+author: "Marc Noguera-Julian, PhD. "
+date: "`r format(Sys.time(), '%Y-%m-%d')`"
+header-includes:
+- \usepackage{fancyhdr}
+- \usepackage{lipsum}
+- \pagestyle{fancy}
+- \fancyhead[CO,CE]{Microbioma intestinal en intervencion nutricional}
+- \fancyfoot[LO,RE]{Marc Noguera-Julian, IrsiCaixa}
+- \fancyhead[LE,RO]{\thepage}
+- \fancyfoot[CO,CE]{}
+- \usepackage[default]{sourcesanspro}
+- \usepackage[T1]{fontenc}
+- \usepackage{eso-pic,graphicx,transparent}
+mainfont: Helvetica
+output: html_document
+---
+
+```{r setup, include=TRUE, echo=F, message=FALSE, warning=FALSE, paged.print=FALSE, tidy=F}
+knitr::opts_chunk$set(echo = FALSE)
+knitr::opts_knit$set(root.dir = here::here())
+rmd_env <- "devel"
+```
+
+## Quality and *throughput*
+
+```{r init variables, echo=F, message=FALSE, warning=FALSE, paged.print=FALSE, tidy=F}
+suppressMessages(require(phyloseq))
+suppressWarnings(require(dplyr))
+# Load package from local copy
+devtools::load_all("~/Documents/Work/Development/WMGSPipeline/")
+ps_silva<-readRDS("data/raw/DADA2/ps_silva.rds")
+min_throughput<-otu_table(ps_silva) %>% colSums() %>% min()
+max_throughput<-otu_table(ps_silva) %>% colSums() %>% max()
+median_throughput<-median(otu_table(ps_silva) %>% colSums())
+n_samples<-length(phyloseq::sample_names(ps_silva))
+
+total_participants<-sample_data(ps_silva) %>% 
+  data.frame() %>% 
+  dplyr::select(Participante) %>% 
+  unique
+n_total_participants<-length(total_participants$Participante)
+
+two_bl_sample_participants<-ps_silva %>% 
+  sample_data() %>% 
+  data.frame() %>% 
+  dplyr::filter(Center=="C02") %>%
+  dplyr::select("Center","Timepoint","Participante") %>% 
+  group_by(Participante,Timepoint) %>% 
+  count() %>% 
+  dplyr::filter(n==2)
+
+cfu_participants<-sample_data(ps_silva) %>% 
+  data.frame() %>% 
+  count(Participante) %>% 
+  dplyr::filter(n==2) %>% 
+  dplyr::select(Participante) %>% 
+  dplyr::filter(! Participante %in% two_bl_sample_participants$Participante)
+n_cfu_participants<-length(cfu_participants$Participante)
+
+samples_cfu_participants<-sample_data(ps_silva) %>% 
+  data.frame() %>% 
+  dplyr::filter(Participante %in% cfu_participants$Participante) %>% 
+  dplyr::select(SampleID)
+
+two_bl_sample_participants<-ps_silva %>% 
+  sample_data() %>% 
+  data.frame() %>% 
+  dplyr::filter(Center=="C02") %>%
+  dplyr::select("Center","Timepoint","Participante") %>%
+  group_by(Participante,Timepoint) %>% 
+  count() %>%
+  dplyr::filter(n==2)
+
+ps_silva<-readRDS("data/processed/DADA2/ps_silva.rds")
+ps_silva<-phyloseq::subset_samples(ps_silva,Participante %in% cfu_participants$Participante)
+# saveRDS(ps_silva,"data/cfu/DADA2/ps_silva.rds")
+
+myMREObject<-readRDS("data/processed/mreObject.rds")
+myMREObject<-myMREObject %>% 
+  metar::filter_samples(.,samples_cfu_participants$SampleID)
+myMREObject@wd<-"output/mre_data/cfu/"
+# saveRDS(myMREObject,"data/cfu/mreObject.rds")
+
+```
+
+A total of `r n_samples` samples have been sequenced. The plot shows that median throughput is around `r median_throughput` (max: `r max_throughput`, min:`r min_throughput`), after going through quality filters. This a limited but acceptable throughput. In addition there are no significant diffences between groups formed by primary variables (*Center*), although throughput from baseline(BL) samples is generally higher than that of Month 6 samples, although the magnitude of the differences is low.
+
+There were a total of `r n_total_participants` of which `r n_cfu_participants`(`r (n_cfu_participants/n_total_participants)*100`%) had complete follow-up with baseline at month 6 fecal sample. These will be used for downstream analysis.
+
+
+```{r Quality Control, echo=F, message=FALSE, warning=FALSE, paged.print=FALSE, tidy=F}
+suppressWarnings(require(ggpubr))
+suppressWarnings(require(patchwork))
+ps_silva<-readRDS("data/raw/DADA2/ps_silva.rds")
+ps_silva<-phyloseq::subset_samples(ps_silva,Participante %in% cfu_participants$Participante)
+
+# if(rmd_env=="devel") {
+#   require(phyloseq)
+#   rand_ids<-ps_silva %>% 
+#     sampleData() %>% data.frame() %>% 
+#     dplyr::select(Participante) %>% 
+#     dplyr::sample_n(50)
+#   rand_samples<-ps_silva %>% 
+#     sampleData %>%data.frame() %>% 
+#     dplyr::filter(Participante %in% rand_ids$Participante) %>% 
+#     dplyr::select(SampleID)
+#   ps_silva<-phyloseq::prune_samples(samples = rand_samples$SampleID,x=ps_silva)
+# }
+
+otu_counts<-colSums(otu_table(ps_silva))
+sampleData<-data.frame(sample_data(ps_silva)) %>% 
+dplyr::left_join(readRDS("data/raw/DADA2/track.rds") %>% 
+                            as.data.frame() %>% 
+                             dplyr::add_rownames(.,var="SampleID"),by = "SampleID") %>% 
+dplyr::mutate(counts=nonchim)
+
+
+p0.center<-sampleData %>% 
+  dplyr::select(Center,counts) %>% 
+  tidyr::drop_na() %>% 
+  ggstatsplot::ggbetweenstats(x=Center,y=counts,title="Throughput vs Center",
+                                            type = "parametric",ggtheme = ggplot2::theme_classic(),palette="Set1",bf.prior = NULL)
+p1.timepoint <- sampleData %>% 
+  dplyr::select(Timepoint,counts) %>% 
+  tidyr::drop_na() %>% 
+  ggstatsplot::ggbetweenstats(x=Timepoint,y=counts,title="Throughput vs Timepoint",
+                                            type = "parametric",ggtheme = ggplot2::theme_classic(),palette="Dark2",bf.prior = NULL)
+pT<-(p0.center / p1.timepoint  )
+ggsave(pT,filename="output/Deliverables/ThroughputByGroup_Center_Timepoint.pdf",width=8,height=14)
+
+p0.center
+
+p1.timepoint
+
+```
+
+## Clustering
+
+### Bacterial Genus Relative abundance.
+
+In order to represent the bacterial composition of the analyzes samples in a simple way, we will use stacked barplots. Each vertical bar is a sample. Withi each bar, each color represents a different bacterial genus, according to the legend. The area of this color in a particular samples represents the relativa abundance of that genus in that particular sample.
+
+Bacterial composition is clearly dominated by prevotella and bacteroides genus, as expected in healthy gut microbiomes. Other bacterial genera that are represented in the data are Faecalibacterium, Agathobacter and Bifidobacterium.
+
+```{r Representacion grafica de las abundancias de genero y filo bacteriano, echo=F,message=FALSE, results='hide',fig.keep='all',warning=FALSE, paged.print=FALSE, fig.cap="Stacked barplots representing relative abundances for bacterial genus",fig.height=5,fig.width=7}
+suppressWarnings(require(phyloseq))
+suppressWarnings(require(phylosmith))
+suppressWarnings(require(dplyr))
+suppressWarnings(require(patchwork))
+suppressWarnings(require(ggplot2))
+suppressWarnings(require(ggthemes))
+## Load data and create MRE Object
+devtools::load_all("~/Documents/Work/Development/WMGSPipeline/")
+
+# myMREObject<-readRDS("data/processed/mreObject.rds")
+# 
+# myMREObject<-myMREObject %>%
+#   metar::dada2_barplots(top_n=50,tax_level = "Genus")
+# myMREObject@taxa@metaphlan@barplots$Genus$top_500$rel_abundance$bray_hclust_order_barplot +
+#         theme(
+#           legend.key.size = unit(0.2, 'cm'), #change legend key size
+#           legend.key.height = unit(0.2, 'cm'), #change legend key height
+#           legend.key.width = unit(0.2, 'cm'), #change legend key width
+#           legend.title = element_text(size=7), #change legend title font size
+#           legend.text = element_text(size=5),
+#           axis.title.x = element_blank(),
+#           axis.text.x = element_blank(),
+#           axis.ticks.x = element_blank(),
+#           plot.title = element_text(size=12),
+#           plot.subtitle = element_text(size=10),
+#           plot.caption = element_text(size=7))
+
+
+
+ps_silva<-readRDS("data/cfu/DADA2/ps_silva.rds")
+x.2.0<-ps_silva
+x.2.0.genus<-phyloseq::tax_glom(x.2.0,taxrank="Genus",NArm = F)
+wh0=genefilter_sample(x.2.0.genus,filterfun_sample(function(x) x>1), A=2) # Remove singletons
+x.2.0.genus<-prune_taxa(wh0,x.2.0.genus)
+x.2.0.genus = transform_sample_counts(x.2.0.genus, function(x) ((x/sum(x))))
+
+ps.melt.x.2.0.genus<-x.2.0.genus %>%
+  phyloseq::psmelt()
+
+genus_for_order<-ps.melt.x.2.0.genus %>%
+  dplyr::select(Genus,Abundance) %>%
+  dplyr::group_by(Genus) %>%
+  summarise_at(vars(Abundance),list(mean_abundance=mean)) %>%
+  arrange(.,desc(mean_abundance)) %>%
+  dplyr::slice(1) %>%
+  select(Genus)
+myOrder<-reorder(ps.melt.x.2.0.genus[ps.melt.x.2.0.genus$Genus==genus_for_order$Genus,"SampleID"],ps.melt.x.2.0.genus[ps.melt.x.2.0.genus$Genus==genus_for_order$Genus,"Abundance"])
+
+sampleData<-data.frame(phyloseq::sample_data(ps_silva))
+sampleData$SampleID<-factor(sampleData$SampleID,levels=levels(myOrder),ordered = T)
+rownames(sampleData)<-sampleData$SampleID
+sample_data(x.2.0.genus)<-sampleData
+### Keep the most abundant genus
+meanByGenus<-aggregate(ps.melt.x.2.0.genus$Abundance,list(ps.melt.x.2.0.genus$Genus),mean)
+colnames(meanByGenus)<-c("Genus","meanAbundance")
+meanByGenus<-meanByGenus[with(meanByGenus, order(-meanAbundance, Genus)), ]
+GenusToInclude<-meanByGenus[1:25,"Genus"]
+
+p1<-phylosmith::phylogeny_profile(phyloseq::subset_taxa(x.2.0.genus %>% 
+                                                          phyloseq::subset_samples(.,Center=="C01"),Genus%in% GenusToInclude),classification="Genus",relative_abundance=F,treatment="Timepoint",sample_labels = NULL)+
+ # theme( panel.grid = element_blank(),axis.title= element_blank(), axis.text= element_blank())+
+ #  theme(axis.title.x=element_blank(),axis.text.x=element_blank(),axis.ticks.x=element_blank())+
+       theme(
+          legend.key.size = unit(0.2, 'cm'), #change legend key size
+          legend.key.height = unit(0.2, 'cm'), #change legend key height
+          legend.key.width = unit(0.2, 'cm'), #change legend key width
+          legend.title = element_text(size=7), #change legend title font size
+          legend.text = element_text(size=5),
+          axis.title.x = element_blank(),
+          axis.text.x = element_blank(),
+          axis.ticks.x = element_blank(),
+          plot.title = element_text(size=12),
+          plot.subtitle = element_text(size=10),
+          plot.caption = element_text(size=7))
+
+p2<-phylosmith::phylogeny_profile(phyloseq::subset_taxa(x.2.0.genus %>% 
+                                                           phyloseq::subset_samples(.,Center=="C02"),Genus%in% GenusToInclude),classification="Genus",relative_abundance=F,treatment="Timepoint",sample_labels = NULL,)+
+ theme( panel.grid = element_blank(),axis.title= element_blank(), axis.text= element_blank())+
+  theme(axis.title.x=element_blank(),axis.text.x=element_blank(),axis.ticks.x=element_blank())+
+        theme(
+          legend.key.size = unit(0.2, 'cm'), #change legend key size
+          legend.key.height = unit(0.2, 'cm'), #change legend key height
+          legend.key.width = unit(0.2, 'cm'), #change legend key width
+          legend.title = element_text(size=7), #change legend title font size
+          legend.text = element_text(size=5),
+          axis.title.x = element_blank(),
+          axis.text.x = element_blank(),
+          axis.ticks.x = element_blank(),
+          plot.title = element_text(size=12),
+          plot.subtitle = element_text(size=10),
+          plot.caption = element_text(size=7))
+
+p2
+pT <- p1 / p2
+ggsave(pT,filename="output/Deliverables/StackedBarplots_Genus.pdf",width=15,height=15)
+
+
+```
+
+
+## Beta-Diversity
+
+### Dendrograms & *Heatmap*
+
+We use relative abundances to calculate similarity between samples using *weighted UniFrac* distances. These distances can then be used to perform hierarchical clustering using bottom-up Ward.D2 algorithm in order to group samples that are more similar. Similarity between microbiome composition is proportional to the length of the path need to walk through the dendrogram branches, so columns corresponding to more similar samples tend to be closer in the heatmap.
+
+Again, it is observed that Prevotell and Bacteroides are the most predominant genus in these gut microbiome samples. Also, it can be seen that there is some clustering of the samples into 4 main groups, but that this clustering is not apparently related to any of the considered variables. The clustering is driven by the most abundant genus, as seen above: Bacteroides, prevotella, Faecalibacterium, Agathobacter, Bifidobacterium and several Ruminococcus genus.e
+
+```{R Dendrograms based on WUnifrac, message=FALSE, warning=FALSE, results='hide',fig.keep='all',echo=F,fig.cap="WUnifrac-based dendrogram(Ward.D2)"}
+suppressPackageStartupMessages(require(ComplexHeatmap))
+require(phyloseq)
+suppressPackageStartupMessages(require(dplyr))
+# Load package from local copy
+devtools::load_all("~/Documents/Work/Development/WMGSPipeline/")
+### Create Dendrograms based on WUnifrac Distance
+ps_silva<-readRDS("data/cfu/DADA2/ps_silva.rds")
+myMREObject<-readRDS("data/cfu/mreObject.rds")
+
+x.2.0<-ps_silva
+x.2.0 = transform_sample_counts(x.2.0, function(x) ((x/sum(x))))
+### Store WUnifrac distance from low-level ASV
+myDistance<-phyloseq::distance(x.2.0,"wUniFrac")
+myDist<-reshape2::melt(as.matrix(myDistance))
+colnames(myDist)<-c("Sample1","Sample2","WUnifracDistance")
+write.csv(file="output/Deliverables/WUnifrac_Distances.csv",myDist)
+
+if(is.null(myMREObject@taxa@dada2@heatmaps )){
+  myMREObject<-metar::dada2_heatmap(tax_level = "Genus",mre = myMREObject,top_n = 30)
+  saveRDS(myMREObject,"data/cfu/mreObject.rds")
+}
+
+
+myMREObject@taxa@dada2@heatmaps$Genus$top_30@top_annotation@anno_list$Center@show_legend<-F
+myMREObject@taxa@dada2@heatmaps$Genus$top_30@top_annotation@anno_list$Timepoint@show_legend<-F
+myMREObject@taxa@dada2@heatmaps$Genus$top_30@top_annotation@anno_list$METActividadFisicabasaltotal@show_legend<-F
+  myMREObject@taxa@dada2@heatmaps$Genus$top_30@top_annotation@anno_list$Gender@show_legend<-F
+myMREObject@taxa@dada2@heatmaps$Genus$top_30@top_annotation@anno_list$Smoker@show_legend<-F
+  myMREObject@taxa@dada2@heatmaps$Genus$top_30@top_annotation@anno_list$UBE@show_legend<-F
+  myMREObject@taxa@dada2@heatmaps$Genus$top_30@top_annotation@anno_list$MedDietscore@show_legend<-F
+
+
+myMREObject@taxa@dada2@heatmaps$Genus$top_30@heatmap_param$show_heatmap_legend<-F
+myMREObject@taxa@dada2@heatmaps$Genus$top_30@heatmap_param$height<-grid::unit(13,"npc")
+
+myMREObject@taxa@dada2@heatmaps$Genus$top_30@column_names_param$show<-F
+ComplexHeatmap::draw(myMREObject@taxa@dada2@heatmaps$Genus$top_30,heatmap_legend_side = "right",
+                     annotation_legend_side="right", 
+                     legend_title_gp = grid::gpar(fontsize = 4))
+      
+
+
+
+# # hclust(myDistance,method = "ward.D2")
+# ### Prepare data for heatmap & dendrogram plot
+# x.2.0.genus<-phyloseq::tax_glom(x.2.0,taxrank="Genus",NArm = F)
+# ps.melt.x.2.0.genus<-x.2.0.genus %>%
+#   psmelt 
+# meanByGenus<-aggregate(ps.melt.x.2.0.genus$Abundance,list(ps.melt.x.2.0.genus$Genus),mean)
+# colnames(meanByGenus)<-c("Genus","meanAbundance")
+# meanByGenus<-meanByGenus[with(meanByGenus, order(-meanAbundance, Genus)), ]
+# GenusToInclude<-meanByGenus[1:90,"Genus"]
+# 
+# 
+# ## Prepare Metadata
+# metadata_df<-sample_data(x.2.0.genus) %>% data.frame() %>% dplyr::select(Center,Timepoint)
+# # one_sample<-metadata_df %>% dplyr::select(dog_name) %>% dplyr::group_by(dog_name) %>% dplyr::summarise(n=n()) %>% dplyr::filter(n<=2) 
+# # metadata_df[metadata_df$Individuo %in% one_sample$Individuo,"Individuo"]<- "Otros"
+# 
+# ## Prepare annotation
+# require(RColorBrewer)
+# ### FActorize for plotting in controlled palette
+# metadata_df$Center<-as.factor(metadata_df$Center)
+# metadata_df$Timepoint<-as.factor(metadata_df$Timepoint)
+# 
+# ## Prepare color-scales for each variable
+# Center_col<-colorRampPalette(brewer.pal(3,"Set2"))(length(levels(metadata_df$Center)))
+# names(Center_col)<-levels(metadata_df$Center)
+# Timepoint_col<-colorRampPalette(brewer.pal(3,"Dark2"))(length(levels(metadata_df$Timepoint)))
+# names(Timepoint_col)<-levels(metadata_df$Timepoint)
+# 
+# 
+# ha <- ComplexHeatmap::HeatmapAnnotation(Center=metadata_df$Center,
+#                                         Timepoint=metadata_df$Timepoint,
+#                                         annotation_name_side = "left",
+#                                         annotation_legend_param = list(Center = list(direction = "horizontal"),
+#                                                                        Timepoint=list(direction="horizontal")),
+#                                         col=list(Center=Center_col,
+#                                                  Timepoint=Timepoint_col))
+# 
+# ## Prepare Heatmap Viz
+# suppressPackageStartupMessages(library(circlize))
+# col_fun = colorRamp2(c(0, 0.05, 1), c("steelblue", "white", "darkred"))
+# 
+# data_df<-(phyloseq::otu_table(subset_taxa(x.2.0.genus,Genus%in% GenusToInclude)))
+# taxa_df<-phyloseq::tax_table(subset_taxa(x.2.0.genus,Genus%in% GenusToInclude)) %>% data.frame() %>%  dplyr::select(Genus)
+# rownames(data_df)<-taxa_df$Genus
+# 
+# ht_list<-ComplexHeatmap::Heatmap(data_df,
+#                         cluster_columns = hclust(myDistance,method = "ward.D2"), cluster_rows = T,
+#                         column_title = "Muestra",row_title = "Taxa/Génera",
+#                         show_row_names = T, show_column_names = F, show_row_dend = F,
+#                         row_names_gp = gpar(fontsize=6),
+#                         rect_gp = gpar(col = "white", lwd = 0.2),
+#                         top_annotation = ha, col=col_fun,
+#                         heatmap_legend_param = list(
+#                           title="relative abundance",
+#                           legend_height=unit(4,"cm"),
+#                           title_position="lefttop-rot",
+#                           direction="vertical",
+#                           legend_side="left"
+#                         ))
+# draw(ht_list,annotation_legend_side="bottom")
+# pdf("output/Deliverables/ExploratoryHeatmap_allSamples.pdf",width=9,height=9)
+# draw(ht_list,annotation_legend_side="bottom")
+# dev.off()
+```
+
+
+### NMDS Ordination
+
+In order to visualized global changes in the composition of gut microbiome and the relation of these changes with primary or secondary variable, we will use non-metric dimensionality reduction analysis (NMDS). The purpose of this analysis is to display microbiome composition structure in a two-dimension space. In this way, each point in the plot represent the microbial composition of a single sample and the distance between two points within this plot related to the dissimilarity of the microbial composition of those two samples.
+
+NMDS Ordination space is dominated by a Bacteroides enrichment/Depletion axis both through NMDS1 and NMDS2. Asteroleplasma axis is dominating orthogonally to the first one. Other bacterial genus that have a dominating weight in the ordination space are Succinivibrio, Ruminococcus, Faecalibacterium and Erysipelotrichiae family. None of the considere variables show a correlation with ordination analysis, including timepoint, recruitment center, Alcoholice beverages (UBE), mediterranean diet score (MDScore) smoking or gender.
+
+<!-- Para poder observar cambios estructurales en la composición del microbioma intestinal y su relación con las variables primarias y/o secundarias de interés, se utiliza el análisis de ordenación NMDS(*Non-metric dimensionality reduction*). El propósito de este análisis es el de hacer visualizable, en 2 dimensiones, la variabilidad existente en la composición del microbioma. De esta forma, cada punto del gráfico representa la composición del microbioma de una muestra, mientra su posición respecto a las otras muestras se relaciona con la similitud con esas muestras. La distancia entre dos muestras en el gráfico es la que mejor co-relaciona con la similitud real entre esas dos muestras teniendo en cuenta la composición del microbioma. Los valores de las variables primarias y/o secundarias se proyectan post-hoc sobre esas posiciones para revelar estructura en la composición que esté asociada a dichas variables. El análisis de ordenación se basa en el algoritmo NMDS y distancia Weighted-Unifrac(WUnifrac) y se evalúa la bondad/calidad de la ordenación mediante la comparación de la distancia/similitud real entre las dos muestras y al distancia proyectada en el plano bidimensional, recogiendo todas las comparaciones en el llamado *Stress Plot*. -->
+Similarly we will statistically evaluate the weight of each of the variables on the composition of the gut microbiome using a permutational ANOVA or PERMANOVA. This tests provides a statistical assessment of this weight(*R2*) and its statistical significance (*Pr(>F)*). Results indicate significant effect of factors such as Center, timepoint, Gender and Smoking but the magnitude of this effect is very low (<1%). In addition, sample projection onto NMDS1 and NMDS does not reveal any significant difference.
+<!-- Así mismo, se evalúa estadísticamente el peso de cada factor/variable analizada sobre la composición del microbioma mediante un test de ANOVA permutacional o PERMANOVA mediante la función vegan::adonis. Este test, proporciona un valor de significancia en relacion a si existe o no un efecto o asociación de la variable en cuestión sobre la composición ( *Pr(>F)* )un valor entre 0 y 1 relacionado con la magnitud de esta asociación en caso de ser significativa. ( *R2* ). Se realiza este test para cada variable y se seleccionan las variables que tienen un efecto significativo para construir el modelo multivariado. -->
+
+<!-- En el análisis multivariado, se observa una influencia del factor *treatment* (R2=0.10, p\<0.05) y *time_point* (R2=0.076, p\<0.05) en la composición del microbioma, para el que según el test estadístico PERMANOVA estas dos variables explicarían conjuntamente un efecto del 17% de la composición de las muestras analizadas, apuntando a un efecto significativo de la intervención dietética en el microbioma. -->
+
+```{r Ordination Analysis, echo=FALSE, results='hide',fig.keep='all',fig.cap="NMDS/WUnifrac analysis. Color represents variable.", message=FALSE, warning=FALSE, paged.print=FALSE,fig.keep='all'}
+suppressWarnings(require(phyloseq))
+suppressWarnings(require(phylosmith))
+suppressWarnings(require(patchwork))
+suppressWarnings(require(vegan))
+# Load package from local copy
+devtools::load_all("~/Documents/Work/Development/WMGSPipeline/")
+ps_silva<-readRDS("data/cfu/DADA2/ps_silva.rds")
+myMREObject<-readRDS("data/cfu/mreObject.rds")
+myMREObject@wd<-"output/mre_data/cfu"
+
+if(is.null(myMREObject@taxa@dada2@nmds)){
+  myMREObject<-metar::dada2_nmds(tax_level = "Genus",mre = myMREObject)
+  saveRDS(myMREObject,"data/cfu/mreObject.rds")
+}
+p0<-myMREObject@taxa@dada2@nmds$Genus$top_50$categorical$Center
+p1<-myMREObject@taxa@dada2@nmds$Genus$top_50$categorical$Timepoint
+p2<-myMREObject@taxa@dada2@nmds$Genus$top_50$categorical$Gender
+p3<-myMREObject@taxa@dada2@nmds$Genus$top_50$categorical$Smoker
+# set.seed(1234)
+# x.2.0<-ps_silva
+# x.2.0.genus<-tax_glom(x.2.0,taxrank="Genus",NArm = F)
+# x.2.0.genus<-transform_sample_counts(x.2.0.genus, function(x) ((x/sum(x))))
+# sampleData<-data.frame(sample_data(x.2.0.genus))
+# rownames(sampleData)<-sampleData$SampleID
+# sample_data(x.2.0.genus)<-sampleData
+# (myOrd<-ordinate(x.2.0.genus,method="NMDS",distance="wunifrac"))
+
+# pdf("output/Deliverables/NMDS_StressPlot.pdf")
+# vegan::stressplot(myOrd)
+# dev.off()
+# 
+# #### PERMUTATIONAL ANOVA (adonis()) on WUnifrac distance
+sampleData<-sampleData(ps_silva) %>% data.frame()
+x.6.0.explanatory<-sampleData[,c("Center","Timepoint","Genero","Fumador")]
+x.6.0.response<-phyloseq::distance((ps_silva),method="wunifrac")
+# myAdonis<-vegan::adonis2(x.6.0.response~treatment,data=x.6.0.explanatory)
+file.remove("output/Deliverables/Adonis_cfu.xls")
+xlsx::write.xlsx(file = "output/Deliverables/Adonis_cfu.xls",sheetName = "Center",vegan::adonis2(x.6.0.response~Center,data=x.6.0.explanatory))
+### Perform ANOVA for non-NA in treatment
+xlsx::write.xlsx(file = "output/Deliverables/Adonis_cfu.xls",sheetName = "Timepoint",vegan::adonis2(x.6.0.response~Timepoint,data=x.6.0.explanatory),append=T)
+xlsx::write.xlsx(file = "output/Deliverables/Adonis_cfu.xls",sheetName = "Genero",vegan::adonis2(x.6.0.response~Genero,data=x.6.0.explanatory),append=T)
+xlsx::write.xlsx(file = "output/Deliverables/Adonis_cfu.xls",sheetName = "Fumador",vegan::adonis2(x.6.0.response~Fumador,data=x.6.0.explanatory),append=T)
+
+x.6.0.explanatory<-sampleData[,c("Center","Timepoint","Genero","Fumador")]
+xlsx::write.xlsx(file = "output/Deliverables/Adonis_cfu.xls",sheetName = "multivariate",vegan::adonis2(x.6.0.response~.,data=x.6.0.explanatory),append=T)
+# ### treatment and time_point have a significant effect on the fecal microbiome (~10%)
+# ### Note that treatment and dry_wet variables are colinear/embedded. 
+suppressMessages(require(mmtable2))
+suppressMessages(require(tidyr))
+vegan::adonis2(x.6.0.response~.,data=x.6.0.explanatory) %>% broom::tidy() %>% gridExtra::tableGrob() %>% grid::grid.draw()
+
+# ####
+# if(! "diversity_shannon" %in% colnames(sample_data(x.2.0.genus))){
+#   richnessDF<-xlsx::read.xlsx(file="output/Deliverables/AlphaDiversityEstimation_noLAF.xls",sheetIndex = 1)
+#   rownames(richnessDF)<-richnessDF$NA.
+#   richnessDF$NA.<-NULL
+#   sampleData<-merge(sampleData,richnessDF,by.x="SampleID", by.y="row.names")
+#   rownames(sampleData)<-sampleData$SampleID
+#   sample_data(x.2.0.genus)<-sampleData
+# }
+# 
+# p.4.0.samples=plot_ordination(x.2.0.genus,myOrd)
+# 
+# ### By Timepoint
+# require(ggplot2)
+# require(ggforce)
+# p0<-p.4.0.samples  + geom_point(aes(color=Timepoint)) +ggtitle("Unconstrained NMDS(WUnifrac) by Timepoint")+
+#   theme(panel.border=element_blank(),panel.grid.major=element_blank(),panel.grid.minor=element_blank(),axis.line=element_line(colour="black"),axis.text.x=element_text(size=16),axis.text.y=element_text(size=16))+
+#   theme(axis.title.x=element_text(size=14),axis.title.y=element_text(size=14))+
+#   theme(legend.text=element_text(size=12,face="italic"),legend.title=element_text(size=12))+
+#   theme(plot.title=element_text(lineheight=1,face="bold",size=15))+stat_ellipse(alpha=1,mapping=aes(color=Timepoint))+
+#   theme_classic() + theme(axis.line.x = element_line(colour = "black",
+#                                     size = 1, linetype = "solid"), axis.line.y = element_line(colour = "black",
+#                                     size = 1, linetype = "solid"), axis.text.x = element_text(size = 10),
+#                                     axis.text.y = element_text(size = 10),
+#                                     axis.title.x = element_text(size = 10,
+#                                         face = "bold"), axis.title.y = element_text(size = 10,
+#                                         face = "bold"), legend.title = element_text(size = 10,
+#                                         face = "bold"), legend.text = element_text(size = 8),
+#                                         legend.spacing.x = unit(0.005, "npc"),
+#                                         legend.key.size = unit(4,"mm"), legend.background = element_rect(fill = (alpha = 0))) +
+#         labs(x = "NMDS Dimension 1", y = "NMDS Dimension 2") +
+#         guides(fill = guide_legend(override.aes = list(size = 4)))
+# 
+# p1<-p.4.0.samples  + geom_point(aes(color=Center)) +ggtitle("Unconstrained NMDS(WUnifrac) by Center")+
+#   theme(panel.border=element_blank(),panel.grid.major=element_blank(),panel.grid.minor=element_blank(),axis.line=element_line(colour="black"),axis.text.x=element_text(size=16),axis.text.y=element_text(size=16))+
+#   theme(axis.title.x=element_text(size=14),axis.title.y=element_text(size=14))+
+#   theme(legend.text=element_text(size=12,face="italic"),legend.title=element_text(size=12))+
+#   theme(plot.title=element_text(lineheight=1,face="bold",size=15))+stat_ellipse(alpha=1,aes(color=Center))+
+#   theme_classic() + theme(axis.line.x = element_line(colour = "black",
+#                                     size = 1, linetype = "solid"), axis.line.y = element_line(colour = "black",
+#                                     size = 1, linetype = "solid"), axis.text.x = element_text(size = 10),
+#                                     axis.text.y = element_text(size = 10), axis.title.x = element_text(size = 10,
+#                                     face = "bold"), axis.title.y = element_text(size = 10,
+#                                     face = "bold"), legend.title = element_text(size = 10,
+#                                     face = "bold"), legend.text = element_text(size = 8),
+#                                      legend.spacing.x = unit(0.005, "npc"), legend.key.size = unit(4,"mm"), legend.background = element_rect(fill = (alpha = 0))) +
+#         labs(x = "NMDS Dimension 1", y = "NMDS Dimension 2") +
+#         guides(fill = guide_legend(override.aes = list(size = 4)))
+# 
+# p2<-p.4.0.samples  + geom_point(aes(color=Genero)) +ggtitle("Unconstrained NMDS(WUnifrac) by Genero")+
+#   theme(panel.border=element_blank(),panel.grid.major=element_blank(),panel.grid.minor=element_blank(),axis.line=element_line(colour="black"),axis.text.x=element_text(size=16),axis.text.y=element_text(size=16))+
+#   theme(axis.title.x=element_text(size=14),axis.title.y=element_text(size=14))+
+#   theme(legend.text=element_text(size=12,face="italic"),legend.title=element_text(size=12))+
+#   theme(plot.title=element_text(lineheight=1,face="bold",size=15))+stat_ellipse(alpha=1,aes(color=Genero))+
+#   theme_classic() + theme(axis.line.x = element_line(colour = "black",
+#                                     size = 1, linetype = "solid"), axis.line.y = element_line(colour = "black",
+#                                     size = 1, linetype = "solid"), axis.text.x = element_text(size = 10),
+#                                     axis.text.y = element_text(size = 10), axis.title.x = element_text(size = 10,
+#                                     face = "bold"), axis.title.y = element_text(size = 10,
+#                                     face = "bold"), legend.title = element_text(size = 10,
+#                                     face = "bold"), legend.text = element_text(size = 8),
+#                                      legend.spacing.x = unit(0.005, "npc"), legend.key.size = unit(4,"mm"), legend.background = element_rect(fill = (alpha = 0))) +
+#         labs(x = "NMDS Dimension 1", y = "NMDS Dimension 2") +
+#         guides(fill = guide_legend(override.aes = list(size = 4)))
+# 
+# p3<-p.4.0.samples  + geom_point(aes(color=MedDietscore)) +ggtitle("Unconstrained NMDS(WUnifrac) by MedDietscore")+
+#   theme(panel.border=element_blank(),panel.grid.major=element_blank(),panel.grid.minor=element_blank(),axis.line=element_line(colour="black"),axis.text.x=element_text(size=16),axis.text.y=element_text(size=16))+
+#   theme(axis.title.x=element_text(size=14),axis.title.y=element_text(size=14))+
+#   theme(legend.text=element_text(size=12,face="italic"),legend.title=element_text(size=12))+
+#   theme(plot.title=element_text(lineheight=1,face="bold",size=15))+stat_ellipse(alpha=1,aes(color=MedDietscore))+
+#   theme_classic() + theme(axis.line.x = element_line(colour = "black",
+#                                     size = 1, linetype = "solid"), axis.line.y = element_line(colour = "black",
+#                                     size = 1, linetype = "solid"), axis.text.x = element_text(size = 10),
+#                                     axis.text.y = element_text(size = 10), axis.title.x = element_text(size = 10,
+#                                     face = "bold"), axis.title.y = element_text(size = 10,
+#                                     face = "bold"), legend.title = element_text(size = 10,
+#                                     face = "bold"), legend.text = element_text(size = 8),
+#                                      legend.spacing.x = unit(0.005, "npc"), legend.key.size = unit(4,"mm"), legend.background = element_rect(fill = (alpha = 0))) +
+#         labs(x = "NMDS Dimension 1", y = "NMDS Dimension 2") +
+#         guides(fill = guide_legend(override.aes = list(size = 4)))
+# 
+# p4<-p.4.0.samples  + geom_point(aes(color=time_point)) +ggtitle("Unconstrained NMDS(WUnifrac) by time_point")+
+#   theme(panel.border=element_blank(),panel.grid.major=element_blank(),panel.grid.minor=element_blank(),axis.line=element_line(colour="black"),axis.text.x=element_text(size=16),axis.text.y=element_text(size=16))+
+#   theme(axis.title.x=element_text(size=14),axis.title.y=element_text(size=14))+
+#   theme(legend.text=element_text(size=12,face="italic"),legend.title=element_text(size=12))+
+#   theme(plot.title=element_text(lineheight=1,face="bold",size=15))+stat_ellipse(alpha=1,aes(color=time_point))+
+#   theme_classic() + theme(axis.line.x = element_line(colour = "black", 
+#                                     size = 1, linetype = "solid"), axis.line.y = element_line(colour = "black", 
+#                                     size = 1, linetype = "solid"), axis.text.x = element_text(size = 10), 
+#                                     axis.text.y = element_text(size = 10), axis.title.x = element_text(size = 10, 
+#                                     face = "bold"), axis.title.y = element_text(size = 10, 
+#                                     face = "bold"), legend.title = element_text(size = 10, 
+#                                     face = "bold"), legend.text = element_text(size = 8), 
+#                                      legend.spacing.x = unit(0.005, "npc"), legend.key.size = unit(4,"mm"), legend.background = element_rect(fill = (alpha = 0))) + 
+#         labs(x = "NMDS Dimension 1", y = "NMDS Dimension 2") + 
+#         guides(fill = guide_legend(override.aes = list(size = 4)))
+# 
+p0
+pT<-p0 / p1 | p2 / p3
+
+
+ ggsave(pT,filename = "output/Deliverables/Ordination_AllSamples.pdf",width=15,height=15)
+
+
+ 
+```
+
+### PAM Clustering
+
+Using unsupervised clustering, we'll try to see if there are clusters of microbial composition within the sample set. We'll do this using Partition around Medoids (PAM) algorithm. According to the silhoutte coefficient values, there is no clustering effect in the gut microbiome composition. That is, the highest Silhouett coefficient (k=2) is < 0.20, thus we can discard the hypothesis that there are two or more clusters formed by microbiome composition of the samples.
+
+```{r pam clustering, echo=FALSE, results='hide',fig.keep='all',message=FALSE, warning=FALSE, paged.print=FALSE,fig.keep='all', fig.cap="Silhouette plot. X-axis represents the number of clusters being tested by the PAM algorithm"}
+suppressWarnings(require(phyloseq))
+suppressWarnings(require(phylosmith))
+suppressWarnings(require(patchwork))
+suppressWarnings(require(vegan))
+# Load package from local copy
+devtools::load_all("~/Documents/Work/Development/WMGSPipeline/")
+ps_silva<-readRDS("data/cfu/DADA2/ps_silva.rds")
+myMREObject<-readRDS("data/cfu/mreObject.rds")
+
+myMREObject@taxa@dada2@nmds$Genus$top_50$clustering_results$silhouette_plt
+
+# cluster_tags<-read.csv("output/mre_data/cfu/DADA2/NMDS/Genus/sample_cluster_labels.csv",sep="\t")
+# cluster_metadata<-myMREObject %>%
+#   metar::get_meta() %>% 
+#   dplyr::left_join(cluster_tags) 
+# 
+# table(cluster_metadata$Center,cluster_metadata$cluster) %>% chisq.test()
+# table(cluster_metadata$Timepoint,cluster_metadata$cluster) %>% chisq.test()
+# table(cluster_metadata$Gender,cluster_metadata$cluster) %>% chisq.test()
+# table(cluster_metadata$MedDietscore,cluster_metadata$cluster) %>% chisq.test()
+# table(cluster_metadata$Edad,cluster_metadata$cluster) %>% chisq.test()
+# 
+# cluster_metadata %>% 
+#   ggplot(.,aes(x=as.factor(cluster),y=Edad))+geom_violin()+ggpubr::stat_compare_means()
+# 
+# 
+# myMREObject %>% 
+#   get_phyloseq(type="dada2") %>%
+#   phyloseq::transform_sample_counts(., function(x) ((x/sum(x)))) %>% 
+#   phyloseq::psmelt() %>% 
+#   dplyr::left_join(cluster_metadata %>% 
+#               dplyr::select(SampleID,cluster)) %>% 
+#   dplyr::filter(Genus=="Bacteroides") %>% 
+#   ggstatsplot::ggbetweenstats(.,cluster,Abundance,type = "np")
+
+```

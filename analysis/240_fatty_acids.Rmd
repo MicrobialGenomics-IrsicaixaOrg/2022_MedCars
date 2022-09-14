@@ -1,0 +1,98 @@
+---
+site: workflowr::wflow_site
+title: "Microbiome association with Mediterranean diet"
+author: "Marc Noguera-Julian, PhD. "
+date: "`r format(Sys.time(), '%Y-%m-%d')`"
+header-includes:
+- \usepackage{fancyhdr}
+- \usepackage{lipsum}
+- \pagestyle{fancy}
+- \fancyhead[CO,CE]{Microbioma intestinal en intervencion nutricional}
+- \fancyfoot[LO,RE]{Marc Noguera-Julian, IrsiCaixa}
+- \fancyhead[LE,RO]{\thepage}
+- \fancyfoot[CO,CE]{}
+- \usepackage[default]{sourcesanspro}
+- \usepackage[T1]{fontenc}
+- \usepackage{eso-pic,graphicx,transparent}
+mainfont: Helvetica
+output: html_document
+---
+
+
+```{r setup, include=TRUE, echo=F, message=FALSE, warning=FALSE, paged.print=FALSE, tidy=F}
+knitr::opts_chunk$set(echo = FALSE)
+knitr::opts_knit$set(root.dir = here::here())
+rmd_env <- "devel"
+```
+
+## Fatty Acids - Baseline
+
+For all fecal samples obtained from the study participants a paired blood samples was extracted. This was used to measure fatty acid levels:
+
+* Palmitic acid: Palmitic acid (PA) is the most common saturated fatty acid found in the human body and can be provided in the diet or synthesized endogenously from other fatty acids, carbohydrates and amino acids.
+* Eicopento: Eicosapentaenoic acid (EPA) is one of several omega-3 fatty acids. It is found in cold-water fatty fish, such as salmon. It is also found in fish oil supplements, along with docosahexaenoic acid (DHA). Omega-3 fatty acids are part of a healthy diet that helps lower risk of heart disease.
+* Arachidonic acid: Arachidonic acid (ARA) is a polyunsaturated omega-6 fatty acid.
+* Oleic acid: Oleic acid (OA) is a fatty acid that occurs naturally in various animal and vegetable fats and oils. It is an odorless, colorless oil, although commercial samples may be yellowish. In chemical terms, oleic acid is classified as a monounsaturated omega-9 fatty acid
+* Alpha-linoleic acid: alpha-Linolenic acid (ALA) is an n−3, or omega-3, essential fatty acid. ALA is found in many seeds and oils, including flaxseed, walnuts, chia, hemp, and many common vegetable oils.
+* Gamma-linoleic acid: gamma-Linolenic acid or GLA is a fatty acid found primarily in seed oils
+* Palmito-oleic acid: Palmitoleic acid(POA), or (9Z)-hexadec-9-enoic acid, is an omega-7 monounsaturated fatty acid (16:1n-7) with the formula CH3(CH2)5CH=CH(CH2)7COOH that is a common constituent of the glycerides of human adipose tissue. It is present in all tissues but, in general, found in higher concentrations in the liver. 
+* Elaidic acid: Elaidic acid (ELA) is an unsaturated trans fatty acid, with code C18:1 trans-9. This compound has attracted attention because it is a major trans fat found in hydrogenated vegetable oils, and trans fats have been implicated in heart disease.It is the trans-isomer of oleic acid.
+* Estearic acid:  Estearic acid (ESA) is a saturated fatty acid with an 18-carbon chain. Stearic acid is more abundant in animal fat (up to 30%) than in vegetable fat (typically <5%).
+* Miristic acid: Myristic acid(MA), a long-chain saturated fatty acid (14:0), is one of the most abundant fatty acids in milk fat (above 10%). This fatty acid is known because it accumulates fat in the body, however, its consumption also impacts positively on cardiovascular health.
+* Linolenic acid(Not sure it is confused with linoleic acid): Linolenic acid (LNA) is a type of naturally-occurring fatty acid. It can refer to either of two octadecatrienoic acids(ALA and GLA), or a mixture of the two. Linolenate is often found in vegetable oils; traditionally, such fatty acylates are reported as the fatty acids
+* Linoleic acid: Linoleic acid (LA) is a polyunsaturated omega-6 fatty acid. It is a colorless or white liquid that is virtually insoluble in water but soluble in many organic solvents.[2] It typically occurs in nature as a triglyceride (ester of glycerin) rather than as a free fatty acid
+* n6_n3_ratio: ratio calculated over n-6 unsaturated vs n-3 unsaturated fatty acids.
+
+```{r Fatty Acids Chunk 1, echo=F, message=FALSE, warning=FALSE, paged.print=FALSE, tidy=F}
+suppressWarnings(require(phyloseq))
+suppressWarnings(require(phylosmith))
+suppressWarnings(require(patchwork))
+suppressWarnings(require(vegan))
+suppressWarnings(require(ggstatsplot))
+# Load package from local copy
+suppressWarnings(devtools::load_all("~/Documents/Work/Development/WMGSPipeline/"))
+ps_silva<-readRDS("data/cfu/DADA2/ps_silva.rds")
+myMREObject<-readRDS("data/cfu/mreObject.rds")
+myMREObject@wd<-"output/mre_data/cfu"
+
+get_meta(myMREObject) %>% 
+  dplyr::rename(PA=Palmitico,EPA=Eicopento,ARA=Araquidonico,OA=Oleico,ALA=Alfalinolenico,GLA=Gammalinoleico,POA=Palmitoleico,
+                ELA=Elaidico,ESA=Estearico,MA=Miristico,LNA=Linolenico,n6_n3_ratio=Cocienten6n3) %>% 
+  dplyr::select(Center,Timepoint,Participante,PA,EPA,ARA,OA,ALA,GLA,POA,ELA,ESA,MA,LNA,n6_n3_ratio) %>% 
+  dplyr::group_by(Participante) %>% 
+  tidyr::pivot_wider(values_from = c(PA,EPA,ARA,OA,ALA,GLA,POA,ELA,ESA,MA,LNA,n6_n3_ratio),names_from = Timepoint) %>% 
+  dplyr::mutate(DeltaPA=PA_Month6-PA_BL,
+                DeltaEPA=EPA_Month6-EPA_BL,
+                DeltaARA=ARA_Month6-ARA_BL,
+                DeltaOA=OA_Month6-OA_BL,
+                DeltaALA=ALA_Month6-ALA_BL,
+                DeltaGLA=GLA_Month6-GLA_BL,
+                DeltaPOA=POA_Month6-POA_BL,
+                DeltaELA=ELA_Month6-ELA_BL,
+                DeltaESA=ESA_Month6-ESA_BL,
+                DeltaMA=MA_Month6-MA_BL,
+                DeltaLNA=LNA_Month6-LNA_BL,
+                Delta_n6_n3=n6_n3_ratio_Month6-n6_n3_ratio_BL)%>% 
+  dplyr::ungroup() %>% 
+  dplyr::select(Center,DeltaPA,DeltaEPA,DeltaARA,DeltaOA,DeltaALA,DeltaGLA,DeltaPOA,DeltaELA,DeltaESA,DeltaMA,DeltaLNA,Delta_n6_n3) %>% 
+  tidyr::pivot_longer(cols=c(DeltaPA,DeltaEPA,DeltaARA,DeltaOA,DeltaALA,DeltaGLA,DeltaPOA,DeltaELA,DeltaESA,DeltaMA,DeltaLNA,Delta_n6_n3)) %>% 
+  dplyr::rename(fatty_acid=name) %>% 
+  dplyr::filter(fatty_acid=="DeltaOA") %>% 
+  ggstatsplot::grouped_ggbetweenstats(.,grouping.var = fatty_acid,x=Center,y=value,results_subtitle=F)
+
+
+# %>% 
+#   tidyr::pivot_longer(cols = c(PA,EPA,ARA,OA,ALA,GLA,POA,ELA,ESA,MA,LNA)) 
+  
+
+```
+
+## Including Plots
+
+You can also embed plots, for example:
+
+```{r pressure, echo=FALSE}
+plot(pressure)
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
