@@ -49,6 +49,11 @@ metadata_df$SampleID<-as.factor(metadata_df$SampleID)
 
 summary(metadata_df)
 
+
+metar::get_meta(myMREObject) %>%
+  dplyr::filter(! SampleID %in% metadata_df$SampleID)
+
+
 metadata_df<-metadata_df %>% 
   dplyr::right_join(metar::get_meta(myMREObject)) 
 
@@ -91,12 +96,15 @@ metadata_df %>% ggstatsplot::ggbetweenstats(.,x=Run,
                                                                 )
                                                          ))
 
-metadata_df %>% ggstatsplot::grouped_ggbetweenstats(.,x=Center,
-                              y=Shannon,grouping.var = Run,
-                              type = "parametric", 
-                              centrality.plotting=T,bf.message = FALSE,
-                              p.adjust.method = "BH",pairwise.display = F, 
-                              annotation.args = list(title = "Shannon index vs Run",
+metadata_df %>% 
+  dplyr::arrange(Participante,Center) %>% 
+  dplyr::filter(Run=="Run3") %>% 
+  dplyr::filter(Center=="C01") %>% 
+  ggstatsplot::ggwithinstats(.,x=Timepoint,type = "nonparametric",
+                              y=Shannon,pairwise.comparisons = T,
+                              centrality.plotting=T,
+                              p.adjust.method = "BH",pairwise.display = T, 
+                              annotation.args = list(
                                                          theme = ggplot2::theme(
                                                                 plot.subtitle = ggplot2::element_text(size = 13),
                                                                 plot.title = ggplot2::element_text(size = 14)
@@ -105,11 +113,11 @@ metadata_df %>% ggstatsplot::grouped_ggbetweenstats(.,x=Center,
 
 metadata_df %>% 
   dplyr::filter(Center=="C01") %>% 
-  lm(Shannon ~Timepoint * Run,data=.) %>% summary()
+  lm(Shannon ~  Run,data=.) %>% summary()
   
 metadata_df %>% 
   dplyr::filter(Center=="C02") %>% 
-  glm(Shannon ~Timepoint * Run,data=.) %>% summary()
+  glm(Shannon ~Timepoint + Run,data=.) %>% summary()
 ```
 
 ## Beta Diversity
@@ -121,11 +129,38 @@ suppressWarnings(require(phyloseq))
 suppressWarnings(require(phylosmith))
 suppressWarnings(require(patchwork))
 suppressWarnings(require(vegan))
+suppressWarnings(require(tribble))
 # Load package from local copy
 devtools::load_all("~/Documents/Work/Development/WMGSPipeline/")
 ps_silva<-readRDS("data/cfu/DADA2/ps_silva.rds")
 myMREObject<-readRDS("data/cfu/mreObject.rds")
 myMREObject@wd<-"output/mre_data/cfu"
 
+metadata_df<-read.xlsx("data/raw/Metadata/Runs.xlsx",sheetIndex = 1) 
+metadata_df$Run<-as.factor(metadata_df$Run)
+metadata_df$SampleID<-as.factor(metadata_df$SampleID)
+
+metadata_df<-metadata_df %>% 
+  dplyr::right_join(metar::get_meta(myMREObject)) 
+
+myMREObject@metadata@metadata_df<-metadata_df %>% as_tibble()
+rownames(metadata_df)<-metadata_df$SampleID
+sample_data(myMREObject@taxa@dada2@phyloseq)<-metadata_df
+
+myMREObject@metadata@categorical_vals<-tibble::tribble(~CategoricalVariable,~PaletteName,"Run", "Accent")
+
+myMREObject<-myMREObject %>% 
+  dada2_nmds(tax_level="Genus",save_files=F)
+
+myMREObject@metadata@metadata_df$Run %>% summary()
+myMREObject@taxa@dada2@nmds$Genus$top_50$categorical$Run
+myMREObject@taxa@dada2@nmds$Genus$top_50$all_adonis
+
+myMREObject@taxa@metaphlan@phyloseq %>% 
+  phyloseq::tax_glom(.,taxrank="Phylum") %>% 
+  microbiome::transform(.,transform="compositional") %>%
+  phyloseq::psmelt() %>% 
+  ggstatsplot::ggbetweenstats(.,x=Run,y=Abundance,)
+  
 
 ```

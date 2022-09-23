@@ -11,7 +11,7 @@
 
 <meta name="author" content="Marc Noguera-Julian, PhD." />
 
-<meta name="date" content="2022-08-18" />
+<meta name="date" content="2022-09-23" />
 
 <title>Baseline Analysis</title>
 
@@ -37,6 +37,8 @@
 <script src="site_libs/navigation-1.1/tabsets.js"></script>
 <link href="site_libs/highlightjs-9.12.0/textmate.css" rel="stylesheet" />
 <script src="site_libs/highlightjs-9.12.0/highlight.js"></script>
+<script src="site_libs/kePrint-0.0.1/kePrint.js"></script>
+<link href="site_libs/lightable-0.0.1/lightable.css" rel="stylesheet" />
 
 <link rel="icon" href="https://github.com/workflowr/workflowr-assets/raw/main/img/reproducible.png">
 <!-- Add a small amount of space between sections. -->
@@ -349,6 +351,15 @@ div.tocify {
   <a href="230_MedDietScore.html">Mediterranean Diet</a>
 </li>
 <li>
+  <a href="250_PhysicalActivity.html">Physical Activity</a>
+</li>
+<li>
+  <a href="260_FirmicutesBacteroides.html">Firmicutes/Bacteroidetes</a>
+</li>
+<li>
+  <a href="260_FirmicutesBacteroides.html">Functional Analysis</a>
+</li>
+<li>
   <a href="about.html">About</a>
 </li>
 <li>
@@ -368,7 +379,7 @@ div.tocify {
 
 <h1 class="title toc-ignore">Baseline Analysis</h1>
 <h4 class="author">Marc Noguera-Julian, PhD.</h4>
-<h4 class="date">2022-08-18</h4>
+<h4 class="date">2022-09-23</h4>
 
 </div>
 
@@ -393,7 +404,7 @@ div.tocify {
 <div class="tab-content">
 <div id="summary" class="tab-pane fade in active">
 <p>
-<strong>Last updated:</strong> 2022-08-18
+<strong>Last updated:</strong> 2022-09-23
 </p>
 <p>
 <strong>Checks:</strong> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> 6 <span class="glyphicon glyphicon-exclamation-sign text-danger" aria-hidden="true"></span> 1
@@ -417,7 +428,7 @@ This reproducible <a href="https://rmarkdown.rstudio.com">R Markdown</a> analysi
 </div>
 <div id="strongRMarkdownfilestronguncommittedchanges" class="panel-collapse collapse">
 <div class="panel-body">
-<p>The R Markdown is ignored by Git. To know which version of the R Markdown file created these results, you’ll want to first commit it to the Git repo. If you’re still working on the analysis, you can ignore this warning. When you’re finished, you can run <code>wflow_publish</code> to commit the R Markdown file and build the HTML.</p>
+<p>The R Markdown file has unstaged changes. To know which version of the R Markdown file created these results, you’ll want to first commit it to the Git repo. If you’re still working on the analysis, you can ignore this warning. When you’re finished, you can run <code>wflow_publish</code> to commit the R Markdown file and build the HTML.</p>
 </div>
 </div>
 </div>
@@ -484,16 +495,16 @@ This reproducible <a href="https://rmarkdown.rstudio.com">R Markdown</a> analysi
 <div class="panel panel-default">
 <div class="panel-heading">
 <p class="panel-title">
-<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomMicrobialGenomicsIrsicaixaOrg2022MedCarstreeab9981b9ce1c6950ff30f7e1c739d3fa13912019targetblankab9981ba"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Repository version:</strong> <a href="https://github.com/MicrobialGenomics-IrsicaixaOrg/2022_MedCars/tree/ab9981b9ce1c6950ff30f7e1c739d3fa13912019" target="_blank">ab9981b</a> </a>
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomMicrobialGenomicsIrsicaixaOrg2022MedCarstree1c2dd47bf64409ce32bc85e3c96b5452d29e8fc1targetblank1c2dd47a"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Repository version:</strong> <a href="https://github.com/MicrobialGenomics-IrsicaixaOrg/2022_MedCars/tree/1c2dd47bf64409ce32bc85e3c96b5452d29e8fc1" target="_blank">1c2dd47</a> </a>
 </p>
 </div>
-<div id="strongRepositoryversionstrongahrefhttpsgithubcomMicrobialGenomicsIrsicaixaOrg2022MedCarstreeab9981b9ce1c6950ff30f7e1c739d3fa13912019targetblankab9981ba" class="panel-collapse collapse">
+<div id="strongRepositoryversionstrongahrefhttpsgithubcomMicrobialGenomicsIrsicaixaOrg2022MedCarstree1c2dd47bf64409ce32bc85e3c96b5452d29e8fc1targetblank1c2dd47a" class="panel-collapse collapse">
 <div class="panel-body">
 <p>
 Great! You are using Git for version control. Tracking code development and connecting the code version to the results is critical for reproducibility.
 </p>
 <p>
-The results in this page were generated with repository version <a href="https://github.com/MicrobialGenomics-IrsicaixaOrg/2022_MedCars/tree/ab9981b9ce1c6950ff30f7e1c739d3fa13912019" target="_blank">ab9981b</a>. See the <em>Past versions</em> tab to see a history of the changes made to the R Markdown and HTML files.
+The results in this page were generated with repository version <a href="https://github.com/MicrobialGenomics-IrsicaixaOrg/2022_MedCars/tree/1c2dd47bf64409ce32bc85e3c96b5452d29e8fc1" target="_blank">1c2dd47</a>. See the <em>Past versions</em> tab to see a history of the changes made to the R Markdown and HTML files.
 </p>
 <p>
 Note that you need to be careful to ensure that all relevant files for the analysis have been committed to Git prior to generating the results (you can use <code>wflow_publish</code> or <code>wflow_git_commit</code>). workflowr only checks the R Markdown file, but you know if there are other scripts or data files that it depends on. Below is the status of the Git repository when the results were generated:
@@ -504,10 +515,6 @@ Ignored files:
     Ignored:    .Rhistory
     Ignored:    .Rproj.user/
     Ignored:    analysis/.DS_Store
-    Ignored:    analysis/201_exploratory_analysis.Rmd
-    Ignored:    analysis/210_baseline_analysis.Rmd
-    Ignored:    analysis/220_intervention_analysis.Rmd
-    Ignored:    analysis/230_MedDietScore.Rmd
     Ignored:    data/.DS_Store
     Ignored:    data/cfu/
     Ignored:    data/internal/
@@ -518,9 +525,15 @@ Ignored files:
     Ignored:    output/Deliverables/
     Ignored:    output/mre_data/
 
-Untracked files:
-    Untracked:  code/901_Abstract.Rmd
-    Untracked:  code/901_Abstract.docx
+Unstaged changes:
+    Modified:   analysis/201_exploratory_analysis.Rmd
+    Modified:   analysis/210_baseline_analysis.Rmd
+    Modified:   analysis/220_intervention_analysis.Rmd
+    Modified:   analysis/320_BatchEffect.Rmd
+    Modified:   code/006_DataPreprocessing.Rmd
+    Modified:   code/006_DataPreprocessing.html
+    Deleted:    code/02_Exploratory_v1.Rmd
+    Deleted:    code/03_Longitudinal_v1.Rmd
 
 </code></pre>
 <p>
@@ -559,6 +572,40 @@ Message
 </tr>
 </thead>
 <tbody>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/MicrobialGenomics-IrsicaixaOrg/2022_MedCars/blob/1c2dd47bf64409ce32bc85e3c96b5452d29e8fc1/analysis/210_baseline_analysis.Rmd" target="_blank">1c2dd47</a>
+</td>
+<td>
+Marc Noguera-Julian
+</td>
+<td>
+2022-09-14
+</td>
+<td>
+added analysis
+</td>
+</tr>
+<tr>
+<td>
+html
+</td>
+<td>
+<a href="https://rawcdn.githack.com/MicrobialGenomics-IrsicaixaOrg/2022_MedCars/748102d042816e40206ff62637b5c98431e4c236/docs/210_baseline_analysis.html" target="_blank">748102d</a>
+</td>
+<td>
+Marc Noguera-Julian
+</td>
+<td>
+2022-08-18
+</td>
+<td>
+various updates, 210 220, 230
+</td>
+</tr>
 <tr>
 <td>
 html
@@ -600,7 +647,269 @@ Initial Commit
 </div>
 </div>
 </div>
-<p>In this Analysis section we aim to describe possible differences between the two pariticpating centers at baseline, in order to assess whether there are any and if they are relevant in relation to the longtiduinal resultes obtained from the nutritional intervention.</p>
+<p>In this Analysis section we aim to describe possible differences between the two pariticpating centers at baseline, in order to assess whether there are any and if they are relevant in relation to the longtiduinal resultes obtained from the nutritional intervention. ## Baseline Demographics</p>
+<p>We need to compare the baseline populations in order to see which of the variable should we be testing.</p>
+<p>At baseline, populations were comparable in anthropotmetric measures. However, IG was younger and had a higher proportion of women. In addition, IG participant also showed a higher consumption of alcohol as measured in TE and a slight higher phyisical activity.</p>
+<pre><code>suggested package selbal ✔suggested package DataExplorer ✔suggested package lme4 ✔suggested package merTools ✔</code></pre>
+<table class="table table-striped table-condensed" style="width: auto !important; margin-left: auto; margin-right: auto;">
+<caption>
+Summary descriptives table by groups of `Center’
+</caption>
+<thead>
+<tr>
+<th style="text-align:left;">
+</th>
+<th style="text-align:center;">
+CG
+</th>
+<th style="text-align:center;">
+IG
+</th>
+<th style="text-align:center;">
+p.overall
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;font-style: italic;border-bottom: 1px solid grey">
+</td>
+<td style="text-align:center;font-style: italic;border-bottom: 1px solid grey">
+N=217
+</td>
+<td style="text-align:center;font-style: italic;border-bottom: 1px solid grey">
+N=277
+</td>
+<td style="text-align:center;font-style: italic;border-bottom: 1px solid grey">
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Age
+</td>
+<td style="text-align:center;">
+44.7 (7.02)
+</td>
+<td style="text-align:center;">
+42.5 (6.97)
+</td>
+<td style="text-align:center;">
+&lt;0.001
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Gender:
+</td>
+<td style="text-align:center;">
+</td>
+<td style="text-align:center;">
+</td>
+<td style="text-align:center;">
+0.001
+</td>
+</tr>
+<tr>
+<td style="text-align:left;padding-left: 2em;" indentlevel="1">
+Female
+</td>
+<td style="text-align:center;">
+25 (11.5%)
+</td>
+<td style="text-align:center;">
+64 (23.1%)
+</td>
+<td style="text-align:center;">
+</td>
+</tr>
+<tr>
+<td style="text-align:left;padding-left: 2em;" indentlevel="1">
+Male
+</td>
+<td style="text-align:center;">
+192 (88.5%)
+</td>
+<td style="text-align:center;">
+213 (76.9%)
+</td>
+<td style="text-align:center;">
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Smoker:
+</td>
+<td style="text-align:center;">
+</td>
+<td style="text-align:center;">
+</td>
+<td style="text-align:center;">
+0.221
+</td>
+</tr>
+<tr>
+<td style="text-align:left;padding-left: 2em;" indentlevel="1">
+Non-smoker
+</td>
+<td style="text-align:center;">
+171 (78.8%)
+</td>
+<td style="text-align:center;">
+204 (73.6%)
+</td>
+<td style="text-align:center;">
+</td>
+</tr>
+<tr>
+<td style="text-align:left;padding-left: 2em;" indentlevel="1">
+Smoker
+</td>
+<td style="text-align:center;">
+46 (21.2%)
+</td>
+<td style="text-align:center;">
+73 (26.4%)
+</td>
+<td style="text-align:center;">
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+TE
+</td>
+<td style="text-align:center;">
+0.33 (0.33)
+</td>
+<td style="text-align:center;">
+0.50 (0.49)
+</td>
+<td style="text-align:center;">
+&lt;0.001
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Cholesterol
+</td>
+<td style="text-align:center;">
+0.44 (0.50)
+</td>
+<td style="text-align:center;">
+0.38 (0.49)
+</td>
+<td style="text-align:center;">
+0.189
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+BodyFat
+</td>
+<td style="text-align:center;">
+25.2 (6.39)
+</td>
+<td style="text-align:center;">
+26.2 (7.78)
+</td>
+<td style="text-align:center;">
+0.134
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+IPAQ
+</td>
+<td style="text-align:center;">
+4381 (5128)
+</td>
+<td style="text-align:center;">
+5411 (6019)
+</td>
+<td style="text-align:center;">
+0.041
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+MDScore
+</td>
+<td style="text-align:center;">
+8.28 (2.00)
+</td>
+<td style="text-align:center;">
+8.09 (2.10)
+</td>
+<td style="text-align:center;">
+0.298
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Run:
+</td>
+<td style="text-align:center;">
+</td>
+<td style="text-align:center;">
+</td>
+<td style="text-align:center;">
+&lt;0.001
+</td>
+</tr>
+<tr>
+<td style="text-align:left;padding-left: 2em;" indentlevel="1">
+Run1
+</td>
+<td style="text-align:center;">
+84 (38.7%)
+</td>
+<td style="text-align:center;">
+82 (29.6%)
+</td>
+<td style="text-align:center;">
+</td>
+</tr>
+<tr>
+<td style="text-align:left;padding-left: 2em;" indentlevel="1">
+Run2
+</td>
+<td style="text-align:center;">
+97 (44.7%)
+</td>
+<td style="text-align:center;">
+83 (30.0%)
+</td>
+<td style="text-align:center;">
+</td>
+</tr>
+<tr>
+<td style="text-align:left;padding-left: 2em;" indentlevel="1">
+Run3
+</td>
+<td style="text-align:center;">
+36 (16.6%)
+</td>
+<td style="text-align:center;">
+112 (40.4%)
+</td>
+<td style="text-align:center;">
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+BMI
+</td>
+<td style="text-align:center;">
+27.2 (4.27)
+</td>
+<td style="text-align:center;">
+26.9 (3.87)
+</td>
+<td style="text-align:center;">
+0.394
+</td>
+</tr>
+</tbody>
+</table>
 <div id="alpha-diversity" class="section level2">
 <h2>Alpha-Diversity</h2>
 <p>Alpha Diversity refers to the taxonomical richness and evenness of a particular sample. Alpha Diversity can be assess by a wide set of estimators and indices. Here we’ll use:</p>
@@ -611,7 +920,7 @@ Initial Commit
 </ul>
 <p>There are significant differences between groups at baseline. Control Group(C02) shows a higher richness, evenness and phylogenetic diversity than intervention group at baseline. Reasons for this are unknown and may be due to socio-geographical features of each population.</p>
 <pre><code>suggested package selbal ✔suggested package DataExplorer ✔suggested package lme4 ✔suggested package merTools ✔</code></pre>
-<p><img src="figure/210_baseline_analysis.Rmd/alpha%20diversity%20chunk%201-1.png" width="1152" style="display: block; margin: auto;" /></p>
+<p><img src="figure/210_baseline_analysis.Rmd/alpha%20diversity%20chunk%201-1.png" width="480" style="display: block; margin: auto;" /></p>
 <p>
 <button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-no-spaces-alpha-diversity-chunk-1-1">
 Past versions of "alpha diversity chunk 1-1.png"
@@ -634,6 +943,17 @@ Date
 </tr>
 </thead>
 <tbody>
+<tr>
+<td>
+<a href="https://github.com/MicrobialGenomics-IrsicaixaOrg/2022_MedCars/blob/748102d042816e40206ff62637b5c98431e4c236/docs/figure/210_baseline_analysis.Rmd/alpha diversity chunk 1-1.png" target="_blank">748102d</a>
+</td>
+<td>
+Marc Noguera-Julian
+</td>
+<td>
+2022-08-18
+</td>
+</tr>
 <tr>
 <td>
 <a href="https://github.com/MicrobialGenomics-IrsicaixaOrg/2022_MedCars/blob/601ea51e3b21ba0ec3870ef5008c6c222470b0fc/docs/figure/210_baseline_analysis.Rmd/alpha diversity chunk 1-1.png" target="_blank">601ea51</a>
@@ -712,39 +1032,107 @@ Marc Noguera-Julian
 </div>
 <table>
 <thead>
-<tr class="header">
-<th align="left">id</th>
-<th align="right">Df</th>
-<th align="right">SumOfSqs</th>
-<th align="right">R2</th>
-<th align="right">F</th>
-<th align="right">Pr..F.</th>
+<tr>
+<th style="text-align:left;">
+id
+</th>
+<th style="text-align:right;">
+Df
+</th>
+<th style="text-align:right;">
+SumOfSqs
+</th>
+<th style="text-align:right;">
+R2
+</th>
+<th style="text-align:right;">
+F
+</th>
+<th style="text-align:right;">
+Pr..F.
+</th>
 </tr>
 </thead>
 <tbody>
-<tr class="odd">
-<td align="left">Center</td>
-<td align="right">1</td>
-<td align="right">0.1004346</td>
-<td align="right">0.0030274</td>
-<td align="right">1.494009</td>
-<td align="right">0.120</td>
+<tr>
+<td style="text-align:left;">
+Center
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+0.1004346
+</td>
+<td style="text-align:right;">
+0.0030274
+</td>
+<td style="text-align:right;">
+1.494009
+</td>
+<td style="text-align:right;">
+0.120
+</td>
 </tr>
-<tr class="even">
-<td align="left">Gender</td>
-<td align="right">1</td>
-<td align="right">0.2496988</td>
-<td align="right">0.0075267</td>
-<td align="right">3.731219</td>
-<td align="right">0.002</td>
+<tr>
+<td style="text-align:left;">
+Gender
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+0.2496988
+</td>
+<td style="text-align:right;">
+0.0075267
+</td>
+<td style="text-align:right;">
+3.731219
+</td>
+<td style="text-align:right;">
+0.002
+</td>
 </tr>
-<tr class="odd">
-<td align="left">Smoker</td>
-<td align="right">1</td>
-<td align="right">0.1471405</td>
-<td align="right">0.0044353</td>
-<td align="right">2.191875</td>
-<td align="right">0.020</td>
+<tr>
+<td style="text-align:left;">
+Smoker
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+0.1471405
+</td>
+<td style="text-align:right;">
+0.0044353
+</td>
+<td style="text-align:right;">
+2.191875
+</td>
+<td style="text-align:right;">
+0.020
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Run
+</td>
+<td style="text-align:right;">
+2
+</td>
+<td style="text-align:right;">
+0.4435815
+</td>
+<td style="text-align:right;">
+0.0133709
+</td>
+<td style="text-align:right;">
+3.327048
+</td>
+<td style="text-align:right;">
+0.001
+</td>
 </tr>
 </tbody>
 </table>
@@ -801,6 +1189,44 @@ Marc Noguera-Julian
 </table>
 </div>
 </div>
+</div>
+<div id="maaslin" class="section level3">
+<h3>MaasLin</h3>
+<p>MaasLin provides and independent differential abundance test framework, which is arguably more adapted to microbiome data and data specificities. In addition, within the statistical model, we can account for random effect and longitudinal design, in the differential testing.</p>
+<pre><code>suggested package selbal ✔suggested package DataExplorer ✔suggested package lme4 ✔suggested package merTools ✔</code></pre>
+<pre><code>[1] &quot;Warning: Deleting existing log file: output/Deliverables/DifferentialAbundance/maaslin/genusBL/maaslin2.log&quot;
+2022-09-23 16:27:28 INFO::Writing function arguments to log file
+2022-09-23 16:27:28 INFO::Verifying options selected are valid
+2022-09-23 16:27:28 INFO::Determining format of input files
+2022-09-23 16:27:28 INFO::Input format is data samples as rows and metadata samples as rows
+2022-09-23 16:27:28 WARNING::Feature name not found in metadata so not applied to formula as random effect: IPAQ
+2022-09-23 16:27:28 INFO::Formula for random effects: expr ~ (1 | Participante) + (1 | Gender) + (1 | UBE) + (1 | Edad) + (1 | Run)
+2022-09-23 16:27:28 INFO::Formula for fixed effects: expr ~  Center
+2022-09-23 16:27:28 INFO::Filter data based on min abundance and min prevalence
+2022-09-23 16:27:28 INFO::Total samples in data: 494
+2022-09-23 16:27:28 INFO::Min samples required with min abundance for a feature not to be filtered: 98.800000
+2022-09-23 16:27:28 INFO::Total filtered features: 247
+2022-09-23 16:27:28 INFO::Filtered feature names from abundance and prevalence filtering:
+2022-09-23 16:27:28 INFO::Total filtered features with variance filtering: 0
+2022-09-23 16:27:28 INFO::Filtered feature names from variance filtering:
+2022-09-23 16:27:28 INFO::Running selected normalization method: TSS
+2022-09-23 16:27:28 INFO::Applying z-score to standardize continuous metadata
+2022-09-23 16:27:28 INFO::Running selected transform method: LOG
+2022-09-23 16:27:28 INFO::Running selected analysis method: LM
+2022-09-23 16:27:28 INFO::Creating cluster of 4 R processes
+2022-09-23 16:27:34 INFO::Counting total values for each feature
+2022-09-23 16:27:34 WARNING::Deleting existing residuals file: output/Deliverables/DifferentialAbundance/maaslin/genusBL/residuals.rds
+2022-09-23 16:27:34 INFO::Writing residuals to file output/Deliverables/DifferentialAbundance/maaslin/genusBL/residuals.rds
+2022-09-23 16:27:34 WARNING::Deleting existing fitted file: output/Deliverables/DifferentialAbundance/maaslin/genusBL/fitted.rds
+2022-09-23 16:27:34 INFO::Writing fitted values to file output/Deliverables/DifferentialAbundance/maaslin/genusBL/fitted.rds
+2022-09-23 16:27:34 WARNING::Deleting existing ranef file: output/Deliverables/DifferentialAbundance/maaslin/genusBL/ranef.rds
+2022-09-23 16:27:34 INFO::Writing extracted random effects to file output/Deliverables/DifferentialAbundance/maaslin/genusBL/ranef.rds
+2022-09-23 16:27:34 INFO::Writing all results to file (ordered by increasing q-values): output/Deliverables/DifferentialAbundance/maaslin/genusBL/all_results.tsv
+2022-09-23 16:27:34 INFO::Writing the significant results (those which are less than or equal to the threshold of 0.250000 ) to file (ordered by increasing q-values): output/Deliverables/DifferentialAbundance/maaslin/genusBL/significant_results.tsv
+2022-09-23 16:27:34 INFO::Writing heatmap of significant results to file: output/Deliverables/DifferentialAbundance/maaslin/genusBL/heatmap.pdf
+[1] &quot;There are no associations to plot!&quot;
+2022-09-23 16:27:34 INFO::Writing association plots (one for each significant association) to output folder: output/Deliverables/DifferentialAbundance/maaslin/genusBL
+[1] &quot;There are no associations to plot!&quot;</code></pre>
 <br>
 <p>
 <button type="button" class="btn btn-default btn-workflowr btn-workflowr-sessioninfo" data-toggle="collapse" data-target="#workflowr-sessioninfo" style="display: block;">
@@ -824,84 +1250,94 @@ attached base packages:
 [8] base     
 
 other attached packages:
- [1] metar_0.1.5                 lefser_1.4.0               
- [3] SummarizedExperiment_1.24.0 Biobase_2.54.0             
- [5] GenomicRanges_1.46.1        GenomeInfoDb_1.30.1        
- [7] IRanges_2.28.0              S4Vectors_0.32.4           
- [9] BiocGenerics_0.40.0         MatrixGenerics_1.6.0       
-[11] matrixStats_0.62.0          testthat_3.1.4             
-[13] ggstatsplot_0.9.3           vegan_2.6-2                
-[15] lattice_0.20-45             permute_0.9-7              
-[17] patchwork_1.1.1             phylosmith_1.0.6           
-[19] phyloseq_1.38.0            
+ [1] metar_0.1.5                 Maaslin2_1.8.0             
+ [3] ggplot2_3.3.6               dplyr_1.0.9                
+ [5] ggstatsplot_0.9.3           testthat_3.1.4             
+ [7] lefser_1.4.0                SummarizedExperiment_1.24.0
+ [9] Biobase_2.54.0              GenomicRanges_1.46.1       
+[11] GenomeInfoDb_1.30.1         IRanges_2.28.0             
+[13] S4Vectors_0.32.4            BiocGenerics_0.40.0        
+[15] MatrixGenerics_1.6.0        matrixStats_0.62.0         
+[17] vegan_2.6-2                 lattice_0.20-45            
+[19] permute_0.9-7               patchwork_1.1.1            
+[21] phylosmith_1.0.6            phyloseq_1.38.0            
 
 loaded via a namespace (and not attached):
-  [1] coda_0.19-4            ragg_1.2.2             tidyr_1.2.0           
-  [4] ggplot2_3.3.6          bit64_4.0.5            knitr_1.39            
-  [7] multcomp_1.4-19        DelayedArray_0.20.0    wesanderson_0.3.6     
- [10] data.table_1.14.2      DataExplorer_0.8.2     RCurl_1.98-1.7        
- [13] doParallel_1.0.17      generics_0.1.3         TH.data_1.1-1         
- [16] callr_3.7.1            usethis_2.1.6          proxy_0.4-27          
- [19] future_1.27.0          correlation_0.8.1      bit_4.0.4             
- [22] tzdb_0.3.0             lubridate_1.8.0        httpuv_1.6.5          
- [25] assertthat_0.2.1       viridis_0.6.2          xfun_0.31             
- [28] jquerylib_0.1.4        evaluate_0.15          promises_1.2.0.1      
- [31] fansi_1.0.3            igraph_1.3.4           DBI_1.1.3             
- [34] htmlwidgets_1.5.4      paletteer_1.4.0        purrr_0.3.4           
- [37] ellipsis_0.3.2         dplyr_1.0.9            ggpubr_0.4.0          
- [40] backports_1.4.1        insight_0.18.0         prismatic_1.1.0       
- [43] libcoin_1.0-9          RcppParallel_5.1.5     vctrs_0.4.1           
- [46] remotes_2.4.2          here_1.0.1             abind_1.4-5           
- [49] cachem_1.0.6           withr_2.5.0            ggforce_0.3.3         
- [52] vroom_1.5.7            prettyunits_1.1.1      cluster_2.1.3         
- [55] ape_5.6-2              crayon_1.5.1           pkgconfig_2.0.3       
- [58] labeling_0.4.2         units_0.8-0            tweenr_1.0.2          
- [61] nlme_3.1-158           statsExpressions_1.3.2 pkgload_1.3.0         
- [64] blme_1.0-5             devtools_2.4.4         rlang_1.0.4           
- [67] globals_0.15.1         lifecycle_1.0.1        miniUI_0.1.1.1        
- [70] sandwich_3.0-2         selbal_0.1.0           rprojroot_2.0.3       
- [73] polyclip_1.10-0        datawizard_0.4.1       Matrix_1.4-1          
- [76] carData_3.0-5          zoo_1.8-10             Rhdf5lib_1.16.0       
- [79] boot_1.3-28            whisker_0.4            GlobalOptions_0.1.2   
- [82] processx_3.7.0         png_0.1-7              viridisLite_0.4.0     
- [85] rjson_0.2.21           parameters_0.18.1      bitops_1.0-7          
- [88] KernSmooth_2.23-20     rhdf5filters_1.6.0     Biostrings_2.62.0     
- [91] workflowr_1.7.0        shape_1.4.6            classInt_0.4-7        
- [94] stringr_1.4.0          coin_1.4-2             arm_1.12-2            
- [97] parallelly_1.32.1      rstatix_0.7.0          ggsignif_0.6.3        
-[100] scales_1.2.0           memoise_2.0.1          magrittr_2.0.3        
-[103] plyr_1.8.7             zlibbioc_1.40.0        compiler_4.1.1        
-[106] RColorBrewer_1.1-3     clue_0.3-61            lme4_1.1-30           
-[109] snakecase_0.11.0       cli_3.3.0              ade4_1.7-19           
-[112] XVector_0.34.0         urlchecker_1.0.1       listenv_0.8.0         
-[115] ps_1.7.1               MASS_7.3-58            mgcv_1.8-40           
-[118] ggside_0.2.1           tidyselect_1.1.2       stringi_1.7.8         
-[121] forcats_0.5.1          textshaping_0.3.6      highr_0.9             
-[124] yaml_2.3.5             ggrepel_0.9.1          grid_4.1.1            
-[127] sass_0.4.2             tools_4.1.1            parallel_4.1.1        
-[130] circlize_0.4.15        rstudioapi_0.13        foreach_1.5.2         
-[133] logging_0.10-108       git2r_0.30.1           janitor_2.1.0         
-[136] gridExtra_2.3          farver_2.1.1           Rtsne_0.16            
-[139] ggraph_2.0.5           digest_0.6.29          shiny_1.7.2           
-[142] networkD3_0.4          Rcpp_1.0.9             car_3.1-0             
-[145] broom_1.0.0            performance_0.9.1      later_1.3.0           
-[148] sf_1.0-7               ComplexHeatmap_2.10.0  effectsize_0.7.0      
-[151] colorspace_2.0-3       brio_1.1.3             fs_1.5.2              
-[154] splines_4.1.1          rematch2_2.1.2         graphlayouts_0.8.0    
-[157] multtest_2.50.0        systemfonts_1.0.4      sessioninfo_1.2.2     
-[160] xtable_1.8-4           jsonlite_1.8.0         nloptr_2.0.3          
-[163] tidygraph_1.2.1        zeallot_0.1.0          modeltools_0.2-23     
-[166] R6_2.5.1               profvis_0.3.7          broom.mixed_0.2.9.4   
-[169] pillar_1.8.0           htmltools_0.5.3        mime_0.12             
-[172] glue_1.6.2             fastmap_1.1.0          minqa_1.2.4           
-[175] class_7.3-20           codetools_0.2-18       pkgbuild_1.3.1        
-[178] mvtnorm_1.1-3          furrr_0.3.0            utf8_1.2.2            
-[181] bslib_0.4.0            tibble_3.1.8           logger_0.2.2          
-[184] survival_3.3-1         rmarkdown_2.14         desc_1.4.1            
-[187] biomformat_1.22.0      merTools_0.5.2         munsell_0.5.0         
-[190] e1071_1.7-11           GetoptLong_1.0.5       rhdf5_2.38.1          
-[193] GenomeInfoDbData_1.2.7 iterators_1.0.14       reshape2_1.4.4        
-[196] gtable_0.3.0           bayestestR_0.12.1     </code></pre>
+  [1] svglite_2.1.0          class_7.3-20           ps_1.7.1              
+  [4] foreach_1.5.2          rprojroot_2.0.3        crayon_1.5.1          
+  [7] MASS_7.3-58            rhdf5filters_1.6.0     nlme_3.1-158          
+ [10] backports_1.4.1        rlang_1.0.4            XVector_0.34.0        
+ [13] performance_0.9.1      nloptr_2.0.3           callr_3.7.1           
+ [16] optparse_1.7.3         flextable_0.7.2        rjson_0.2.21          
+ [19] bit64_4.0.5            glue_1.6.2             parallel_4.1.1        
+ [22] processx_3.7.0         classInt_0.4-7         tidyselect_1.1.2      
+ [25] usethis_2.1.6          tidyr_1.2.0            zoo_1.8-10            
+ [28] sf_1.0-7               ggpubr_0.4.0           chron_2.3-57          
+ [31] xtable_1.8-4           magrittr_2.0.3         evaluate_0.15         
+ [34] gdtools_0.2.4          cli_3.3.0              zlibbioc_1.40.0       
+ [37] DataExplorer_0.8.2     rstudioapi_0.13        miniUI_0.1.1.1        
+ [40] furrr_0.3.0            whisker_0.4            logger_0.2.2          
+ [43] bslib_0.4.0            shiny_1.7.2            xfun_0.31             
+ [46] clue_0.3-61            parameters_0.18.1      pkgbuild_1.3.1        
+ [49] multtest_2.50.0        cluster_2.1.3          tidygraph_1.2.1       
+ [52] biomformat_1.22.0      tibble_3.1.8           ggrepel_0.9.1         
+ [55] logging_0.10-108       ape_5.6-2              listenv_0.8.0         
+ [58] Biostrings_2.62.0      png_0.1-7              future_1.27.0         
+ [61] zeallot_0.1.0          withr_2.5.0            bitops_1.0-7          
+ [64] ggforce_0.3.3          plyr_1.8.7             pcaPP_2.0-2           
+ [67] e1071_1.7-11           coda_0.19-4            pillar_1.8.1          
+ [70] RcppParallel_5.1.5     GlobalOptions_0.1.2    cachem_1.0.6          
+ [73] multcomp_1.4-19        fs_1.5.2               GetoptLong_1.0.5      
+ [76] paletteer_1.4.0        hash_2.2.6.2           vctrs_0.4.1           
+ [79] ellipsis_0.3.2         generics_0.1.3         devtools_2.4.4        
+ [82] tools_4.1.1            compareGroups_4.5.1    munsell_0.5.0         
+ [85] tweenr_1.0.2           networkD3_0.4          proxy_0.4-27          
+ [88] DelayedArray_0.20.0    fastmap_1.1.0          compiler_4.1.1        
+ [91] pkgload_1.3.0          abind_1.4-5            httpuv_1.6.5          
+ [94] sessioninfo_1.2.2      GenomeInfoDbData_1.2.7 gridExtra_2.3         
+ [97] workflowr_1.7.0        utf8_1.2.2             later_1.3.0           
+[100] selbal_0.1.0           prismatic_1.1.0        jsonlite_1.8.0        
+[103] arm_1.12-2             scales_1.2.1           pbapply_1.5-0         
+[106] carData_3.0-5          promises_1.2.0.1       car_3.1-0             
+[109] doParallel_1.0.17      effectsize_0.7.0       rmarkdown_2.14        
+[112] sandwich_3.0-2         textshaping_0.3.6      blme_1.0-5            
+[115] webshot_0.5.3          Rtsne_0.16             forcats_0.5.1         
+[118] igraph_1.3.4           survival_3.3-1         yaml_2.3.5            
+[121] systemfonts_1.0.4      htmltools_0.5.3        memoise_2.0.1         
+[124] profvis_0.3.7          modeltools_0.2-23      graphlayouts_0.8.0    
+[127] here_1.0.1             viridisLite_0.4.1      digest_0.6.29         
+[130] assertthat_0.2.1       mime_0.12              wesanderson_0.3.6     
+[133] bayestestR_0.12.1      units_0.8-0            remotes_2.4.2         
+[136] data.table_1.14.2      urlchecker_1.0.1       lpsymphony_1.22.0     
+[139] ragg_1.2.2             splines_4.1.1          labeling_0.4.2        
+[142] rematch2_2.1.2         Rhdf5lib_1.16.0        RCurl_1.98-1.8        
+[145] broom_1.0.0            rhdf5_2.38.1           colorspace_2.0-3      
+[148] base64enc_0.1-3        shape_1.4.6            libcoin_1.0-9         
+[151] broom.mixed_0.2.9.4    nnet_7.3-17            sass_0.4.2            
+[154] Rcpp_1.0.9             coin_1.4-2             mvtnorm_1.1-3         
+[157] circlize_0.4.15        fansi_1.0.3            tzdb_0.3.0            
+[160] truncnorm_1.0-8        brio_1.1.3             parallelly_1.32.1     
+[163] R6_2.5.1               grid_4.1.1             lifecycle_1.0.1       
+[166] statsExpressions_1.3.2 zip_2.2.0              writexl_1.4.0         
+[169] datawizard_0.4.1       ggsignif_0.6.3         minqa_1.2.4           
+[172] getopt_1.20.3          jquerylib_0.1.4        snakecase_0.11.0      
+[175] robustbase_0.95-0      Matrix_1.4-1           desc_1.4.1            
+[178] TH.data_1.1-1          RColorBrewer_1.1-3     iterators_1.0.14      
+[181] stringr_1.4.1          htmlwidgets_1.5.4      officer_0.4.3         
+[184] polyclip_1.10-0        purrr_0.3.4            rvest_1.0.2           
+[187] ComplexHeatmap_2.10.0  mgcv_1.8-40            globals_0.15.1        
+[190] insight_0.18.0         codetools_0.2-18       lubridate_1.8.0       
+[193] prettyunits_1.1.1      correlation_0.8.1      gtable_0.3.0          
+[196] DBI_1.1.3              git2r_0.30.1           httr_1.4.3            
+[199] highr_0.9              KernSmooth_2.23-20     stringi_1.7.8         
+[202] vroom_1.5.7            reshape2_1.4.4         farver_2.1.1          
+[205] uuid_1.1-0             viridis_0.6.2          mice_3.14.0           
+[208] xml2_1.3.3             boot_1.3-28            kableExtra_1.3.4      
+[211] lme4_1.1-30            ade4_1.7-19            DEoptimR_1.0-11       
+[214] bit_4.0.4              ggside_0.2.1           ggraph_2.0.5          
+[217] janitor_2.1.0          pkgconfig_2.0.3        biglm_0.9-2.1         
+[220] rstatix_0.7.0          HardyWeinberg_1.7.5    Rsolnp_1.16           
+[223] knitr_1.39             merTools_0.5.2        </code></pre>
 </div>
 </div>
 </div>

@@ -26,6 +26,39 @@ rmd_env <- "devel"
 
 In this Analysis section we aim to describe possible differences between the two pariticpating centers at baseline, in order to assess whether there are any and if they are relevant in relation to the longtiduinal resultes obtained from the nutritional intervention.
 
+## Baseline Demographics
+
+We need to compare the baseline populations in order to see which of the variable should we be testing. 
+
+At baseline, populations were comparable in anthropotmetric measures. However, IG was younger and had a higher proportion of women. In addition, IG participant also showed a higher consumption of alcohol as measured in TE and a slight higher phyisical activity.
+
+```{r demographicss chunk 1, echo=F, message=FALSE, warning=FALSE, paged.print=FALSE, tidy=F, fig.cap="LDA Lefse plot, showing enrichment of several general in labelled group"}
+
+suppressWarnings(require(phyloseq))
+suppressWarnings(require(phylosmith))
+suppressWarnings(require(patchwork))
+suppressWarnings(require(vegan))
+suppressWarnings(require(lefser))
+# Load package from local copy
+devtools::load_all("~/Documents/Work/Development/WMGSPipeline/")
+ps_silva<-readRDS("data/cfu/DADA2/ps_silva.rds")
+myMREObject<-readRDS("data/cfu/mreObject.rds")
+myMREObject@wd<-"output/mre_data/cfu"
+
+
+# metar::get_meta(myMREObject) %>% dplyr::glimpse()
+my_table<-metar::get_meta(myMREObject) %>%
+    dplyr::filter(Timepoint=="BL") %>% 
+    dplyr::select(Center,Edad,Gender,Smoker,UBE,AF_Colesterol,Peso,Talla,Masagrasaporcentage,METActividadFisicabasaltotal,MedDietscore,Run) %>% as.data.frame() %>% 
+    dplyr::rename(Age=Edad,TE=UBE,Cholesterol=AF_Colesterol,Weight=Peso,Height=Talla,BodyFat=Masagrasaporcentage,IPAQ=METActividadFisicabasaltotal,MDScore=MedDietscore) %>% 
+    dplyr::mutate(BMI=(Weight/(Height/100)^2)) %>% 
+    dplyr::select(-Height,-Weight) %>% 
+    dplyr::mutate(Center=ifelse(Center=="C01","IG","CG"))
+  
+compareGroups::compareGroups(data = my_table,formula = Center ~ .) %>% 
+  compareGroups::createTable() %>% compareGroups::export2md()
+```
+
 ## Alpha-Diversity
 
 Alpha Diversity refers to the taxonomical richness and evenness of a particular sample. Alpha Diversity can be assess by a wide set of estimators and indices. Here we'll use:
@@ -37,7 +70,7 @@ Alpha Diversity refers to the taxonomical richness and evenness of a particular 
 There are significant differences between groups at baseline. Control Group(C02) shows a higher richness, evenness and phylogenetic diversity than intervention group at baseline. Reasons for this are unknown and may be due to socio-geographical features of each population. 
 
 
-```{r alpha diversity chunk 1, echo=F, message=FALSE, warning=FALSE, paged.print=FALSE, tidy=F,fig.width=12, fig.height=8}
+```{r alpha diversity chunk 1, echo=F, message=FALSE, warning=FALSE, paged.print=FALSE, tidy=F,fig.width=5, fig.height=5}
 suppressWarnings(require(phyloseq))
 suppressWarnings(require(phylosmith))
 suppressWarnings(require(patchwork))
@@ -123,10 +156,11 @@ myMREObject@wd<-"output/mre_data/cfu"
 ### BL
 BL_samples<-myMREObject %>% 
   metar::get_meta() %>% 
-  dplyr::filter(Timepoint=="BL")
+  dplyr::filter(Timepoint=="BL") %>% 
+  dplyr::pull(SampleID) %>% as.vector()
 
 auxMREObject<-myMREObject %>%
-  metar::filter_samples(.,BL_samples$SampleID) 
+  metar::filter_samples(.,BL_samples) 
 auxMREObject@metadata@categorical_vals<-auxMREObject@metadata@categorical_vals %>% dplyr::filter(CategoricalVariable!="Timepoint")
 
 # auxMREObject %>% 
@@ -139,6 +173,8 @@ auxMREObject<-metar::dada2_nmds(tax_level = "Genus", mre = auxMREObject,top_n = 
 p0<-auxMREObject@taxa@dada2@nmds$Genus$top_50$categorical$Center
 
 p0
+
+# auxMREObject@taxa@dada2@nmds$Genus$top_50$categorical$Run ### Slight batch effect.
 ```
 
 ```{r beta diversity chunk 3, echo=F, message=FALSE, warning=FALSE, paged.print=FALSE, tidy=F, fig.cap="PERMANOVA results. Pr..F indicates significance for variable in column id. R2 indicate effect size-like linked to the corresponding variable."}
@@ -174,7 +210,7 @@ threshold<-ps_silva %>% otu_table( ) %>% colSums() %>% quantile(.,0.05)
 
 set.seed(1234)
 x.2.0 <-phyloseq::rarefy_even_depth(ps_silva,sample.size = threshold)
-
+# x.2.0<-ps_silva
 ### C01
 ### d samples
 x.2.0 <- x.2.0 %>% 
@@ -205,19 +241,77 @@ p0<-aux_res %>%
     
 for(otu_name in aux_res$otu){
   my_ps <- x.2.0
+  my_ps <- ps_silva
   title <- aux_res %>% 
     dplyr::filter(otu==otu_name) 
   my_ps %>% 
+  # microbiome::transform(.,transform="compositional") %>% 
   phyloseq::psmelt()%>% 
   dplyr::filter(OTU==otu_name) %>% 
   ggstatsplot::ggbetweenstats(data = .,x=Center,y=Abundance,
                                        xlab=NULL,ylab=NULL,centrality.plotting=T,
                                        bf.message=F,title=title$Names,
-                                       method="non-parametric",palette="Dark2") %>% 
+                                       type="nonparametric",palette="Dark2") %>% 
   
    ggsave(.,filename=paste0("output/Deliverables/boxplots/",title$Names,"_vs_Center_Baseline_Samples.pdf"),width=7, height=7)
 }
 
 p0
  
+```
+### MaasLin
+
+MaasLin provides and independent differential abundance test framework, which is arguably more adapted to microbiome data and data specificities. In addition, within the statistical model, we can account for random effect and longitudinal design, in the differential testing.
+
+
+
+```{r DA species maaslin2 BL, include=TRUE, echo=F, message=FALSE, warning=FALSE, paged.print=FALSE, tidy=T,eval=T}
+suppressMessages(require(dplyr))
+suppressMessages(require(phyloseq))
+suppressMessages(require(lefser))
+suppressMessages(require(ggplot2))
+suppressMessages(require(patchwork))
+suppressMessages(require(Maaslin2))
+
+set.seed(1234)
+### Species Level
+
+devtools::load_all("~/Documents/Work/Development/WMGSPipeline/")
+myMREObject<-readRDS("data/cfu/mreObject.rds")
+
+### Genus Level Baseline
+input_data<-myMREObject@taxa@dada2@phyloseq %>% 
+  phyloseq::subset_samples(Timepoint=="BL") %>% tax_glom(.,taxrank="Genus",NArm = F) %>% otu_table() %>% t()
+
+colnames(input_data)<-myMREObject@taxa@dada2@phyloseq %>% 
+  phyloseq::subset_samples(Timepoint=="BL") %>% 
+  tax_glom(.,taxrank="Genus",NArm = F) %>% 
+  phyloseq::tax_table() %>% data.frame() %>% 
+  dplyr::pull(Genus)
+
+input_metadata<-metar::get_meta(myMREObject) %>% as.data.frame() %>%
+  dplyr::rename(IPAQ=METActividadFisicabasaltotal)
+rownames(input_metadata)<-input_metadata$SampleID
+suppressWarnings(fit_data <- Maaslin2::Maaslin2(input_data=input_data,
+                                                input_metadata=input_metadata,
+                                                output="output/Deliverables/DifferentialAbundance/maaslin/genusBL",
+                                                fixed_effects = c("Center"),
+                                                random_effects = c("Gender","UBE","Edad","IPAQ","Run"),
+                                                cores=4,plot_heatmap = T,
+                                                min_prevalence = 0.2,
+                                                plot_scatter = T)) ### No siginifcant hits
+# 
+fit_data$results %>% 
+  dplyr::mutate('-log(qval)'=-log10(qval)) %>% 
+  dplyr::mutate(significant=ifelse(qval<0.05,"q<0.05","ns")) %>% 
+  ggplot(.,aes(x=coef,y=`-log(qval)`,color=significant))+geom_point()
+# fit_data$results %>% 
+#   dplyr::filter(qval<0.1) %>% 
+#   dplyr::arrange(coef) %>% 
+#   dplyr::rename(Genus=feature) %>% 
+#   dplyr::left_join(get_phyloseq(myMREObject,type="dada2") %>% 
+#                      phyloseq::tax_table() %>% 
+#                      as.data.frame() %>% 
+#                      dplyr::mutate(Genus=gsub("-",".",Genus))) %>% 
+#   knitr::kable()
 ```

@@ -58,9 +58,46 @@ my_tax_table<-tax_table(ps_silva)
 my_tree<-phy_tree(ps_silva)
 my_metadata<-read.csv("data/raw/Metadata/Metadata_v2.0.csv",sep=";")
 rownames(my_metadata)<-my_metadata$SampleID
+# 
+# ### Duplicate variables for english-publication
+my_metadata$Gender<-dplyr::if_else(my_metadata$Genero==0,"Male","Female")
+my_metadata$Smoker<-dplyr::if_else(my_metadata$Fumador==0,"Non-smoker","Smoker")
+
+### 
+### Add new metadata here
+
+### Add date of visit
+date_df<-xlsx::read.xlsx("data/raw/Metadata/FullMetadata_v1.0.xlsx",sheetIndex = 1) %>% 
+  dplyr::select(Participante,visitDate,Center,Timepoint)
+
+date_df<-date_df %>% 
+  tidyr::pivot_wider(id_cols = Participante,names_from = Timepoint,values_from = visitDate) %>% 
+  dplyr::mutate(BL=as.Date(BL,format = "%m/%d/%y")) %>% 
+  dplyr::mutate(Month6=BL+240) %>% 
+  tidyr::pivot_longer(cols = c("BL","Month6"),names_to = "Timepoint",values_to = "Date") 
+
+
+my_metadata<-date_df %>% 
+  dplyr::right_join(my_metadata,by=c("Participante","Timepoint")) %>% 
+  dplyr::rename(visitDate=Date) %>% 
+  dplyr::mutate(visitDate=as.Date(visitDate,format = "%m/%d/%y"))
+
+### Add Sequencing Run
+runs_df<-xlsx::read.xlsx("data/raw/Metadata/Runs.xlsx",sheetIndex = 1) 
+
+
+my_metadata<-my_metadata %>% 
+ dplyr::left_join(runs_df,by="SampleID") %>% 
+  as.data.frame()
+
+###
+rownames(my_metadata)<-my_metadata$SampleID
+
+my_metadata$Run<-as.factor(my_metadata$Run) 
+my_metadata$SampleID<-as.factor(my_metadata$SampleID)
 
 my_phyloseq<-phyloseq(my_otu_table, my_tax_table,my_tree)
-sample_names(my_phyloseq)
+# sample_names(my_phyloseq)
 sample_data(my_phyloseq)<-my_metadata
 
 #### If taxa needs to be filtered, this should be done here.
@@ -88,42 +125,30 @@ ps_silva <- readRDS("data/raw/DADA2/ps_silva.rds")
 x.2.0<-ps_silva
 ### Rarefaction is performed with the raw dataset
 sampleIndexes<-sample(nsamples(x.2.0),0.5*nsamples(x.2.0))
-sampleData<-phyloseq::sample_data(ps_silva) %>% as.data.frame()
-# rarecurve(data.frame((otu_table(x.2.0))),step=20,label=F,main="Obs.Species/Seq. Depth ")
-# pdf("output/Deliverables/RarefactionCurve_Center.pdf")
-# myColors<-(RColorBrewer::brewer.pal(name = "Set2",n=2))[1:2]
-# rarecurve(data.frame(t(otu_table(x.2.0))),step=200,col=myColors[as.factor(sampleData[,"Center"])],label=F,main="Obs.Species/Seq. Depth vs Center")
-# dev.off()
-# 
-# pdf("output/Deliverables/RarefactionCurve_Treatment.pdf")
-# myColors<-(RColorBrewer::brewer.pal(name = "Set2",n=3))
-# rarecurve(data.frame(t(otu_table(x.2.0))[sampleIndexes,]),step=200,col=myColors[as.factor(sampleData[sampleIndexes,"Treatment"])],label=F,main="Obs.Species/Seq. Depth vs Treatment")
-# dev.off()
-# 
-# myColors<-(RColorBrewer::brewer.pal(name = "Set2",n=3))
-# rarecurve(data.frame(t(otu_table(x.2.0))[sampleIndexes,]),step=200,col=myColors[as.factor(sampleData[sampleIndexes,"Center"])],label=F,main="Obs.Species/Seq. Depth vs Center")
+sampleData<-phyloseq::sample_data(ps_silva) %>% data.frame()
 
 if( ! grepl("diversity_shannon",colnames(sample_data(ps_silva))) ){
  
   ### Save Richness & Diversity parameters
   # x.2.0<-filter_taxa(x.2.0, function (x) {sum(x > 0) > 1}, prune=TRUE)
   otu_counts<-colSums(otu_table(x.2.0))
-  x.2.0_RR<-rarefy_even_depth(x.2.0,min(rowSums(t(otu_table(x.2.0)))),rngseed = 1234,quantile(otu_counts,probs = 0.01))
+  # x.2.0_RR<-rarefy_even_depth(x.2.0,min(rowSums(t(otu_table(x.2.0)))),rngseed = 1234,quantile(otu_counts,probs = 0.01))
+  x.2.0_RR<-x.2.0
   
   saveRDS(x.2.0_RR,"data/processed/ps_silva_RR.rds")
-  
-  richnessDF<-alpha(x.2.0)
-  pd_df<-picante::pd(t(otu_table(x.2.0)),phy_tree(x.2.0),include.root = F)
-  richnessDF<-merge(richnessDF,pd_df,by="row.names")
-  richnessDF$SampleID<-richnessDF$Row.names
-  rownames(richnessDF)<-richnessDF$SampleID
+  if (file.exists("output/Deliverables/AlphaDiversityEstimation.xls")){
+    richnessDF<-xlsx::read.xlsx("output/Deliverables/AlphaDiversityEstimation.xls",sheetIndex = 1)
+    rownames(richnessDF)<-richnessDF$SampleID
+  }else{
+    richnessDF<-microbiome::alpha(x.2.0)
+    pd_df<-picante::pd(t(otu_table(x.2.0)),phy_tree(x.2.0),include.root = F)
+    richnessDF<-merge(richnessDF,pd_df,by="row.names")
+    richnessDF$SampleID<-richnessDF$Row.names
+    rownames(richnessDF)<-richnessDF$SampleID
+    xlsx::write.xlsx(richnessDF,file="output/Deliverables/AlphaDiversityEstimation.xls")
+  }  
   richnessDF[1:5,c("observed","diversity_shannon","PD")] %>% knitr::kable()
- 
-  xlsx::write.xlsx(richnessDF,file="output/Deliverables/AlphaDiversityEstimation.xls")
-
-  
   sampleData<-phyloseq::sample_data(ps_silva) %>% data.frame()
-  
   sampleData<-merge(sampleData,richnessDF,by.x="SampleID", by.y="SampleID") %>% dplyr::select(-Row.names)
   rownames(sampleData)<-sampleData$SampleID
   sample_data(ps_silva)<-sampleData
@@ -136,7 +161,8 @@ if( ! grepl("diversity_shannon",colnames(sample_data(ps_silva))) ){
   ### ps_silva should contain data at the genus level and diveristy/richness measures as metadata
 }
 
-
+rm(list = ls(all.names = TRUE)) #will clear all objects includes hidden objects.
+gc() #free up memrory and report the memory usage.
 
 ```
 
@@ -155,6 +181,14 @@ suppressMessages(require(knitr))
 devtools::load_all("~/Documents/Work/Development/WMGSPipeline/")### Change to require/library/load local package
 
 myMREObject<-metar::metarExperiment(wd="data/processed/")
+
+ps_silva<-readRDS("data/processed/DADA2/ps_silva.rds")
+aux_df<-sample_data(ps_silva)
+### Replace phyloseq slots with processed ps_silva data
+sample_data(myMREObject@taxa@dada2@phyloseq)<-aux_df
+myMREObject@metadata@metadata_df<-sample_data(ps_silva) %>% data.frame() %>% tibble()
+myMREObject@metadata@categorical_vals<-myMREObject@metadata@categorical_vals %>% 
+  bind_rows(tibble(CategoricalVariable="Run",PaletteName="Accent"))
 
 ## Ensure Metadata Correctness and coherence among phyloseq objects and metadata slots before proceeding.
 
@@ -184,10 +218,10 @@ require(genefilter)
 
 # Samples within Baseline - Create a new metar object, define wd accordingly
 dir.create("data/internal/baseline/",recursive=T,showWarnings = F)
-auxMREObject <- get_meta(myMREObject) %>% 
+ auxMREObject<-get_meta(myMREObject) %>% 
   dplyr::filter(Timepoint=="BL") %>%
-  dplyr::pull(SampleID) %>%
-  metar::filter_samples(sample_ids = .,mre=myMREObject)
+  dplyr::pull(SampleID) %>% as.vector() %>%
+ metar::filter_samples(sample_ids = .,mre=myMREObject)
 auxMREObject@wd<-"output/mre_data/baseline/"
 
 auxMREObject@metadata@categorical_vals<- auxMREObject@metadata@categorical_vals %>%
@@ -211,7 +245,7 @@ require(genefilter)
 dir.create("data/internal/treatment/",recursive=T,showWarnings = F)
 auxMREObject <- get_meta(myMREObject) %>% 
   dplyr::filter(Center=="C01") %>%
-  dplyr::pull(SampleID) %>%
+  dplyr::pull(SampleID) %>% as.vector() %>% 
   metar::filter_samples(sample_ids = .,mre=myMREObject)
 auxMREObject@wd<-"output/mre_data/treatment/"
 
@@ -236,7 +270,7 @@ require(genefilter)
 dir.create("data/internal/placebo/",recursive=T,showWarnings = F)
 auxMREObject <- get_meta(myMREObject) %>% 
   dplyr::filter(Center=="C02") %>%
-  dplyr::pull(SampleID) %>%
+  dplyr::pull(SampleID) %>% as.vector() %>% 
   metar::filter_samples(sample_ids = .,mre=myMREObject)
 auxMREObject@wd<-"output/mre_data/placebo/"
 
