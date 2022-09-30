@@ -77,7 +77,7 @@ tax_glom(ps_silva,taxrank="Phylum", NArm = F) %>%
   dplyr::mutate(ratio=Firmicutes/Bacteroidetes) %>% 
   dplyr::filter(Center=="C01") %>% 
   dplyr::arrange(Participante) %>% 
-  ggstatsplot::ggwithinstats(Timepoint,ratio,pairwise.comparisons = T,type="np",bf.message = NULL,title = "Firmicutes/Bacteroidetes vs Timepoint | C01")
+  ggstatsplot::ggwithinstats(Timepoint,ratio,pairwise.comparisons = T,type="np",bf.message = NULL,title = "Firmicutes/Bacteroidetes vs Timepoint | IG")
 
 tax_glom(ps_silva,taxrank="Phylum", NArm = F) %>% 
   phyloseq::psmelt( ) %>% 
@@ -87,7 +87,23 @@ tax_glom(ps_silva,taxrank="Phylum", NArm = F) %>%
   dplyr::arrange(Participante) %>% 
   dplyr::mutate(ratio=Firmicutes/Bacteroidetes) %>% 
   dplyr::filter(Center=="C02") %>% 
-  ggstatsplot::ggwithinstats(Timepoint,ratio,type="np",pairwise.comparisons = T,bf.message = NULL,title = "Firmicutes/Bacteroidetes vs Timepoint | C02")
+  ggstatsplot::ggwithinstats(Timepoint,ratio,type="np",pairwise.comparisons = T,bf.message = NULL,title = "Firmicutes/Bacteroidetes vs Timepoint | CG")
+
+### Compared Deltas between IG and CG.
+tax_glom(ps_silva,taxrank="Phylum", NArm = F) %>% 
+  phyloseq::psmelt( ) %>% 
+  dplyr::select(Center,Timepoint,Participante,Phylum, Abundance) %>% 
+  dplyr::filter(Phylum %in% c("Firmicutes","Bacteroidetes")) %>% 
+  tidyr::pivot_wider(names_from=Phylum,values_from = Abundance) %>% 
+  dplyr::arrange(Participante) %>% 
+  dplyr::mutate(ratio=Firmicutes/Bacteroidetes) %>% 
+  dplyr::mutate(Center=ifelse(Center=="C01","IG","CG")) %>% 
+  tidyr::pivot_wider(names_from = Timepoint,values_from = ratio,id_cols = Participante) %>% 
+  dplyr::mutate(DeltaRatio=Month6-BL) %>% 
+  dplyr::left_join(get_meta(myMREObject)) %>% 
+  dplyr::select(DeltaRatio,Center) %>% 
+  ggstatsplot::ggbetweenstats(Center,DeltaRatio,bf.message = F,type="np",title="Delta F/B Ratio vs Center")
+
 
 
 

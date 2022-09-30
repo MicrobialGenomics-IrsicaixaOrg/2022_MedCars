@@ -209,7 +209,69 @@ myMREObject
 
 ### Create and store MRE object for subsets of data
 
+
+
 We also create subsets of data that can be handy and that respond to the project-specific design.
+```{r create subset with complete follow-up, echo=F, message=FALSE, warning=FALSE, paged.print=FALSE, tidy=F}
+suppressMessages(require(phyloseq))
+suppressWarnings(require(dplyr))
+# Load package from local copy
+devtools::load_all("~/Documents/Work/Development/WMGSPipeline/")
+ps_silva<-readRDS("data/raw/DADA2/ps_silva.rds")
+min_throughput<-otu_table(ps_silva) %>% colSums() %>% min()
+max_throughput<-otu_table(ps_silva) %>% colSums() %>% max()
+median_throughput<-median(otu_table(ps_silva) %>% colSums())
+n_samples<-length(phyloseq::sample_names(ps_silva))
+
+total_participants<-sample_data(ps_silva) %>% 
+  data.frame() %>% 
+  dplyr::select(Participante) %>% 
+  unique
+n_total_participants<-length(total_participants$Participante)
+
+two_bl_sample_participants<-ps_silva %>% 
+  sample_data() %>% 
+  data.frame() %>% 
+  dplyr::filter(Center=="C02") %>%
+  dplyr::select("Center","Timepoint","Participante") %>% 
+  group_by(Participante,Timepoint) %>% 
+  count() %>% 
+  dplyr::filter(n==2)
+
+cfu_participants<-sample_data(ps_silva) %>% 
+  data.frame() %>% 
+  count(Participante) %>% 
+  dplyr::filter(n==2) %>% 
+  dplyr::select(Participante) %>% 
+  dplyr::filter(! Participante %in% two_bl_sample_participants$Participante)
+n_cfu_participants<-length(cfu_participants$Participante)
+
+samples_cfu_participants<-sample_data(ps_silva) %>% 
+  data.frame() %>% 
+  dplyr::filter(Participante %in% cfu_participants$Participante) %>% 
+  dplyr::select(SampleID)
+
+two_bl_sample_participants<-ps_silva %>% 
+  sample_data() %>% 
+  data.frame() %>% 
+  dplyr::filter(Center=="C02") %>%
+  dplyr::select("Center","Timepoint","Participante") %>%
+  group_by(Participante,Timepoint) %>% 
+  count() %>%
+  dplyr::filter(n==2)
+
+ps_silva<-readRDS("data/processed/DADA2/ps_silva.rds")
+ps_silva<-phyloseq::subset_samples(ps_silva,Participante %in% cfu_participants$Participante)
+saveRDS(ps_silva,"data/cfu/DADA2/ps_silva.rds")
+
+myMREObject<-readRDS("data/processed/mreObject.rds")
+myMREObject<-myMREObject %>% 
+  metar::filter_samples(.,samples_cfu_participants$SampleID %>% as.vector())
+myMREObject@wd<-"output/mre_data/cfu/"
+saveRDS(myMREObject,"data/cfu/mreObject.rds")
+
+```
+
 
 ```{r create subsets Baseline,echo=F,include=F,message=F, eval=T}
 ### This is an example on how to filter samples to form a consisten subset.
@@ -218,7 +280,7 @@ require(genefilter)
 
 # Samples within Baseline - Create a new metar object, define wd accordingly
 dir.create("data/internal/baseline/",recursive=T,showWarnings = F)
- auxMREObject<-get_meta(myMREObject) %>% 
+auxMREObject<-get_meta(myMREObject) %>% 
   dplyr::filter(Timepoint=="BL") %>%
   dplyr::pull(SampleID) %>% as.vector() %>%
  metar::filter_samples(sample_ids = .,mre=myMREObject)
@@ -242,12 +304,12 @@ set.seed(1234)
 require(genefilter)
 
 # Samples within center under dietary treatment (C01) - Create a new metar object, define wd accordingly
-dir.create("data/internal/treatment/",recursive=T,showWarnings = F)
+dir.create("data/internal/IG/",recursive=T,showWarnings = F)
 auxMREObject <- get_meta(myMREObject) %>% 
   dplyr::filter(Center=="C01") %>%
   dplyr::pull(SampleID) %>% as.vector() %>% 
   metar::filter_samples(sample_ids = .,mre=myMREObject)
-auxMREObject@wd<-"output/mre_data/treatment/"
+auxMREObject@wd<-"output/mre_data/IG/"
 
 auxMREObject@metadata@categorical_vals<- auxMREObject@metadata@categorical_vals %>%
   dplyr::filter(CategoricalVariable != "Center")
@@ -257,22 +319,22 @@ flist<-genefilter::filterfun(genefilter::kOverA(1,0))
 ent.logi<-phyloseq::filter_taxa(metar::get_phyloseq(auxMREObject,type="dada2"), flist)
 auxMREObject@taxa@dada2@phyloseq <- phyloseq::filter_taxa(metar::get_phyloseq(auxMREObject,type="dada2"), flist, TRUE)
 
-saveRDS(auxMREObject,"data/internal/treatment/mreObject.rds")
+saveRDS(auxMREObject,"data/internal/IG/mreObject.rds")
 ```
 
 
-```{r create subsets  Placebo,echo=F,include=F,message=F, eval=T}
+```{r create subsets CG ,echo=F,include=F,message=F, eval=T}
 ### This is an example on how to filter samples to form a consisten subset.
 set.seed(1234)
 require(genefilter)
 
 # Samples within center under placebo treatment (C02) - Create a new metar object, define wd accordingly
-dir.create("data/internal/placebo/",recursive=T,showWarnings = F)
+dir.create("data/internal/CG/",recursive=T,showWarnings = F)
 auxMREObject <- get_meta(myMREObject) %>% 
   dplyr::filter(Center=="C02") %>%
   dplyr::pull(SampleID) %>% as.vector() %>% 
   metar::filter_samples(sample_ids = .,mre=myMREObject)
-auxMREObject@wd<-"output/mre_data/placebo/"
+auxMREObject@wd<-"output/mre_data/CG/"
 
 auxMREObject@metadata@categorical_vals<- auxMREObject@metadata@categorical_vals %>%
   dplyr::filter(CategoricalVariable != "Center")
@@ -282,5 +344,5 @@ flist<-genefilter::filterfun(genefilter::kOverA(1,0))
 ent.logi<-phyloseq::filter_taxa(metar::get_phyloseq(auxMREObject,type="dada2"), flist)
 auxMREObject@taxa@dada2@phyloseq <- phyloseq::filter_taxa(metar::get_phyloseq(auxMREObject,type="dada2"), flist, TRUE)
 
-saveRDS(auxMREObject,"data/internal/placebo/mreObject.rds")
+saveRDS(auxMREObject,"data/internal/CG/mreObject.rds")
 ```

@@ -11,7 +11,7 @@
 
 <meta name="author" content="Marc Noguera-Julian, PhD." />
 
-<meta name="date" content="2022-09-02" />
+<meta name="date" content="2022-09-29" />
 
 <title>Microbiome association with Mediterranean diet</title>
 
@@ -349,7 +349,13 @@ div.tocify {
   <a href="230_MedDietScore.html">Mediterranean Diet</a>
 </li>
 <li>
+  <a href="250_PhysicalActivity.html">Physical Activity</a>
+</li>
+<li>
   <a href="260_FirmicutesBacteroides.html">Firmicutes/Bacteroidetes</a>
+</li>
+<li>
+  <a href="260_FirmicutesBacteroides.html">Functional Analysis</a>
 </li>
 <li>
   <a href="about.html">About</a>
@@ -371,7 +377,7 @@ div.tocify {
 
 <h1 class="title toc-ignore">Microbiome association with Mediterranean diet</h1>
 <h4 class="author">Marc Noguera-Julian, PhD.</h4>
-<h4 class="date">2022-09-02</h4>
+<h4 class="date">2022-09-29</h4>
 
 </div>
 
@@ -396,7 +402,7 @@ div.tocify {
 <div class="tab-content">
 <div id="summary" class="tab-pane fade in active">
 <p>
-<strong>Last updated:</strong> 2022-09-02
+<strong>Last updated:</strong> 2022-09-29
 </p>
 <p>
 <strong>Checks:</strong> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> 6 <span class="glyphicon glyphicon-exclamation-sign text-danger" aria-hidden="true"></span> 1
@@ -420,7 +426,7 @@ This reproducible <a href="https://rmarkdown.rstudio.com">R Markdown</a> analysi
 </div>
 <div id="strongRMarkdownfilestronguncommittedchanges" class="panel-collapse collapse">
 <div class="panel-body">
-<p>The R Markdown is ignored by Git. To know which version of the R Markdown file created these results, you’ll want to first commit it to the Git repo. If you’re still working on the analysis, you can ignore this warning. When you’re finished, you can run <code>wflow_publish</code> to commit the R Markdown file and build the HTML.</p>
+<p>The R Markdown file has unstaged changes. To know which version of the R Markdown file created these results, you’ll want to first commit it to the Git repo. If you’re still working on the analysis, you can ignore this warning. When you’re finished, you can run <code>wflow_publish</code> to commit the R Markdown file and build the HTML.</p>
 </div>
 </div>
 </div>
@@ -487,16 +493,16 @@ This reproducible <a href="https://rmarkdown.rstudio.com">R Markdown</a> analysi
 <div class="panel panel-default">
 <div class="panel-heading">
 <p class="panel-title">
-<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomMicrobialGenomicsIrsicaixaOrg2022MedCarstree940511c512797f8ef952c0b2e1224cd2cde0b938targetblank940511ca"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Repository version:</strong> <a href="https://github.com/MicrobialGenomics-IrsicaixaOrg/2022_MedCars/tree/940511c512797f8ef952c0b2e1224cd2cde0b938" target="_blank">940511c</a> </a>
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomMicrobialGenomicsIrsicaixaOrg2022MedCarstree9594b4b1eee834d1666dba133ec4ba2e68d2e3c9targetblank9594b4ba"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Repository version:</strong> <a href="https://github.com/MicrobialGenomics-IrsicaixaOrg/2022_MedCars/tree/9594b4b1eee834d1666dba133ec4ba2e68d2e3c9" target="_blank">9594b4b</a> </a>
 </p>
 </div>
-<div id="strongRepositoryversionstrongahrefhttpsgithubcomMicrobialGenomicsIrsicaixaOrg2022MedCarstree940511c512797f8ef952c0b2e1224cd2cde0b938targetblank940511ca" class="panel-collapse collapse">
+<div id="strongRepositoryversionstrongahrefhttpsgithubcomMicrobialGenomicsIrsicaixaOrg2022MedCarstree9594b4b1eee834d1666dba133ec4ba2e68d2e3c9targetblank9594b4ba" class="panel-collapse collapse">
 <div class="panel-body">
 <p>
 Great! You are using Git for version control. Tracking code development and connecting the code version to the results is critical for reproducibility.
 </p>
 <p>
-The results in this page were generated with repository version <a href="https://github.com/MicrobialGenomics-IrsicaixaOrg/2022_MedCars/tree/940511c512797f8ef952c0b2e1224cd2cde0b938" target="_blank">940511c</a>. See the <em>Past versions</em> tab to see a history of the changes made to the R Markdown and HTML files.
+The results in this page were generated with repository version <a href="https://github.com/MicrobialGenomics-IrsicaixaOrg/2022_MedCars/tree/9594b4b1eee834d1666dba133ec4ba2e68d2e3c9" target="_blank">9594b4b</a>. See the <em>Past versions</em> tab to see a history of the changes made to the R Markdown and HTML files.
 </p>
 <p>
 Note that you need to be careful to ensure that all relevant files for the analysis have been committed to Git prior to generating the results (you can use <code>wflow_publish</code> or <code>wflow_git_commit</code>). workflowr only checks the R Markdown file, but you know if there are other scripts or data files that it depends on. Below is the status of the Git repository when the results were generated:
@@ -507,13 +513,6 @@ Ignored files:
     Ignored:    .Rhistory
     Ignored:    .Rproj.user/
     Ignored:    analysis/.DS_Store
-    Ignored:    analysis/201_exploratory_analysis.Rmd
-    Ignored:    analysis/210_baseline_analysis.Rmd
-    Ignored:    analysis/220_intervention_analysis.Rmd
-    Ignored:    analysis/230_MedDietScore.Rmd
-    Ignored:    analysis/240_fatty_acids.Rmd
-    Ignored:    analysis/250_PhysicalActivity.Rmd
-    Ignored:    analysis/260_FirmicutesBacteroides.Rmd
     Ignored:    data/.DS_Store
     Ignored:    data/cfu/
     Ignored:    data/internal/
@@ -525,12 +524,20 @@ Ignored files:
     Ignored:    output/mre_data/
 
 Untracked files:
-    Untracked:  code/901_Abstract.Rmd
-    Untracked:  code/901_Abstract.docx
+    Untracked:  analysis/270_PairingAnalysis.Rmd
+    Untracked:  analysis/figure/
+    Untracked:  code/902_themes.R
+    Untracked:  code/999_aux_code.R
 
 Unstaged changes:
-    Modified:   analysis/_site.yml
-    Modified:   code/999_gift_code.R
+    Modified:   analysis/201_exploratory_analysis.Rmd
+    Modified:   analysis/210_baseline_analysis.Rmd
+    Modified:   analysis/220_intervention_analysis.Rmd
+    Modified:   analysis/230_MedDietScore.Rmd
+    Modified:   analysis/300_FunctionalAnalysis.Rmd
+    Modified:   code/006_DataPreprocessing.Rmd
+    Modified:   code/006_DataPreprocessing.html
+    Deleted:    code/999_gift_code.R
 
 </code></pre>
 <p>
@@ -569,6 +576,40 @@ Message
 </tr>
 </thead>
 <tbody>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/MicrobialGenomics-IrsicaixaOrg/2022_MedCars/blob/1c2dd47bf64409ce32bc85e3c96b5452d29e8fc1/analysis/230_MedDietScore.Rmd" target="_blank">1c2dd47</a>
+</td>
+<td>
+Marc Noguera-Julian
+</td>
+<td>
+2022-09-14
+</td>
+<td>
+added analysis
+</td>
+</tr>
+<tr>
+<td>
+html
+</td>
+<td>
+<a href="https://rawcdn.githack.com/MicrobialGenomics-IrsicaixaOrg/2022_MedCars/04e10466a28ac8248c1bc5f7d6409de0355524f4/docs/230_MedDietScore.html" target="_blank">04e1046</a>
+</td>
+<td>
+Marc Noguera-Julian
+</td>
+<td>
+2022-09-02
+</td>
+<td>
+analysis updaet
+</td>
+</tr>
 <tr>
 <td>
 html
@@ -916,6 +957,17 @@ Date
 <tbody>
 <tr>
 <td>
+<a href="https://github.com/MicrobialGenomics-IrsicaixaOrg/2022_MedCars/blob/04e10466a28ac8248c1bc5f7d6409de0355524f4/docs/figure/230_MedDietScore.Rmd/Intervention chunk 2-1.png" target="_blank">04e1046</a>
+</td>
+<td>
+Marc Noguera-Julian
+</td>
+<td>
+2022-09-02
+</td>
+</tr>
+<tr>
+<td>
 <a href="https://github.com/MicrobialGenomics-IrsicaixaOrg/2022_MedCars/blob/748102d042816e40206ff62637b5c98431e4c236/docs/figure/230_MedDietScore.Rmd/Intervention chunk 2-1.png" target="_blank">748102d</a>
 </td>
 <td>
@@ -940,7 +992,82 @@ Marc Noguera-Julian
 </table>
 </div>
 </div>
-<p><img src="figure/230_MedDietScore.Rmd/Intervention%20chunk%202-2.png" width="672" style="display: block; margin: auto;" /><img src="figure/230_MedDietScore.Rmd/Intervention%20chunk%202-3.png" width="672" style="display: block; margin: auto;" /></p>
+<p><img src="figure/230_MedDietScore.Rmd/Intervention%20chunk%202-2.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-no-spaces-Intervention-chunk-2-2">
+Past versions of "Intervention chunk 2-2.png"
+</button>
+</p>
+<div id="fig-no-spaces-Intervention-chunk-2-2" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/MicrobialGenomics-IrsicaixaOrg/2022_MedCars/blob/04e10466a28ac8248c1bc5f7d6409de0355524f4/docs/figure/230_MedDietScore.Rmd/Intervention chunk 2-2.png" target="_blank">04e1046</a>
+</td>
+<td>
+Marc Noguera-Julian
+</td>
+<td>
+2022-09-02
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<p><img src="figure/230_MedDietScore.Rmd/Intervention%20chunk%202-3.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-no-spaces-Intervention-chunk-2-3">
+Past versions of "Intervention chunk 2-3.png"
+</button>
+</p>
+<div id="fig-no-spaces-Intervention-chunk-2-3" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/MicrobialGenomics-IrsicaixaOrg/2022_MedCars/blob/04e10466a28ac8248c1bc5f7d6409de0355524f4/docs/figure/230_MedDietScore.Rmd/Intervention chunk 2-3.png" target="_blank">04e1046</a>
+</td>
+<td>
+Marc Noguera-Julian
+</td>
+<td>
+2022-09-02
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
 </div>
 <div id="md-changes-vs.-beta-diversity" class="section level3">
 <h3>MD Changes vs. Beta-Diversity</h3>
@@ -997,6 +1124,43 @@ Marc Noguera-Julian
 <p>An independent way to try to find changes associated to the mediterranean intervention is to focus on the intervention group, and calculate, for every patient, the change in the MDScore, that we can calculate either as absolute or relative value, and try to find associations with bacterial genus increases or decreases in their relative abundance. That is, the change in % of each genus between Month6 and BL samples.</p>
 <pre><code>suggested package selbal ✔suggested package DataExplorer ✔suggested package lme4 ✔suggested package merTools ✔</code></pre>
 <p><img src="figure/230_MedDietScore.Rmd/Intervention%20chunk%205-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-no-spaces-Intervention-chunk-5-1">
+Past versions of "Intervention chunk 5-1.png"
+</button>
+</p>
+<div id="fig-no-spaces-Intervention-chunk-5-1" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/MicrobialGenomics-IrsicaixaOrg/2022_MedCars/blob/04e10466a28ac8248c1bc5f7d6409de0355524f4/docs/figure/230_MedDietScore.Rmd/Intervention chunk 5-1.png" target="_blank">04e1046</a>
+</td>
+<td>
+Marc Noguera-Julian
+</td>
+<td>
+2022-09-02
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
 <br>
 <p>
 <button type="button" class="btn btn-default btn-workflowr btn-workflowr-sessioninfo" data-toggle="collapse" data-target="#workflowr-sessioninfo" style="display: block;">
@@ -1043,7 +1207,7 @@ loaded via a namespace (and not attached):
  [25] httpuv_1.6.5           assertthat_0.2.1       viridis_0.6.2         
  [28] WRS2_1.1-4             xfun_0.31              jquerylib_0.1.4       
  [31] evaluate_0.15          promises_1.2.0.1       fansi_1.0.3           
- [34] igraph_1.3.4           DBI_1.1.3              htmlwidgets_1.5.4     
+ [34] igraph_1.3.5           DBI_1.1.3              htmlwidgets_1.5.4     
  [37] reshape_0.8.9          paletteer_1.4.0        purrr_0.3.4           
  [40] ellipsis_0.3.2         corrplot_0.92          dplyr_1.0.9           
  [43] ggpubr_0.4.0           backports_1.4.1        insight_0.18.0        
@@ -1056,7 +1220,7 @@ loaded via a namespace (and not attached):
  [64] labeling_0.4.2         units_0.8-0            tweenr_1.0.2          
  [67] nlme_3.1-158           statsExpressions_1.3.2 pkgload_1.3.0         
  [70] nnet_7.3-17            blme_1.0-5             devtools_2.4.4        
- [73] rlang_1.0.4            globals_0.15.1         lifecycle_1.0.1       
+ [73] rlang_1.0.6            globals_0.15.1         lifecycle_1.0.2       
  [76] miniUI_0.1.1.1         MatrixModels_0.5-0     sandwich_3.0-2        
  [79] selbal_0.1.0           rprojroot_2.0.3        polyclip_1.10-0       
  [82] datawizard_0.4.1       Matrix_1.4-1           mc2d_0.1-21           
@@ -1072,7 +1236,7 @@ loaded via a namespace (and not attached):
 [112] memoise_2.0.1          magrittr_2.0.3         plyr_1.8.7            
 [115] zlibbioc_1.40.0        compiler_4.1.1         RColorBrewer_1.1-3    
 [118] clue_0.3-61            lme4_1.1-30            snakecase_0.11.0      
-[121] cli_3.3.0              ade4_1.7-19            XVector_0.34.0        
+[121] cli_3.4.1              ade4_1.7-19            XVector_0.34.0        
 [124] urlchecker_1.0.1       listenv_0.8.0          pbapply_1.5-0         
 [127] ps_1.7.1               htmlTable_2.4.1        Formula_1.2-4         
 [130] MASS_7.3-58            mgcv_1.8-40            ggside_0.2.1          
@@ -1103,7 +1267,7 @@ loaded via a namespace (and not attached):
 [205] rmarkdown_2.14         desc_1.4.1             biomformat_1.22.0     
 [208] merTools_0.5.2         munsell_0.5.0          e1071_1.7-11          
 [211] GetoptLong_1.0.5       rhdf5_2.38.1           GenomeInfoDbData_1.2.7
-[214] iterators_1.0.14       reshape2_1.4.4         gtable_0.3.0          
+[214] iterators_1.0.14       reshape2_1.4.4         gtable_0.3.1          
 [217] bayestestR_0.12.1     </code></pre>
 </div>
 </div>

@@ -1,0 +1,1490 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+
+<meta name="author" content="Marc Noguera-Julian, PhD." />
+
+<meta name="date" content="2022-09-30" />
+
+<title>Batch effect analysis</title>
+
+<script src="site_libs/header-attrs-2.14/header-attrs.js"></script>
+<script src="site_libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="site_libs/bootstrap-3.3.5/css/cosmo.min.css" rel="stylesheet" />
+<script src="site_libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/respond.min.js"></script>
+<style>h1 {font-size: 34px;}
+       h1.title {font-size: 38px;}
+       h2 {font-size: 30px;}
+       h3 {font-size: 24px;}
+       h4 {font-size: 18px;}
+       h5 {font-size: 16px;}
+       h6 {font-size: 12px;}
+       code {color: inherit; background-color: rgba(0, 0, 0, 0.04);}
+       pre:not([class]) { background-color: white }</style>
+<script src="site_libs/jqueryui-1.11.4/jquery-ui.min.js"></script>
+<link href="site_libs/tocify-1.9.1/jquery.tocify.css" rel="stylesheet" />
+<script src="site_libs/tocify-1.9.1/jquery.tocify.js"></script>
+<script src="site_libs/navigation-1.1/tabsets.js"></script>
+<link href="site_libs/highlightjs-9.12.0/textmate.css" rel="stylesheet" />
+<script src="site_libs/highlightjs-9.12.0/highlight.js"></script>
+
+<link rel="icon" href="https://github.com/workflowr/workflowr-assets/raw/main/img/reproducible.png">
+<!-- Add a small amount of space between sections. -->
+<style type="text/css">
+div.section {
+  padding-top: 12px;
+}
+</style>
+
+
+
+<style type="text/css">
+  code{white-space: pre-wrap;}
+  span.smallcaps{font-variant: small-caps;}
+  span.underline{text-decoration: underline;}
+  div.column{display: inline-block; vertical-align: top; width: 50%;}
+  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+  ul.task-list{list-style: none;}
+    </style>
+
+<style type="text/css">code{white-space: pre;}</style>
+<script type="text/javascript">
+if (window.hljs) {
+  hljs.configure({languages: []});
+  hljs.initHighlightingOnLoad();
+  if (document.readyState && document.readyState === "complete") {
+    window.setTimeout(function() { hljs.initHighlighting(); }, 0);
+  }
+}
+</script>
+
+
+
+
+
+
+
+
+
+<style type = "text/css">
+.main-container {
+  max-width: 940px;
+  margin-left: auto;
+  margin-right: auto;
+}
+img {
+  max-width:100%;
+}
+.tabbed-pane {
+  padding-top: 12px;
+}
+.html-widget {
+  margin-bottom: 20px;
+}
+button.code-folding-btn:focus {
+  outline: none;
+}
+summary {
+  display: list-item;
+}
+details > summary > p:only-child {
+  display: inline;
+}
+pre code {
+  padding: 0;
+}
+</style>
+
+
+<style type="text/css">
+.dropdown-submenu {
+  position: relative;
+}
+.dropdown-submenu>.dropdown-menu {
+  top: 0;
+  left: 100%;
+  margin-top: -6px;
+  margin-left: -1px;
+  border-radius: 0 6px 6px 6px;
+}
+.dropdown-submenu:hover>.dropdown-menu {
+  display: block;
+}
+.dropdown-submenu>a:after {
+  display: block;
+  content: " ";
+  float: right;
+  width: 0;
+  height: 0;
+  border-color: transparent;
+  border-style: solid;
+  border-width: 5px 0 5px 5px;
+  border-left-color: #cccccc;
+  margin-top: 5px;
+  margin-right: -10px;
+}
+.dropdown-submenu:hover>a:after {
+  border-left-color: #adb5bd;
+}
+.dropdown-submenu.pull-left {
+  float: none;
+}
+.dropdown-submenu.pull-left>.dropdown-menu {
+  left: -100%;
+  margin-left: 10px;
+  border-radius: 6px 0 6px 6px;
+}
+</style>
+
+<script type="text/javascript">
+// manage active state of menu based on current page
+$(document).ready(function () {
+  // active menu anchor
+  href = window.location.pathname
+  href = href.substr(href.lastIndexOf('/') + 1)
+  if (href === "")
+    href = "index.html";
+  var menuAnchor = $('a[href="' + href + '"]');
+
+  // mark it active
+  menuAnchor.tab('show');
+
+  // if it's got a parent navbar menu mark it active as well
+  menuAnchor.closest('li.dropdown').addClass('active');
+
+  // Navbar adjustments
+  var navHeight = $(".navbar").first().height() + 15;
+  var style = document.createElement('style');
+  var pt = "padding-top: " + navHeight + "px; ";
+  var mt = "margin-top: -" + navHeight + "px; ";
+  var css = "";
+  // offset scroll position for anchor links (for fixed navbar)
+  for (var i = 1; i <= 6; i++) {
+    css += ".section h" + i + "{ " + pt + mt + "}\n";
+  }
+  style.innerHTML = "body {" + pt + "padding-bottom: 40px; }\n" + css;
+  document.head.appendChild(style);
+});
+</script>
+
+<!-- tabsets -->
+
+<style type="text/css">
+.tabset-dropdown > .nav-tabs {
+  display: inline-table;
+  max-height: 500px;
+  min-height: 44px;
+  overflow-y: auto;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.tabset-dropdown > .nav-tabs > li.active:before {
+  content: "";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li.active:before {
+  content: "&#xe258;";
+  border: none;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open:before {
+  content: "";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs > li.active {
+  display: block;
+}
+
+.tabset-dropdown > .nav-tabs > li > a,
+.tabset-dropdown > .nav-tabs > li > a:focus,
+.tabset-dropdown > .nav-tabs > li > a:hover {
+  border: none;
+  display: inline-block;
+  border-radius: 4px;
+  background-color: transparent;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li {
+  display: block;
+  float: none;
+}
+
+.tabset-dropdown > .nav-tabs > li {
+  display: none;
+}
+</style>
+
+<!-- code folding -->
+
+
+
+<style type="text/css">
+
+#TOC {
+  margin: 25px 0px 20px 0px;
+}
+@media (max-width: 768px) {
+#TOC {
+  position: relative;
+  width: 100%;
+}
+}
+
+@media print {
+.toc-content {
+  /* see https://github.com/w3c/csswg-drafts/issues/4434 */
+  float: right;
+}
+}
+
+.toc-content {
+  padding-left: 30px;
+  padding-right: 40px;
+}
+
+div.main-container {
+  max-width: 1200px;
+}
+
+div.tocify {
+  width: 20%;
+  max-width: 260px;
+  max-height: 85%;
+}
+
+@media (min-width: 768px) and (max-width: 991px) {
+  div.tocify {
+    width: 25%;
+  }
+}
+
+@media (max-width: 767px) {
+  div.tocify {
+    width: 100%;
+    max-width: none;
+  }
+}
+
+.tocify ul, .tocify li {
+  line-height: 20px;
+}
+
+.tocify-subheader .tocify-item {
+  font-size: 0.90em;
+}
+
+.tocify .list-group-item {
+  border-radius: 0px;
+}
+
+
+</style>
+
+
+
+</head>
+
+<body>
+
+
+<div class="container-fluid main-container">
+
+
+<!-- setup 3col/9col grid for toc_float and main content  -->
+<div class="row">
+<div class="col-xs-12 col-sm-4 col-md-3">
+<div id="TOC" class="tocify">
+</div>
+</div>
+
+<div class="toc-content col-xs-12 col-sm-8 col-md-9">
+
+
+
+
+<div class="navbar navbar-default  navbar-fixed-top" role="navigation">
+  <div class="container">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-bs-toggle="collapse" data-target="#navbar" data-bs-target="#navbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="index.html">MedCars</a>
+    </div>
+    <div id="navbar" class="navbar-collapse collapse">
+      <ul class="nav navbar-nav">
+        <li>
+  <a href="index.html">Home</a>
+</li>
+<li>
+  <a href="201_exploratory_analysis.html">Data Exploration</a>
+</li>
+<li>
+  <a href="210_baseline_analysis.html">Baseline Analysis</a>
+</li>
+<li>
+  <a href="220_intervention_analysis.html">Intervention</a>
+</li>
+<li>
+  <a href="230_MedDietScore.html">Mediterranean Diet</a>
+</li>
+<li>
+  <a href="240_fatty_acids.html">Fatty Acids</a>
+</li>
+<li>
+  <a href="250_PhysicalActivity.html">Physical Activity</a>
+</li>
+<li>
+  <a href="260_FirmicutesBacteroides.html">Firmicutes/Bacteroidetes</a>
+</li>
+<li>
+  <a href="270_PairingAnalysis.html">Paired Analysis</a>
+</li>
+<li>
+  <a href="300_FunctionalAnalysis.html">Functional Analysis</a>
+</li>
+<li>
+  <a href="320_BatchEffect.html">Batch Effects</a>
+</li>
+<li>
+  <a href="about.html">About</a>
+</li>
+<li>
+  <a href="license.html">License</a>
+</li>
+      </ul>
+      <ul class="nav navbar-nav navbar-right">
+        
+      </ul>
+    </div><!--/.nav-collapse -->
+  </div><!--/.container -->
+</div><!--/.navbar -->
+
+<div id="header">
+
+
+
+<h1 class="title toc-ignore">Batch effect analysis</h1>
+<h4 class="author">Marc Noguera-Julian, PhD.</h4>
+<h4 class="date">2022-09-30</h4>
+
+</div>
+
+
+<p>
+<button type="button" class="btn btn-default btn-workflowr btn-workflowr-report" data-toggle="collapse" data-target="#workflowr-report">
+<span class="glyphicon glyphicon-list" aria-hidden="true"></span> workflowr <span class="glyphicon glyphicon-exclamation-sign text-danger" aria-hidden="true"></span>
+</button>
+</p>
+<div id="workflowr-report" class="collapse">
+<ul class="nav nav-tabs">
+<li class="active">
+<a data-toggle="tab" href="#summary">Summary</a>
+</li>
+<li>
+<a data-toggle="tab" href="#checks"> Checks <span class="glyphicon glyphicon-exclamation-sign text-danger" aria-hidden="true"></span> </a>
+</li>
+<li>
+<a data-toggle="tab" href="#versions">Past versions</a>
+</li>
+</ul>
+<div class="tab-content">
+<div id="summary" class="tab-pane fade in active">
+<p>
+<strong>Last updated:</strong> 2022-09-30
+</p>
+<p>
+<strong>Checks:</strong> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> 6 <span class="glyphicon glyphicon-exclamation-sign text-danger" aria-hidden="true"></span> 1
+</p>
+<p>
+<strong>Knit directory:</strong> <code>2022_MedCars/</code> <span class="glyphicon glyphicon-question-sign" aria-hidden="true" title="This is the local directory in which the code in this file was executed."> </span>
+</p>
+<p>
+This reproducible <a href="https://rmarkdown.rstudio.com">R Markdown</a> analysis was created with <a
+  href="https://github.com/workflowr/workflowr">workflowr</a> (version 1.7.0). The <em>Checks</em> tab describes the reproducibility checks that were applied when the results were created. The <em>Past versions</em> tab lists the development history.
+</p>
+<hr>
+</div>
+<div id="checks" class="tab-pane fade">
+<div id="workflowr-checks" class="panel-group">
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRMarkdownfilestronguncommittedchanges"> <span class="glyphicon glyphicon-exclamation-sign text-danger" aria-hidden="true"></span> <strong>R Markdown file:</strong> uncommitted changes </a>
+</p>
+</div>
+<div id="strongRMarkdownfilestronguncommittedchanges" class="panel-collapse collapse">
+<div class="panel-body">
+<p>The R Markdown file has unstaged changes. To know which version of the R Markdown file created these results, you’ll want to first commit it to the Git repo. If you’re still working on the analysis, you can ignore this warning. When you’re finished, you can run <code>wflow_publish</code> to commit the R Markdown file and build the HTML.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongEnvironmentstrongempty"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Environment:</strong> empty </a>
+</p>
+</div>
+<div id="strongEnvironmentstrongempty" class="panel-collapse collapse">
+<div class="panel-body">
+<p>Great job! The global environment was empty. Objects defined in the global environment can affect the analysis in your R Markdown file in unknown ways. For reproduciblity it’s best to always run the code in an empty environment.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongSeedstrongcodesetseed20220720code"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Seed:</strong> <code>set.seed(20220720)</code> </a>
+</p>
+</div>
+<div id="strongSeedstrongcodesetseed20220720code" class="panel-collapse collapse">
+<div class="panel-body">
+<p>The command <code>set.seed(20220720)</code> was run prior to running the code in the R Markdown file. Setting a seed ensures that any results that rely on randomness, e.g. subsampling or permutations, are reproducible.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongSessioninformationstrongrecorded"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Session information:</strong> recorded </a>
+</p>
+</div>
+<div id="strongSessioninformationstrongrecorded" class="panel-collapse collapse">
+<div class="panel-body">
+<p>Great job! Recording the operating system, R version, and package versions is critical for reproducibility.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongCachestrongnone"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Cache:</strong> none </a>
+</p>
+</div>
+<div id="strongCachestrongnone" class="panel-collapse collapse">
+<div class="panel-body">
+<p>Nice! There were no cached chunks for this analysis, so you can be confident that you successfully produced the results during this run.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongFilepathsstrongrelative"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>File paths:</strong> relative </a>
+</p>
+</div>
+<div id="strongFilepathsstrongrelative" class="panel-collapse collapse">
+<div class="panel-body">
+<p>Great job! Using relative paths to the files within your workflowr project makes it easier to run your code on other machines.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomMicrobialGenomicsIrsicaixaOrg2022MedCarstree9594b4b1eee834d1666dba133ec4ba2e68d2e3c9targetblank9594b4ba"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Repository version:</strong> <a href="https://github.com/MicrobialGenomics-IrsicaixaOrg/2022_MedCars/tree/9594b4b1eee834d1666dba133ec4ba2e68d2e3c9" target="_blank">9594b4b</a> </a>
+</p>
+</div>
+<div id="strongRepositoryversionstrongahrefhttpsgithubcomMicrobialGenomicsIrsicaixaOrg2022MedCarstree9594b4b1eee834d1666dba133ec4ba2e68d2e3c9targetblank9594b4ba" class="panel-collapse collapse">
+<div class="panel-body">
+<p>
+Great! You are using Git for version control. Tracking code development and connecting the code version to the results is critical for reproducibility.
+</p>
+<p>
+The results in this page were generated with repository version <a href="https://github.com/MicrobialGenomics-IrsicaixaOrg/2022_MedCars/tree/9594b4b1eee834d1666dba133ec4ba2e68d2e3c9" target="_blank">9594b4b</a>. See the <em>Past versions</em> tab to see a history of the changes made to the R Markdown and HTML files.
+</p>
+<p>
+Note that you need to be careful to ensure that all relevant files for the analysis have been committed to Git prior to generating the results (you can use <code>wflow_publish</code> or <code>wflow_git_commit</code>). workflowr only checks the R Markdown file, but you know if there are other scripts or data files that it depends on. Below is the status of the Git repository when the results were generated:
+</p>
+<pre><code>
+Ignored files:
+    Ignored:    .DS_Store
+    Ignored:    .Rhistory
+    Ignored:    .Rproj.user/
+    Ignored:    analysis/.DS_Store
+    Ignored:    data/.DS_Store
+    Ignored:    data/cfu/
+    Ignored:    data/internal/
+    Ignored:    data/processed/
+    Ignored:    data/ps_silva_RR.rds
+    Ignored:    data/raw/
+    Ignored:    output/.DS_Store
+    Ignored:    output/Deliverables/
+    Ignored:    output/mre_data/
+
+Untracked files:
+    Untracked:  analysis/270_PairingAnalysis.Rmd
+    Untracked:  code/902_themes.R
+    Untracked:  code/999_aux_code.R
+
+Unstaged changes:
+    Modified:   analysis/201_exploratory_analysis.Rmd
+    Modified:   analysis/210_baseline_analysis.Rmd
+    Modified:   analysis/220_intervention_analysis.Rmd
+    Modified:   analysis/230_MedDietScore.Rmd
+    Modified:   analysis/250_PhysicalActivity.Rmd
+    Modified:   analysis/300_FunctionalAnalysis.Rmd
+    Modified:   analysis/310_TemporalAnalysis.Rmd
+    Modified:   analysis/320_BatchEffect.Rmd
+    Modified:   analysis/_site.yml
+    Modified:   code/006_DataPreprocessing.Rmd
+    Modified:   code/006_DataPreprocessing.html
+    Deleted:    code/999_gift_code.R
+
+</code></pre>
+<p>
+Note that any generated files, e.g. HTML, png, CSS, etc., are not included in this status report because it is ok for generated content to have uncommitted changes.
+</p>
+</div>
+</div>
+</div>
+</div>
+<hr>
+</div>
+<div id="versions" class="tab-pane fade">
+
+<p>
+These are the previous versions of the repository in which changes were made to the R Markdown (<code>analysis/320_BatchEffect.Rmd</code>) and HTML (<code>docs/320_BatchEffect.html</code>) files. If you’ve configured a remote Git repository (see <code>?wflow_git_remote</code>), click on the hyperlinks in the table below to view the files as they were in that past version.
+</p>
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+File
+</th>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+<th>
+Message
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/MicrobialGenomics-IrsicaixaOrg/2022_MedCars/blob/9594b4b1eee834d1666dba133ec4ba2e68d2e3c9/analysis/320_BatchEffect.Rmd" target="_blank">9594b4b</a>
+</td>
+<td>
+Marc Noguera-Julian
+</td>
+<td>
+2022-09-23
+</td>
+<td>
+maaslin and batch effects
+</td>
+</tr>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/MicrobialGenomics-IrsicaixaOrg/2022_MedCars/blob/1c2dd47bf64409ce32bc85e3c96b5452d29e8fc1/analysis/320_BatchEffect.Rmd" target="_blank">1c2dd47</a>
+</td>
+<td>
+Marc Noguera-Julian
+</td>
+<td>
+2022-09-14
+</td>
+<td>
+added analysis
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<hr>
+</div>
+</div>
+</div>
+<div id="introduction" class="section level2">
+<h2>Introduction</h2>
+<p>MedCars-Microbiome study had about 1100 samples that had to be 16S-sequenced. Due to experimental design, sequencing was performed using MiSeq Illumina instrument, that has a limited throughput. This limitation tranlsated in samples being divided in three independent sequencing runs. While technology provides good quality data, sequencing error models can be run-specific and affect downstream data. This needs to be checked.</p>
+<p>Samples were carefully distributed in order to have the two samples from the same participant in the same run in order to keep to longitudinal design and comparability of samples. Nonetheless, we need to know if IG and CG samples were distributed among runs in a balanced way.</p>
+<p>We can see, that CG samples were underrepresented in Run3, while they were a bit overrepresented in Run2. Timepoint was not linked to any significant imbalance among runs, as expected.</p>
+<pre><code>suggested package selbal ✔suggested package DataExplorer ✔suggested package lme4 ✔suggested package merTools ✔</code></pre>
+<pre><code>
+    Pearson&#39;s Chi-squared test
+
+data:  .
+X-squared = 65.645, df = 2, p-value = 5.563e-15</code></pre>
+<pre><code>
+    Pearson&#39;s Chi-squared test
+
+data:  .
+X-squared = 0.076628, df = 2, p-value = 0.9624</code></pre>
+</div>
+<div id="alpha-diversity" class="section level2">
+<h2>Alpha Diversity</h2>
+<p>Of note, alpha diversity measures are different among the different runs. Alpha diversity measures (Chao1, Shannon and PD), are more sensitive to sequencing error and inferred error models. Due to the imbalance of IG/CG samples through runs, this could be affecting the IG vs. CG comparisong when all runs are considered alltogether.</p>
+<p><img src="figure/320_BatchEffect.Rmd/batch%20effects%20on%20alpha%20diversity%20chunk1-1.png" width="672" style="display: block; margin: auto;" /><img src="figure/320_BatchEffect.Rmd/batch%20effects%20on%20alpha%20diversity%20chunk1-2.png" width="672" style="display: block; margin: auto;" /><img src="figure/320_BatchEffect.Rmd/batch%20effects%20on%20alpha%20diversity%20chunk1-3.png" width="672" style="display: block; margin: auto;" /></p>
+<p>Let’s see how Month6 vs baseling comparisong are consistent in different runs. This would indicate a batch effect on alpha diversity that could be affecting our design. Note that it would not be affecting Delta comparison testing, since we can reasonably assume that Month6 vs. BL differences are stable.</p>
+<div id="chao1" class="section level3">
+<h3>Chao1</h3>
+<p>Chao1 is the most unstable measure when comparing runs. This is to be expected because the rare ASV have more weight in this measure.</p>
+<p><img src="figure/320_BatchEffect.Rmd/batch%20effects%20on%20alpha%20diversity%20chunk2-1.png" width="672" style="display: block; margin: auto;" /><img src="figure/320_BatchEffect.Rmd/batch%20effects%20on%20alpha%20diversity%20chunk2-2.png" width="672" style="display: block; margin: auto;" /></p>
+</div>
+<div id="shannon" class="section level3">
+<h3>Shannon</h3>
+<p><img src="figure/320_BatchEffect.Rmd/batch%20effects%20on%20alpha%20diversity%20chunk3-1.png" width="672" style="display: block; margin: auto;" /><img src="figure/320_BatchEffect.Rmd/batch%20effects%20on%20alpha%20diversity%20chunk3-2.png" width="672" style="display: block; margin: auto;" /> ### Phylogenetic diversity</p>
+<p><img src="figure/320_BatchEffect.Rmd/batch%20effects%20on%20alpha%20diversity%20chunk3%20i%20mig-1.png" width="672" style="display: block; margin: auto;" /><img src="figure/320_BatchEffect.Rmd/batch%20effects%20on%20alpha%20diversity%20chunk3%20i%20mig-2.png" width="672" style="display: block; margin: auto;" /></p>
+</div>
+<div id="adjusted-models" class="section level3">
+<h3>Adjusted models</h3>
+<p>In order to make sure that the IG vs CG comparisons are in order and not confounded by Run, we’ll run an adjusted model, also including other variables that are unbalances (Age, Smoker, Alcohol consumption)</p>
+<div id="uni-variate" class="section level4">
+<h4>Uni-variate</h4>
+<table>
+<caption>Univariate Linear model for Chao1 Diversity considering only workcenter.</caption>
+<thead>
+<tr class="header">
+<th align="left">Predictor</th>
+<th align="right">B</th>
+<th align="right">SE</th>
+<th align="right">t</th>
+<th align="right">p</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">(Intercept)</td>
+<td align="right">49.00</td>
+<td align="right">0.723</td>
+<td align="right">67.77</td>
+<td align="right">0</td>
+</tr>
+<tr class="even">
+<td align="left">CenterC02</td>
+<td align="right">4.77</td>
+<td align="right">1.091</td>
+<td align="right">4.38</td>
+<td align="right">0</td>
+</tr>
+</tbody>
+</table>
+<table>
+<caption>Univariate Linear model for Shannon Diversity considering only workcenter.</caption>
+<thead>
+<tr class="header">
+<th align="left">Predictor</th>
+<th align="right">B</th>
+<th align="right">SE</th>
+<th align="right">t</th>
+<th align="right">p</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">(Intercept)</td>
+<td align="right">2.68</td>
+<td align="right">0.026</td>
+<td align="right">103.49</td>
+<td align="right">0.000</td>
+</tr>
+<tr class="even">
+<td align="left">CenterC02</td>
+<td align="right">0.10</td>
+<td align="right">0.039</td>
+<td align="right">2.54</td>
+<td align="right">0.011</td>
+</tr>
+</tbody>
+</table>
+<table>
+<caption>Univariate Linear model for PhyloDiv Diversity considering only workcenter.</caption>
+<thead>
+<tr class="header">
+<th align="left">Predictor</th>
+<th align="right">B</th>
+<th align="right">SE</th>
+<th align="right">t</th>
+<th align="right">p</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">(Intercept)</td>
+<td align="right">33.31</td>
+<td align="right">0.485</td>
+<td align="right">68.73</td>
+<td align="right">0</td>
+</tr>
+<tr class="even">
+<td align="left">CenterC02</td>
+<td align="right">3.04</td>
+<td align="right">0.731</td>
+<td align="right">4.15</td>
+<td align="right">0</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="multi-variate" class="section level4">
+<h4>Multi-variate</h4>
+<table>
+<caption>Multivariate Linear model for Chao1 Diversity, adjusted for Age, Smoking, Alcohol Consumption and Sequencing Run.</caption>
+<thead>
+<tr class="header">
+<th align="left">Predictor</th>
+<th align="right">B</th>
+<th align="right">SE</th>
+<th align="right">t</th>
+<th align="right">p</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">(Intercept)</td>
+<td align="right">62.68</td>
+<td align="right">4.447</td>
+<td align="right">14.09</td>
+<td align="right">0.000</td>
+</tr>
+<tr class="even">
+<td align="left">CenterC02</td>
+<td align="right">1.39</td>
+<td align="right">1.006</td>
+<td align="right">1.39</td>
+<td align="right">0.166</td>
+</tr>
+<tr class="odd">
+<td align="left">GenderMale</td>
+<td align="right">-0.23</td>
+<td align="right">1.263</td>
+<td align="right">-0.19</td>
+<td align="right">0.853</td>
+</tr>
+<tr class="even">
+<td align="left">Age</td>
+<td align="right">0.12</td>
+<td align="right">0.067</td>
+<td align="right">1.84</td>
+<td align="right">0.067</td>
+</tr>
+<tr class="odd">
+<td align="left">SmokerSmoker</td>
+<td align="right">-4.06</td>
+<td align="right">1.079</td>
+<td align="right">-3.76</td>
+<td align="right">0.000</td>
+</tr>
+<tr class="even">
+<td align="left">RunRun2</td>
+<td align="right">-0.93</td>
+<td align="right">1.084</td>
+<td align="right">-0.86</td>
+<td align="right">0.389</td>
+</tr>
+<tr class="odd">
+<td align="left">RunRun3</td>
+<td align="right">-14.77</td>
+<td align="right">1.168</td>
+<td align="right">-12.64</td>
+<td align="right">0.000</td>
+</tr>
+<tr class="even">
+<td align="left">UBE</td>
+<td align="right">2.21</td>
+<td align="right">1.120</td>
+<td align="right">1.97</td>
+<td align="right">0.049</td>
+</tr>
+<tr class="odd">
+<td align="left">IPAQ</td>
+<td align="right">0.00</td>
+<td align="right">0.000</td>
+<td align="right">-0.69</td>
+<td align="right">0.492</td>
+</tr>
+<tr class="even">
+<td align="left">MDScore</td>
+<td align="right">0.07</td>
+<td align="right">0.223</td>
+<td align="right">0.32</td>
+<td align="right">0.751</td>
+</tr>
+<tr class="odd">
+<td align="left">BMI</td>
+<td align="right">-0.48</td>
+<td align="right">0.115</td>
+<td align="right">-4.13</td>
+<td align="right">0.000</td>
+</tr>
+</tbody>
+</table>
+<table>
+<caption>Multivariate Linear model for Shannon Diversity, adjusted for Age, Smoking, Alcohol Consumption and Sequencing Run.</caption>
+<thead>
+<tr class="header">
+<th align="left">Predictor</th>
+<th align="right">B</th>
+<th align="right">SE</th>
+<th align="right">t</th>
+<th align="right">p</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">(Intercept)</td>
+<td align="right">3.02</td>
+<td align="right">0.183</td>
+<td align="right">16.52</td>
+<td align="right">0.0000</td>
+</tr>
+<tr class="even">
+<td align="left">CenterC02</td>
+<td align="right">0.04</td>
+<td align="right">0.041</td>
+<td align="right">0.94</td>
+<td align="right">0.3464</td>
+</tr>
+<tr class="odd">
+<td align="left">GenderMale</td>
+<td align="right">-0.02</td>
+<td align="right">0.052</td>
+<td align="right">-0.41</td>
+<td align="right">0.6799</td>
+</tr>
+<tr class="even">
+<td align="left">Age</td>
+<td align="right">0.01</td>
+<td align="right">0.003</td>
+<td align="right">2.18</td>
+<td align="right">0.0297</td>
+</tr>
+<tr class="odd">
+<td align="left">SmokerSmoker</td>
+<td align="right">-0.13</td>
+<td align="right">0.044</td>
+<td align="right">-3.01</td>
+<td align="right">0.0027</td>
+</tr>
+<tr class="even">
+<td align="left">RunRun2</td>
+<td align="right">-0.03</td>
+<td align="right">0.045</td>
+<td align="right">-0.56</td>
+<td align="right">0.5738</td>
+</tr>
+<tr class="odd">
+<td align="left">RunRun3</td>
+<td align="right">-0.25</td>
+<td align="right">0.048</td>
+<td align="right">-5.19</td>
+<td align="right">0.0000</td>
+</tr>
+<tr class="even">
+<td align="left">UBE</td>
+<td align="right">0.04</td>
+<td align="right">0.046</td>
+<td align="right">0.81</td>
+<td align="right">0.4166</td>
+</tr>
+<tr class="odd">
+<td align="left">IPAQ</td>
+<td align="right">0.00</td>
+<td align="right">0.000</td>
+<td align="right">-0.23</td>
+<td align="right">0.8183</td>
+</tr>
+<tr class="even">
+<td align="left">MDScore</td>
+<td align="right">0.00</td>
+<td align="right">0.009</td>
+<td align="right">0.49</td>
+<td align="right">0.6218</td>
+</tr>
+<tr class="odd">
+<td align="left">BMI</td>
+<td align="right">-0.02</td>
+<td align="right">0.005</td>
+<td align="right">-3.86</td>
+<td align="right">0.0001</td>
+</tr>
+</tbody>
+</table>
+<table>
+<caption>Multivariate Linear model for PD Diversity, adjusted for Age, Smoking, Alcohol Consumption and Sequencing Run.</caption>
+<thead>
+<tr class="header">
+<th align="left">Predictor</th>
+<th align="right">B</th>
+<th align="right">SE</th>
+<th align="right">t</th>
+<th align="right">p</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">(Intercept)</td>
+<td align="right">42.22</td>
+<td align="right">3.139</td>
+<td align="right">13.45</td>
+<td align="right">0.0000</td>
+</tr>
+<tr class="even">
+<td align="left">CenterC02</td>
+<td align="right">1.20</td>
+<td align="right">0.710</td>
+<td align="right">1.69</td>
+<td align="right">0.0922</td>
+</tr>
+<tr class="odd">
+<td align="left">GenderMale</td>
+<td align="right">-0.56</td>
+<td align="right">0.892</td>
+<td align="right">-0.63</td>
+<td align="right">0.5271</td>
+</tr>
+<tr class="even">
+<td align="left">Age</td>
+<td align="right">0.10</td>
+<td align="right">0.048</td>
+<td align="right">2.09</td>
+<td align="right">0.0374</td>
+</tr>
+<tr class="odd">
+<td align="left">SmokerSmoker</td>
+<td align="right">-2.51</td>
+<td align="right">0.762</td>
+<td align="right">-3.29</td>
+<td align="right">0.0011</td>
+</tr>
+<tr class="even">
+<td align="left">RunRun2</td>
+<td align="right">0.59</td>
+<td align="right">0.765</td>
+<td align="right">0.77</td>
+<td align="right">0.4429</td>
+</tr>
+<tr class="odd">
+<td align="left">RunRun3</td>
+<td align="right">-7.67</td>
+<td align="right">0.825</td>
+<td align="right">-9.31</td>
+<td align="right">0.0000</td>
+</tr>
+<tr class="even">
+<td align="left">UBE</td>
+<td align="right">1.75</td>
+<td align="right">0.791</td>
+<td align="right">2.22</td>
+<td align="right">0.0270</td>
+</tr>
+<tr class="odd">
+<td align="left">IPAQ</td>
+<td align="right">0.00</td>
+<td align="right">0.000</td>
+<td align="right">-0.77</td>
+<td align="right">0.4399</td>
+</tr>
+<tr class="even">
+<td align="left">MDScore</td>
+<td align="right">0.02</td>
+<td align="right">0.157</td>
+<td align="right">0.15</td>
+<td align="right">0.8839</td>
+</tr>
+<tr class="odd">
+<td align="left">BMI</td>
+<td align="right">-0.37</td>
+<td align="right">0.081</td>
+<td align="right">-4.53</td>
+<td align="right">0.0000</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+<div id="beta-diversity" class="section level2">
+<h2>Beta Diversity</h2>
+<p>We are interested in checking if The taxonomical composition of the samples has been also significantly altered by the sequencing error profile that is linked to the run. This should not happen, or alteration should be marginal.</p>
+<div id="fb-ratio" class="section level3">
+<h3>F/B ratio</h3>
+<p>Since F/B ratio is one of the parameters we are discussing in the manuscript we will check it specifically. Results indicate that there is no significant difference among runs related to the F/B ratio either globally or at baseline</p>
+<pre><code>suggested package selbal ✔suggested package DataExplorer ✔suggested package lme4 ✔suggested package merTools ✔</code></pre>
+<p><img src="figure/320_BatchEffect.Rmd/beta%20diversity%20chunk%201-1.png" width="672" style="display: block; margin: auto;" /><img src="figure/320_BatchEffect.Rmd/beta%20diversity%20chunk%201-2.png" width="672" style="display: block; margin: auto;" /> #### Multivariate models</p>
+<p>Anyhow, we’ll run adjusted models for F/B ratio regarding Age, Gender, Smoking and Run</p>
+<table>
+<caption>Multivariate Linear model for F/B ratio, adjusted for Age, Smoking, Alcohol Consumption and Sequencing Run.</caption>
+<thead>
+<tr class="header">
+<th align="left">Predictor</th>
+<th align="right">B</th>
+<th align="right">SE</th>
+<th align="right">t</th>
+<th align="right">p</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">(Intercept)</td>
+<td align="right">1.03</td>
+<td align="right">0.222</td>
+<td align="right">4.66</td>
+<td align="right">0.0000</td>
+</tr>
+<tr class="even">
+<td align="left">CenterC02</td>
+<td align="right">0.09</td>
+<td align="right">0.073</td>
+<td align="right">1.23</td>
+<td align="right">0.2184</td>
+</tr>
+<tr class="odd">
+<td align="left">GenderMale</td>
+<td align="right">-0.03</td>
+<td align="right">0.090</td>
+<td align="right">-0.35</td>
+<td align="right">0.7264</td>
+</tr>
+<tr class="even">
+<td align="left">Age</td>
+<td align="right">0.01</td>
+<td align="right">0.005</td>
+<td align="right">1.34</td>
+<td align="right">0.1804</td>
+</tr>
+<tr class="odd">
+<td align="left">SmokerSmoker</td>
+<td align="right">-0.14</td>
+<td align="right">0.078</td>
+<td align="right">-1.72</td>
+<td align="right">0.0852</td>
+</tr>
+<tr class="even">
+<td align="left">RunRun2</td>
+<td align="right">-0.13</td>
+<td align="right">0.079</td>
+<td align="right">-1.60</td>
+<td align="right">0.1096</td>
+</tr>
+<tr class="odd">
+<td align="left">RunRun3</td>
+<td align="right">-0.11</td>
+<td align="right">0.085</td>
+<td align="right">-1.34</td>
+<td align="right">0.1808</td>
+</tr>
+<tr class="even">
+<td align="left">UBE</td>
+<td align="right">0.01</td>
+<td align="right">0.082</td>
+<td align="right">0.16</td>
+<td align="right">0.8713</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="permanova" class="section level3">
+<h3>PERMANOVA</h3>
+<p>We are interested in profiling the effect of Run variable onto global composition and to assess its magnitude. We run a multivariate permanova, in which we keep Center variable of interest in the last position. In previous position we use variable Run and others variables that we have detected imbalance for between CG and IG.</p>
+<p>Results indicate that, while univariate models all show a marginal effect off every single variable being considered, on the multivariate model, Center and Run become non-significant and ParticipantID es the variable most explaining microbiome composition (70%). Importantly, PERMANOVA at baseline, did not show any effect of Center variable in the multivariate or univariate model.</p>
+<pre><code>suggested package selbal ✔suggested package DataExplorer ✔suggested package lme4 ✔suggested package merTools ✔</code></pre>
+<table>
+<caption>Multivariate PERMANOVA results</caption>
+<thead>
+<tr class="header">
+<th align="left">Variable</th>
+<th align="right">DF</th>
+<th align="right">SumOfSqs</th>
+<th align="right">R2</th>
+<th align="right">F</th>
+<th align="right">Pr&lt;F</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">Timepoint</td>
+<td align="right">1</td>
+<td align="right">0.246</td>
+<td align="right">0.004</td>
+<td align="right">3.906</td>
+<td align="right">0.001</td>
+</tr>
+<tr class="even">
+<td align="left">Gender</td>
+<td align="right">1</td>
+<td align="right">0.405</td>
+<td align="right">0.006</td>
+<td align="right">6.428</td>
+<td align="right">0.001</td>
+</tr>
+<tr class="odd">
+<td align="left">Smoker</td>
+<td align="right">1</td>
+<td align="right">0.264</td>
+<td align="right">0.004</td>
+<td align="right">4.195</td>
+<td align="right">0.001</td>
+</tr>
+<tr class="even">
+<td align="left">Age</td>
+<td align="right">1</td>
+<td align="right">0.211</td>
+<td align="right">0.003</td>
+<td align="right">3.342</td>
+<td align="right">0.002</td>
+</tr>
+<tr class="odd">
+<td align="left">Run</td>
+<td align="right">2</td>
+<td align="right">0.586</td>
+<td align="right">0.009</td>
+<td align="right">4.649</td>
+<td align="right">0.001</td>
+</tr>
+<tr class="even">
+<td align="left">Center</td>
+<td align="right">1</td>
+<td align="right">0.164</td>
+<td align="right">0.003</td>
+<td align="right">2.599</td>
+<td align="right">0.006</td>
+</tr>
+<tr class="odd">
+<td align="left">ParticipantID</td>
+<td align="right">1</td>
+<td align="right">0.087</td>
+<td align="right">0.001</td>
+<td align="right">1.382</td>
+<td align="right">0.205</td>
+</tr>
+<tr class="even">
+<td align="left">random</td>
+<td align="right">3</td>
+<td align="right">0.182</td>
+<td align="right">0.003</td>
+<td align="right">0.966</td>
+<td align="right">0.494</td>
+</tr>
+<tr class="odd">
+<td align="left">Residual</td>
+<td align="right">976</td>
+<td align="right">61.484</td>
+<td align="right">0.966</td>
+<td align="right">NA</td>
+<td align="right">NA</td>
+</tr>
+<tr class="even">
+<td align="left">Total</td>
+<td align="right">987</td>
+<td align="right">63.628</td>
+<td align="right">1.000</td>
+<td align="right">NA</td>
+<td align="right">NA</td>
+</tr>
+</tbody>
+</table>
+<p>Restricing the analysis for Baseline Samples:</p>
+<table>
+<caption>Multivariate PERMANOVA results</caption>
+<thead>
+<tr class="header">
+<th align="left">Variable</th>
+<th align="right">DF</th>
+<th align="right">SumOfSqs</th>
+<th align="right">R2</th>
+<th align="right">F</th>
+<th align="right">Pr&lt;F</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">Gender</td>
+<td align="right">1</td>
+<td align="right">0.250</td>
+<td align="right">0.008</td>
+<td align="right">3.779</td>
+<td align="right">0.001</td>
+</tr>
+<tr class="even">
+<td align="left">Smoker</td>
+<td align="right">1</td>
+<td align="right">0.143</td>
+<td align="right">0.004</td>
+<td align="right">2.167</td>
+<td align="right">0.022</td>
+</tr>
+<tr class="odd">
+<td align="left">Age</td>
+<td align="right">1</td>
+<td align="right">0.118</td>
+<td align="right">0.004</td>
+<td align="right">1.786</td>
+<td align="right">0.077</td>
+</tr>
+<tr class="even">
+<td align="left">Run</td>
+<td align="right">2</td>
+<td align="right">0.459</td>
+<td align="right">0.014</td>
+<td align="right">3.470</td>
+<td align="right">0.001</td>
+</tr>
+<tr class="odd">
+<td align="left">Center</td>
+<td align="right">1</td>
+<td align="right">0.084</td>
+<td align="right">0.003</td>
+<td align="right">1.266</td>
+<td align="right">0.229</td>
+</tr>
+<tr class="even">
+<td align="left">ParticipantID</td>
+<td align="right">1</td>
+<td align="right">0.052</td>
+<td align="right">0.002</td>
+<td align="right">0.794</td>
+<td align="right">0.630</td>
+</tr>
+<tr class="odd">
+<td align="left">random</td>
+<td align="right">3</td>
+<td align="right">0.152</td>
+<td align="right">0.005</td>
+<td align="right">0.767</td>
+<td align="right">0.787</td>
+</tr>
+<tr class="even">
+<td align="left">Residual</td>
+<td align="right">483</td>
+<td align="right">31.917</td>
+<td align="right">0.962</td>
+<td align="right">NA</td>
+<td align="right">NA</td>
+</tr>
+<tr class="odd">
+<td align="left">Total</td>
+<td align="right">493</td>
+<td align="right">33.175</td>
+<td align="right">1.000</td>
+<td align="right">NA</td>
+<td align="right">NA</td>
+</tr>
+</tbody>
+</table>
+<br>
+<p>
+<button type="button" class="btn btn-default btn-workflowr btn-workflowr-sessioninfo" data-toggle="collapse" data-target="#workflowr-sessioninfo" style="display: block;">
+<span class="glyphicon glyphicon-wrench" aria-hidden="true"></span> Session information
+</button>
+</p>
+<div id="workflowr-sessioninfo" class="collapse">
+<pre><code>R version 4.1.1 (2021-08-10)
+Platform: x86_64-apple-darwin17.0 (64-bit)
+Running under: macOS Big Sur 10.16
+
+Matrix products: default
+BLAS:   /Library/Frameworks/R.framework/Versions/4.1/Resources/lib/libRblas.0.dylib
+LAPACK: /Library/Frameworks/R.framework/Versions/4.1/Resources/lib/libRlapack.dylib
+
+locale:
+[1] en_US.UTF-8/en_US.UTF-8/en_US.UTF-8/C/en_US.UTF-8/en_US.UTF-8
+
+attached base packages:
+[1] stats     graphics  grDevices utils     datasets  methods   base     
+
+other attached packages:
+ [1] metar_0.1.5       testthat_3.1.4    xlsx_0.6.5        ggstatsplot_0.9.3
+ [5] vegan_2.6-2       lattice_0.20-45   permute_0.9-7     patchwork_1.1.1  
+ [9] phylosmith_1.0.6  phyloseq_1.38.0  
+
+loaded via a namespace (and not attached):
+  [1] coda_0.19-4            tidyr_1.2.0            ggplot2_3.3.6         
+  [4] bit64_4.0.5            knitr_1.39             wesanderson_0.3.6     
+  [7] data.table_1.14.2      DataExplorer_0.8.2     RCurl_1.98-1.8        
+ [10] doParallel_1.0.17      generics_0.1.3         BiocGenerics_0.40.0   
+ [13] callr_3.7.1            usethis_2.1.6          proxy_0.4-27          
+ [16] future_1.27.0          correlation_0.8.1      bit_4.0.4             
+ [19] tzdb_0.3.0             httpuv_1.6.5           assertthat_0.2.1      
+ [22] viridis_0.6.2          xfun_0.31              jquerylib_0.1.4       
+ [25] rJava_1.0-6            evaluate_0.15          promises_1.2.0.1      
+ [28] fansi_1.0.3            igraph_1.3.5           DBI_1.1.3             
+ [31] htmlwidgets_1.5.4      kSamples_1.2-9         stats4_4.1.1          
+ [34] Rmpfr_0.8-9            paletteer_1.4.0        purrr_0.3.4           
+ [37] ellipsis_0.3.2         dplyr_1.0.9            ggpubr_0.4.0          
+ [40] backports_1.4.1        insight_0.18.0         prismatic_1.1.0       
+ [43] RcppParallel_5.1.5     vctrs_0.4.1            Biobase_2.54.0        
+ [46] remotes_2.4.2          here_1.0.1             abind_1.4-5           
+ [49] cachem_1.0.6           withr_2.5.0            ggforce_0.3.3         
+ [52] vroom_1.5.7            prettyunits_1.1.1      cluster_2.1.3         
+ [55] ape_5.6-2              crayon_1.5.1           labeling_0.4.2        
+ [58] SuppDists_1.1-9.7      pkgconfig_2.0.3        units_0.8-0           
+ [61] tweenr_1.0.2           GenomeInfoDb_1.30.1    nlme_3.1-158          
+ [64] statsExpressions_1.3.2 pkgload_1.3.0          blme_1.0-5            
+ [67] devtools_2.4.4         rlang_1.0.6            globals_0.15.1        
+ [70] lifecycle_1.0.2        miniUI_0.1.1.1         selbal_0.1.0          
+ [73] rprojroot_2.0.3        polyclip_1.10-0        matrixStats_0.62.0    
+ [76] datawizard_0.4.1       Matrix_1.4-1           carData_3.0-5         
+ [79] Rhdf5lib_1.16.0        boot_1.3-28            whisker_0.4           
+ [82] GlobalOptions_0.1.2    processx_3.7.0         png_0.1-7             
+ [85] viridisLite_0.4.1      rjson_0.2.21           PMCMRplus_1.9.5       
+ [88] parameters_0.18.1      bitops_1.0-7           KernSmooth_2.23-20    
+ [91] rhdf5filters_1.6.0     Biostrings_2.62.0      workflowr_1.7.0       
+ [94] afex_1.1-1             shape_1.4.6            classInt_0.4-7        
+ [97] multcompView_0.1-8     stringr_1.4.1          arm_1.12-2            
+[100] parallelly_1.32.1      rstatix_0.7.0          S4Vectors_0.32.4      
+[103] ggsignif_0.6.3         scales_1.2.1           memoise_2.0.1         
+[106] magrittr_2.0.3         plyr_1.8.7             zlibbioc_1.40.0       
+[109] compiler_4.1.1         RColorBrewer_1.1-3     clue_0.3-61           
+[112] lme4_1.1-30            cli_3.4.1              ade4_1.7-19           
+[115] XVector_0.34.0         urlchecker_1.0.1       lmerTest_3.1-3        
+[118] listenv_0.8.0          ps_1.7.1               ggside_0.2.1          
+[121] MASS_7.3-58            mgcv_1.8-40            tidyselect_1.1.2      
+[124] stringi_1.7.8          forcats_0.5.1          highr_0.9             
+[127] yaml_2.3.5             ggrepel_0.9.1          grid_4.1.1            
+[130] sass_0.4.2             tools_4.1.1            parallel_4.1.1        
+[133] circlize_0.4.15        rstudioapi_0.13        foreach_1.5.2         
+[136] logging_0.10-108       git2r_0.30.1           gridExtra_2.3         
+[139] farver_2.1.1           Rtsne_0.16             ggraph_2.0.5          
+[142] digest_0.6.29          shiny_1.7.2            BWStest_0.2.2         
+[145] networkD3_0.4          Rcpp_1.0.9             car_3.1-0             
+[148] broom_1.0.0            performance_0.9.1      later_1.3.0           
+[151] sf_1.0-7               ComplexHeatmap_2.10.0  effectsize_0.7.0      
+[154] colorspace_2.0-3       brio_1.1.3             fs_1.5.2              
+[157] IRanges_2.28.0         splines_4.1.1          rematch2_2.1.2        
+[160] graphlayouts_0.8.0     xlsxjars_0.6.1         multtest_2.50.0       
+[163] sessioninfo_1.2.2      gmp_0.6-5              xtable_1.8-4          
+[166] jsonlite_1.8.0         nloptr_2.0.3           tidygraph_1.2.1       
+[169] zeallot_0.1.0          R6_2.5.1               profvis_0.3.7         
+[172] broom.mixed_0.2.9.4    pillar_1.8.1           htmltools_0.5.3       
+[175] mime_0.12              glue_1.6.2             fastmap_1.1.0         
+[178] minqa_1.2.4            class_7.3-20           codetools_0.2-18      
+[181] pkgbuild_1.3.1         mvtnorm_1.1-3          furrr_0.3.0           
+[184] utf8_1.2.2             bslib_0.4.0            tibble_3.1.8          
+[187] logger_0.2.2           numDeriv_2016.8-1.1    survival_3.3-1        
+[190] rmarkdown_2.14         desc_1.4.1             biomformat_1.22.0     
+[193] merTools_0.5.2         munsell_0.5.0          e1071_1.7-11          
+[196] GetoptLong_1.0.5       rhdf5_2.38.1           GenomeInfoDbData_1.2.7
+[199] iterators_1.0.14       reshape2_1.4.4         gtable_0.3.1          
+[202] bayestestR_0.12.1     </code></pre>
+</div>
+</div>
+</div>
+
+
+<!-- Adjust MathJax settings so that all math formulae are shown using
+TeX fonts only; see
+https://docs.mathjax.org/en/latest/web/configuration.html. This will make
+the presentation more consistent at the cost of the webpage sometimes
+taking slightly longer to load. Note that this only works because the
+footer is added to webpages before the MathJax javascript. -->
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    "HTML-CSS": { availableFonts: ["TeX"] }
+  });
+</script>
+
+
+
+
+</div>
+</div>
+
+</div>
+
+<script>
+
+// add bootstrap table styles to pandoc tables
+function bootstrapStylePandocTables() {
+  $('tr.odd').parent('tbody').parent('table').addClass('table table-condensed');
+}
+$(document).ready(function () {
+  bootstrapStylePandocTables();
+});
+
+
+</script>
+
+<!-- tabsets -->
+
+<script>
+$(document).ready(function () {
+  window.buildTabsets("TOC");
+});
+
+$(document).ready(function () {
+  $('.tabset-dropdown > .nav-tabs > li').click(function () {
+    $(this).parent().toggleClass('nav-tabs-open');
+  });
+});
+</script>
+
+<!-- code folding -->
+
+<script>
+$(document).ready(function ()  {
+
+    // temporarily add toc-ignore selector to headers for the consistency with Pandoc
+    $('.unlisted.unnumbered').addClass('toc-ignore')
+
+    // move toc-ignore selectors from section div to header
+    $('div.section.toc-ignore')
+        .removeClass('toc-ignore')
+        .children('h1,h2,h3,h4,h5').addClass('toc-ignore');
+
+    // establish options
+    var options = {
+      selectors: "h1,h2,h3",
+      theme: "bootstrap3",
+      context: '.toc-content',
+      hashGenerator: function (text) {
+        return text.replace(/[.\\/?&!#<>]/g, '').replace(/\s/g, '_');
+      },
+      ignoreSelector: ".toc-ignore",
+      scrollTo: 0
+    };
+    options.showAndHide = true;
+    options.smoothScroll = true;
+
+    // tocify
+    var toc = $("#TOC").tocify(options).data("toc-tocify");
+});
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>

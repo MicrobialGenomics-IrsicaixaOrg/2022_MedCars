@@ -414,7 +414,7 @@ p0<-aux_res %>%
     ggplot(.,aes(x=Names,y=scores,fill=time_point))+geom_bar(stat="identity")+coord_flip()+
     theme_classic()+ggtitle("Month6 vs BL | C01")+
     scale_fill_brewer(palette="Dark2") 
-    ggsave(plot=p0,"output/Deliverables/lefser_Month6_vs_BL_C01_samples.pdf")
+    ggsave(plot=p0,"output/Deliverables/DifferentialAbundance/lefse/lefser_Month6_vs_BL_C01_samples.pdf")
     
 for(otu_name in aux_res$otu){
   my_ps <- x.2.0
@@ -431,7 +431,7 @@ for(otu_name in aux_res$otu){
                                        bf.message=F,title=paste0(title$Names," | IG"),
                                        type="parametric",palette="Dark2") %>% 
   
-   ggsave(.,filename=paste0("output/Deliverables/boxplots/",title$Names,"_vs_Timepoint_C01_Samples.pdf"),width=7, height=7)
+   ggsave(.,filename=paste0("output/Deliverables/DifferentialAbundance/lefse/boxplots/",title$Names,"_vs_Timepoint_C01_Samples.pdf"),width=7, height=7)
 }
 
     
@@ -465,7 +465,7 @@ if(nrow(aux_res)>0){
     ggplot(.,aes(x=Names,y=scores,fill=time_point))+geom_bar(stat="identity")+coord_flip()+
     theme_classic()+ggtitle("Month6 vs BL | C02")+
     scale_fill_brewer(palette="Dark2") 
-  ggsave(plot=p0,"output/Deliverables/lefser_Month6_vs_BL_C02_samples.pdf")
+  ggsave(plot=p0,"output/Deliverables/DifferentialAbundance/lefse/lefser_Month6_vs_BL_C02_samples.pdf")
   
   for(otu_name in aux_res$otu){
     my_ps <- x.2.0
@@ -479,7 +479,7 @@ if(nrow(aux_res)>0){
                                   bf.message=F,title=paste0(title$Names," | CG"),
                                   method="non-parametric",palette="Dark2") %>% 
       
-      ggsave(.,filename=paste0("output/Deliverables/boxplots/",title$Names,"_vs_Timepoint_C02_Samples.pdf"),width=7, height=7)
+      ggsave(.,filename=paste0("output/Deliverables/DifferentialAbundance/lefse/boxplots/",title$Names,"_vs_Timepoint_C02_Samples.pdf"),width=7, height=7)
   }
 }
 
@@ -519,29 +519,66 @@ colnames(input_data)<-myMREObject@taxa@dada2@phyloseq %>%
 
 input_metadata<-metar::get_meta(myMREObject) %>% as.data.frame()
 rownames(input_metadata)<-input_metadata$SampleID
-suppressWarnings(fit_data <- Maaslin2::Maaslin2(input_data=input_data,input_metadata=input_metadata,
+
+dir.create("output/Deliverables/DifferentialAbundance/maaslin/", showWarnings = FALSE,recursive = T)
+if(file.exists("output/Deliverables/DifferentialAbundance/maaslin/Volcano_Month6_vs_BL_IGsamples.rds")){
+  fit_data<-readRDS("output/Deliverables/DifferentialAbundance/maaslin/Volcano_Month6_vs_BL_IGsamples.rds")
+} else {
+  suppressWarnings(fit_data <- Maaslin2::Maaslin2(input_data=input_data,input_metadata=input_metadata,
                                                 output="output/Deliverables/DifferentialAbundance/maaslin/genusC01",
                                                 fixed_effects = c("Timepoint"),min_prevalence = 0.2,
                                                 random_effects = c("Participante","Gender","UBE","Edad","IPAQ","Run"),
                                                 cores=4,plot_heatmap = T, plot_scatter = T))
-fit_data$results %>% 
+  saveRDS(fit_data,file="output/Deliverables/DifferentialAbundance/maaslin/Volcano_Month6_vs_BL_IGsamples.rds")
+}
+
+plot_data<-fit_data$results %>% 
   dplyr::mutate('-log(qval)'=-log10(qval)) %>% 
   dplyr::mutate(significant=ifelse(qval<0.1,"q<0.1","ns")) %>% 
-  ggplot(.,aes(x=coef,y=`-log(qval)`,color=significant))+geom_point()
+  dplyr::mutate(labels=ifelse(significant=="ns",FALSE,TRUE)) %>% 
+  dplyr::mutate(feature=ifelse(significant=="ns","",feature)) 
+  
+p0<-ggplot(plot_data)+
+    geom_point(aes(x=coef,y=`-log(qval)`,color=significant))+
+    ggrepel::geom_text_repel(aes(x=coef,y=`-log(qval)`),size=3,
+                                 label = plot_data$feature,
+                                 box.padding = unit(0.25, "lines"),
+                                  hjust = 1)+
+    ggtitle("Month6 vs BL | IG")
 
-# 
-# fit_data$results %>% 
-#   dplyr::filter(qval<0.1) %>% 
-#   dplyr::arrange(coef) %>% 
-#   dplyr::rename(Genus=feature) %>% 
-#   dplyr::left_join(get_phyloseq(myMREObject,type="dada2") %>% 
-#                      phyloseq::tax_table() %>% 
-#                      as.data.frame() %>% 
-#                      dplyr::mutate(Genus=gsub("-",".",Genus)))
+source("code/902_themes.R")
+
+p1<-p0+theme(plot.title = element_text(face = "bold",
+                                      size = rel(1.2), hjust = 0.5),
+            text = element_text(),
+            panel.background = element_rect(colour = NA),
+            plot.background = element_rect(colour = NA),
+            # panel.border = element_rect(colour = NA),
+            axis.title = element_text(face = "bold",size = rel(1)),
+            axis.title.y = element_text(angle=90,vjust =2),
+            axis.title.x = element_text(vjust = -0.2),
+            axis.text = element_text(),
+            axis.line = element_line(colour="black"),
+            axis.ticks = element_line(),
+            panel.grid.major = element_line(colour="#f0f0f0"),
+            panel.grid.minor = element_blank(),
+            legend.key = element_rect(colour = NA),
+            legend.position = "bottom",
+            legend.direction = "horizontal",
+            legend.key.size= unit(0.2, "cm"),
+            legend.margin = unit(0, "cm"),
+            legend.title = element_text(face="italic"),
+            plot.margin=unit(c(10,5,5,5),"mm"),
+            strip.background=element_rect(colour="#f0f0f0",fill="#f0f0f0"),
+            strip.text = element_text(face="bold")
+    )+scale_colour_Publication() +scale_fill_Publication()
+                             
+ggsave(p1,filename="output/Deliverables/DifferentialAbundance/maaslin/Volcano_Month6_vs_BL_IGsamples.pdf")             
+
 ```
 
 
-```{r DA species maaslin2 C01/IG, include=TRUE, echo=F, message=FALSE, warning=FALSE, paged.print=FALSE, tidy=T,eval=T}
+```{r DA species maaslin2 C02/CG, include=TRUE, echo=F, message=FALSE, warning=FALSE, paged.print=FALSE, tidy=T,eval=T}
 suppressMessages(require(dplyr))
 suppressMessages(require(phyloseq))
 suppressMessages(require(lefser))
@@ -567,24 +604,67 @@ colnames(input_data)<-myMREObject@taxa@dada2@phyloseq %>%
 
 input_metadata<-metar::get_meta(myMREObject) %>% as.data.frame()
 rownames(input_metadata)<-input_metadata$SampleID
-suppressWarnings(fit_data <- Maaslin2::Maaslin2(input_data=input_data,
+
+dir.create("output/Deliverables/DifferentialAbundance/maaslin/", showWarnings = FALSE,recursive = T)
+if(file.exists("output/Deliverables/DifferentialAbundance/maaslin/Volcano_Month6_vs_BL_CGsamples.rds")){
+  fit_data<-readRDS("output/Deliverables/DifferentialAbundance/maaslin/Volcano_Month6_vs_BL_CGsamples.rds")
+} else {
+  suppressWarnings(fit_data <- Maaslin2::Maaslin2(input_data=input_data,
                                                 input_metadata=input_metadata,
                                                 output="output/Deliverables/DifferentialAbundance/maaslin/genusC02",
                                                 fixed_effects = c("Timepoint"),
                                                 random_effects = c("Participante","Gender","UBE","Edad","IPAQ","Run"),
                                                 cores=4,plot_heatmap = T,
                                                 min_prevalence = 0.2,
-                                                plot_scatter = T)) ### No siginifcant hits
+                                                plot_scatter = T)) 
+  saveRDS(fit_data,file="output/Deliverables/DifferentialAbundance/maaslin/Volcano_Month6_vs_BL_CGsamples.rds")
+}  
 
-fit_data$results %>% 
-  dplyr::filter(qval<0.1) %>% 
-  dplyr::arrange(coef) %>% 
-  dplyr::rename(Genus=feature) %>% 
-  dplyr::left_join(get_phyloseq(myMREObject,type="dada2") %>% 
-                     phyloseq::tax_table() %>% 
-                     as.data.frame() %>% 
-                     dplyr::mutate(Genus=gsub("-",".",Genus)))
+# plot_data<-fit_data$results %>% 
+#   dplyr::filter(qval<0.1) %>% 
+#   dplyr::arrange(coef) %>% 
+#   dplyr::rename(Genus=feature) %>% 
+#   dplyr::left_join(get_phyloseq(myMREObject,type="dada2") %>% 
+#                      phyloseq::tax_table() %>% 
+#                      as.data.frame() %>% 
+#                      dplyr::mutate(Genus=gsub("-",".",Genus)))
+# 
+# p0<-ggplot(plot_data)+
+#     geom_point(aes(x=coef,y=`-log(qval)`,color=significant))+
+#     ggrepel::geom_text_repel(aes(x=coef,y=`-log(qval)`),size=3,
+#                                  label = plot_data$feature,
+#                                  box.padding = unit(0.25, "lines"),
+#                                   hjust = 1)+
+#     ggtitle("Month6 vs BL | CG")
+# 
+# source("code/902_themes.R")
+# 
+# p1<-p0+theme(plot.title = element_text(face = "bold",
+#                                       size = rel(1.2), hjust = 0.5),
+#             text = element_text(),
+#             panel.background = element_rect(colour = NA),
+#             plot.background = element_rect(colour = NA),
+#             # panel.border = element_rect(colour = NA),
+#             axis.title = element_text(face = "bold",size = rel(1)),
+#             axis.title.y = element_text(angle=90,vjust =2),
+#             axis.title.x = element_text(vjust = -0.2),
+#             axis.text = element_text(),
+#             axis.line = element_line(colour="black"),
+#             axis.ticks = element_line(),
+#             panel.grid.major = element_line(colour="#f0f0f0"),
+#             panel.grid.minor = element_blank(),
+#             legend.key = element_rect(colour = NA),
+#             legend.position = "bottom",
+#             legend.direction = "horizontal",
+#             legend.key.size= unit(0.2, "cm"),
+#             legend.margin = unit(0, "cm"),
+#             legend.title = element_text(face="italic"),
+#             plot.margin=unit(c(10,5,5,5),"mm"),
+#             strip.background=element_rect(colour="#f0f0f0",fill="#f0f0f0"),
+#             strip.text = element_text(face="bold")
+#     )+scale_colour_Publication() +scale_fill_Publication()
+#                              
+# ggsave(p1,filename="output/Deliverables/DifferentialAbundance/maaslin/Volcano_Month6_vs_BL_CGsamples.pdf")             
+
 ```
-
-
 

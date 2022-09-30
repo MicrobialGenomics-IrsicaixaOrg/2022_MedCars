@@ -90,7 +90,7 @@ BL_samples<-myMREObject %>%
   dplyr::filter(Timepoint=="BL")
 
 auxMREObject<-myMREObject %>%
-  metar::filter_samples(.,BL_samples$SampleID) 
+  metar::filter_samples(.,BL_samples$SampleID %>% as.vector()) 
 
 auxMREObject@metadata@categorical_vals<-auxMREObject@metadata@categorical_vals %>% dplyr::filter(CategoricalVariable!="Timepoint")
 auxMREObject@taxa@dada2@phyloseq <- auxMREObject@taxa@dada2@phyloseq %>% 
@@ -135,7 +135,7 @@ BL_samples<-myMREObject %>%
   dplyr::filter(Timepoint=="BL")
 
 auxMREObject<-myMREObject %>%
-  metar::filter_samples(.,BL_samples$SampleID) 
+  metar::filter_samples(.,BL_samples$SampleID %>% as.vector()) 
 
 auxMREObject@metadata@categorical_vals<-auxMREObject@metadata@categorical_vals %>% dplyr::filter(CategoricalVariable!="Timepoint")
 auxMREObject@taxa@dada2@phyloseq <- auxMREObject@taxa@dada2@phyloseq 
@@ -396,7 +396,7 @@ p0<-aux_res %>%
     theme_classic()+ggtitle("Month6 vs BL | q10")+
     scale_fill_brewer(palette="Dark2") 
 
-ggsave(plot=p0,"output/Deliverables/lefser_Month6_vs_BL_q10_samples.pdf")
+ggsave(plot=p0,"output/Deliverables/DifferentialAbundance/lefse/boxplots/lefser_Month6_vs_BL_q10_samples.pdf")
     
 for(otu_name in aux_res$otu){
   my_ps <- x.2.0
@@ -410,7 +410,7 @@ for(otu_name in aux_res$otu){
                                       title=title$Names,
                                        method="bayes",palette="Dark2") %>% 
   
-   ggsave(.,filename=paste0("output/Deliverables/boxplots/",title$Names,"_vs_Timepoint_q10_Samples.pdf"),width=7, height=7)
+   ggsave(.,filename=paste0("output/Deliverables/DifferentialAbundance/lefse/boxplots/",title$Names,"_vs_Timepoint_q10_Samples.pdf"),width=7, height=7)
 }
 
     

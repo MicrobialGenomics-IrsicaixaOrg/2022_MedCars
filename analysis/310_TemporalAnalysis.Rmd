@@ -43,22 +43,9 @@ ps_silva<-readRDS("data/cfu/DADA2/ps_silva.rds")
 myMREObject<-readRDS("data/cfu/mreObject.rds")
 myMREObject@wd<-"output/mre_data/cfu"
 
-metar::get_meta(myMREObject) %>% dplyr::select(Visita)
-
-metadata_df<-read.xlsx("data/raw/Metadata/FullMetadata_v1.0.xlsx",sheetIndex = 1) %>% 
-  dplyr::select(Participante,visitDate,Center,Timepoint)
+metadata_df<-get_meta(myMREObject)
 
 metadata_df<-metadata_df %>% 
-  tidyr::pivot_wider(id_cols = Participante,names_from = Timepoint,values_from = visitDate) %>% 
-  dplyr::mutate(BL=as.Date(BL,format = "%m/%d/%y")) %>% 
-  dplyr::mutate(Month6=BL+240) %>% 
-  tidyr::pivot_longer(cols = c("BL","Month6"),names_to = "Timepoint",values_to = "Date") %>% 
-  dplyr::left_join(metadata_df,by=c("Timepoint","Participante")) %>% 
-  dplyr::select(-visitDate) %>% 
-  dplyr::rename(visitDate=Date)
-
-metadata_df<-metadata_df %>% 
-  dplyr::right_join(metar::get_meta(myMREObject),by=c("Participante","Center","Timepoint")) %>% 
   dplyr::mutate(visitDate=as.Date(visitDate,format = "%m/%d/%y"))
 
 # metadata_df %>%
@@ -74,13 +61,13 @@ metadata_df %>%
 
 Let's see if there is a major trend in visit date vs microbiome composition. There is no apparent trend depending on time og visit. That's reassuring.
 
-```{r follow-up chunk1, include=TRUE, echo=T, message=FALSE, warning=FALSE, paged.print=FALSE, tidy=T}
+```{r follow-up chunk 2, include=TRUE, echo=T, message=FALSE, warning=FALSE, paged.print=FALSE, tidy=T}
 phylum_df<-metar::get_phyloseq(myMREObject,type="dada2") %>% 
   microbiome::transform(.,transform="compositional") %>% 
   phyloseq::tax_glom(.,taxrank="Phylum",NArm=F) %>% 
   phyloseq::psmelt() %>% 
   dplyr::left_join(metadata_df %>%
-                     dplyr::select(c("Center","Participante","Timepoint","visitDate")),by=c("Center","Participante","Timepoint")) %>%
+                     dplyr::select(c("Center","Participante","Timepoint","visitDate")),by=c("Center","Participante","Timepoint","visitDate")) %>%
   dplyr::filter(Timepoint=="BL")
 
 phylums<-phylum_df$Phylum %>% unique()
@@ -91,8 +78,8 @@ phylum_df %>%
   ggplot(.,aes(x=visitDate,y=Abundance,fill=Phylum))+geom_area()+facet_grid(~Center)
 
 phylum_df %>% 
-  dplyr::filter(Phylum == "Bacteroidetes") %>% 
-  ggplot(.,aes(x=visitDate,y=Abundance))+geom_point()
+  dplyr::filter(Phylum == "Firmicutes") %>% 
+  ggstatsplot::ggscatterstats(visitDate,Abundance,type = "robust")
 ```
 
 Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.

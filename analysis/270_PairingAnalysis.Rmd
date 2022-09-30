@@ -1,0 +1,261 @@
+---
+site: workflowr::wflow_site
+title: "Intervention Analysis"
+author: "Marc Noguera-Julian, PhD. "
+date: "`r format(Sys.time(), '%Y-%m-%d')`"
+header-includes:
+- \usepackage{fancyhdr}
+- \usepackage{lipsum}
+- \pagestyle{fancy}
+- \fancyhead[CO,CE]{Microbioma intestinal en intervencion nutricional}
+- \fancyfoot[LO,RE]{Marc Noguera-Julian, IrsiCaixa}
+- \fancyhead[LE,RO]{\thepage}
+- \fancyfoot[CO,CE]{}
+- \usepackage[default]{sourcesanspro}
+- \usepackage[T1]{fontenc}
+- \usepackage{eso-pic,graphicx,transparent}
+mainfont: Helvetica
+output: html_document
+---
+
+```{r setup, include=TRUE, echo=F, message=FALSE, warning=FALSE, paged.print=FALSE, tidy=F}
+knitr::opts_chunk$set(echo = FALSE)
+knitr::opts_knit$set(root.dir = here::here())
+rmd_env <- "devel"
+```
+
+
+## Pairing Analysis
+
+From Differential Abundance Analysis we have seen that there are a bunch of related ggenera that are overabundant in Month6 samples only in the IG. These genera happen to be all from the Lachnospiraceae family, except for Faecalibacterium.
+
+Paired Boxplots clearly show that increase/decrease of these genera happens for only a subgroup of the participants. We are interested in confirming of discarding if this genus-specific increase/decrease subgroups of participants do overlap among genera.
+
+```{r pairing analysis chunk 1, include=TRUE, echo=F, message=FALSE, warning=FALSE, paged.print=FALSE, tidy=T,eval=T}
+suppressMessages(require(dplyr))
+suppressMessages(require(phyloseq))
+suppressMessages(require(ggplot2))
+suppressMessages(require(patchwork))
+
+set.seed(1234)
+### Species Level
+
+devtools::load_all("~/Documents/Work/Development/WMGSPipeline/")
+myMREObject<-readRDS("data/cfu/mreObject.rds")
+
+### Genus Level C01/IG
+if(file.exists("output/Deliverables/DifferentialAbundance/maaslin/Volcano_Month6_vs_BL_IGsamples.rds")){
+  fit_data<-readRDS("output/Deliverables/DifferentialAbundance/maaslin/Volcano_Month6_vs_BL_IGsamples.rds")
+} 
+
+sign_genus<-fit_data$results %>% 
+                  dplyr::filter(qval<0.05) %>% 
+                  dplyr::pull(feature)
+
+ps_df<-myMREObject@taxa@dada2@phyloseq %>% 
+  phyloseq::tax_glom(.,taxrank = "Genus",NArm = F) %>% 
+  microbiome::transform(transform="compositional") %>% 
+  phyloseq::psmelt() %>% 
+  dplyr::select(Genus,Participante,Center,Abundance,Timepoint) %>% 
+  dplyr::mutate(Genus=gsub("-",".",Genus)) %>% 
+  dplyr::filter(Genus %in% sign_genus)
+
+
+ps_df %>% 
+  dplyr::filter(Genus=="Roseburia") %>% 
+  dplyr::arrange(Participante,Center,Timepoint) %>% 
+  ggstatsplot::grouped_ggwithinstats(Timepoint,Abundance,grouping.var = Center,type="robust")
+
+ps_df %>% 
+  dplyr::group_by(Participante,Genus) %>% 
+  dplyr::arrange(Participante,Genus,Timepoint) %>% 
+  tidyr::pivot_wider(names_from = Timepoint,values_from = Abundance) %>% 
+  dplyr::mutate(Delta=Month6-BL) %>% 
+  dplyr::select(-BL,-Month6) %>% 
+  ggstatsplot::grouped_ggbetweenstats(x=Genus,y=Delta,grouping.var = Center)
+
+ps_df %>% 
+  dplyr::group_by(Participante,Genus) %>% 
+  dplyr::arrange(Participante,Genus,Timepoint) %>% 
+  tidyr::pivot_wider(names_from = Timepoint,values_from = Abundance) %>% 
+  dplyr::mutate(Delta=Month6-BL) %>% 
+  dplyr::select(-BL,-Month6) %>% 
+  tidyr::pivot_wider(names_from = Genus,values_from = Delta) %>% 
+  dplyr::ungroup() %>% 
+  dplyr::select(-Participante,-Center) %>% 
+  as.matrix() %>% cor() %>% 
+  corrplot::corrplot()
+  
+  
+```
+
+## Core Microbiome
+
+### phyloseqGraphTest
+
+This is an alternative to PERMANOVA, based on distance-based graph neighbouring and permutation.
+
+```{r core microbiome chunk1, include=TRUE, echo=F, message=FALSE, warning=FALSE, paged.print=FALSE, tidy=T,eval=F}
+suppressMessages(require(dplyr))
+suppressMessages(require(phyloseq))
+suppressMessages(require(ggplot2))
+suppressMessages(require(patchwork))
+
+set.seed(1234)
+### Species Level
+
+devtools::load_all("~/Documents/Work/Development/WMGSPipeline/")
+myMREObject<-readRDS("data/cfu/mreObject.rds")
+
+my_ps<-myMREObject %>% metar::get_phyloseq(.,type="dada2") %>% 
+  phyloseq::subset_samples(Center=="C01") %>% 
+  phyloseq::tax_glom(.,taxrank="Genus")
+
+gt = phyloseqGraphTest::graph_perm_test(my_ps, sampletype = "Timepoint",
+                     distance = "bray", type = "mst",)
+
+phyloseqGraphTest::plot_test_network(gt)
+phyloseqGraphTest::plot_permutations(gt)
+
+myMREObject %>% metar::get_phyloseq(.,type="dada2") %>% 
+  phyloseq::subset_samples(Center=="C02") %>% 
+  phyloseq::tax_glom(.,taxrank="Genus") %>% 
+  phyloseqGraphTest::graph_perm_test(., sampletype = "Timepoint",
+                     distance = "bray", type = "mst") %>% 
+  phyloseqGraphTest::plot_permutations(.)
+
+```
+### Spiec-Easi
+
+This packages uses inverse covariance matrices to build ecological networks. In this analysis we aim to see:
+
+* Whether the ecological network  is different, at baseline, for the CG and IG. It should not be.
+* Whether there is any alteration in the ecological network of CG and IG separately, at Month6
+
+#### Baseline
+
+```{r core microbiome chunk2 BL, include=TRUE, echo=F, message=FALSE, warning=FALSE, paged.print=FALSE, tidy=T,eval=T}
+suppressMessages(require(dplyr))
+suppressMessages(require(phyloseq))
+suppressMessages(require(ggplot2))
+suppressMessages(require(patchwork))
+suppressMessages(require(SpiecEasi))
+set.seed(1234)
+### Species Level
+
+devtools::load_all("~/Documents/Work/Development/WMGSPipeline/")
+myMREObject<-readRDS("data/cfu/mreObject.rds")
+
+### IG/C01
+set.seed(1234)
+my_ps_C01_BL<-myMREObject %>% metar::get_phyloseq(.,type="dada2") %>% 
+  phyloseq::rarefy_even_depth() %>% 
+  microbiome::core(prevalence = 0.3,detection=2) %>%
+  phyloseq::tax_glom(.,taxrank="Genus") %>% 
+  phyloseq::subset_samples(Center=="C01") %>%
+  phyloseq::subset_samples(Timepoint=="BL") 
+
+
+### Build network and initial graph
+se_mb_C01_BL <- spiec.easi(my_ps_C01_BL, method='mb', lambda.min.ratio=1e-2,
+                           nlambda=20, pulsar.params=list(rep.num=50,ncores=4))
+ig2_mb_C01_BL <- adj2igraph(getRefit(se_mb_C01_BL),  vertex.attr=list(name=taxa_names(my_ps_C01_BL)))
+ig2_mb_C01_BL_LO = igraph::layout_with_fr(ig2_mb_C01_BL)
+
+### prune isolated nodes
+Isolated = which(igraph::degree(ig2_mb_C01_BL)==0)
+G2 = igraph::delete.vertices(ig2_mb_C01_BL,Isolated)
+LO2 = ig2_mb_C01_BL_LO[-Isolated,]
+
+## Plot Network
+plot_network(G2, my_ps_C01_BL, type='taxa', color="Family",)
+
+
+
+### CG/C02
+set.seed(1234)
+my_ps_C02_BL<-myMREObject %>% metar::get_phyloseq(.,type="dada2") %>% 
+  phyloseq::rarefy_even_depth() %>% 
+  microbiome::core(prevalence = 0.3,detection=2) %>%
+  phyloseq::tax_glom(.,taxrank="Genus") %>% 
+  phyloseq::subset_samples(Center=="C02") %>%
+  phyloseq::subset_samples(Timepoint=="BL") 
+
+### Build network and initial graph
+se_mb_C02_BL <- spiec.easi(my_ps_C02_BL, method='mb', lambda.min.ratio=1e-2,
+                           nlambda=20, pulsar.params=list(rep.num=50,ncores=4))
+ig2_mb_C02_BL <- adj2igraph(getRefit(se_mb_C02_BL),  vertex.attr=list(name=taxa_names(my_ps_C02_BL)))
+ig2_mb_C02_BL_LO = igraph::layout_with_fr(ig2_mb_C02_BL)
+
+### prune isolated nodes
+Isolated = which(igraph::degree(ig2_mb_C02_BL)==0)
+G2 = igraph::delete.vertices(ig2_mb_C02_BL,Isolated)
+LO2 = ig2_mb_C02_BL_LO[-Isolated,]
+
+## Plot Network
+plot_network(G2, my_ps_C02_BL, type='taxa', color="Family",)
+
+```
+#### Month6
+
+```{r core microbiome chunk3 Month6, include=TRUE, echo=F, message=FALSE, warning=FALSE, paged.print=FALSE, tidy=T,eval=T}
+suppressMessages(require(dplyr))
+suppressMessages(require(phyloseq))
+suppressMessages(require(ggplot2))
+suppressMessages(require(patchwork))
+suppressMessages(require(SpiecEasi))
+set.seed(1234)
+### Species Level
+
+devtools::load_all("~/Documents/Work/Development/WMGSPipeline/")
+myMREObject<-readRDS("data/cfu/mreObject.rds")
+
+### IG/C01
+set.seed(1234)
+my_ps_C01_Month6<-myMREObject %>% metar::get_phyloseq(.,type="dada2") %>% 
+  phyloseq::rarefy_even_depth() %>% 
+  microbiome::core(prevalence = 0.3,detection=2) %>%
+  phyloseq::tax_glom(.,taxrank="Genus") %>% 
+  phyloseq::subset_samples(Center=="C01") %>%
+  phyloseq::subset_samples(Timepoint=="Month6") 
+
+### Build network and initial graph
+se_mb_C01_Month6 <- spiec.easi(my_ps_C01_Month6, method='mb', lambda.min.ratio=1e-2,
+                           nlambda=20, pulsar.params=list(rep.num=50,ncores=4))
+ig2_mb_C01_Month6 <- adj2igraph(getRefit(se_mb_C01_Month6),  vertex.attr=list(name=taxa_names(my_ps_C01_Month6)))
+ig2_mb_C01_Month6_LO = igraph::layout_with_fr(ig2_mb_C01_Month6)
+
+### prune isolated nodes
+Isolated = which(igraph::degree(ig2_mb_C01_Month6)==0)
+G2 = igraph::delete.vertices(ig2_mb_C01_Month6,Isolated)
+LO2 = ig2_mb_C01_Month6_LO[-Isolated,]
+
+## Plot Network
+plot_network(G2, my_ps_C01_Month6, type='taxa', color="Family",)
+
+
+
+### CG/C02
+set.seed(1234)
+my_ps_C02_Month6<-myMREObject %>% metar::get_phyloseq(.,type="dada2") %>% 
+  phyloseq::rarefy_even_depth() %>% 
+  microbiome::core(prevalence = 0.3,detection=2) %>%
+  phyloseq::tax_glom(.,taxrank="Genus") %>% 
+  phyloseq::subset_samples(Center=="C02") %>%
+  phyloseq::subset_samples(Timepoint=="Month6") 
+
+### Build network and initial graph
+se_mb_C02_Month6 <- spiec.easi(my_ps_C02_Month6, method='mb', lambda.min.ratio=1e-2,
+                           nlambda=20, pulsar.params=list(rep.num=50,ncores=4))
+ig2_mb_C02_Month6 <- adj2igraph(getRefit(se_mb_C02_Month6),  vertex.attr=list(name=taxa_names(my_ps_C02_Month6)))
+ig2_mb_C02_Month6_LO = igraph::layout_with_fr(ig2_mb_C02_Month6)
+
+### prune isolated nodes
+Isolated = which(igraph::degree(ig2_mb_C02_Month6)==0)
+G2 = igraph::delete.vertices(ig2_mb_C02_Month6,Isolated)
+LO2 = ig2_mb_C02_Month6_LO[-Isolated,]
+
+## Plot Network
+plot_network(G2, my_ps_C02_Month6, type='taxa', color="Family",)
+
+```

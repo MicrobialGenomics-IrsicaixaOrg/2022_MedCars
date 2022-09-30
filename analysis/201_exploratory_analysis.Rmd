@@ -31,7 +31,9 @@ suppressMessages(require(phyloseq))
 suppressWarnings(require(dplyr))
 # Load package from local copy
 devtools::load_all("~/Documents/Work/Development/WMGSPipeline/")
-ps_silva<-readRDS("data/raw/DADA2/ps_silva.rds")
+# ps_silva<-readRDS("data/raw/DADA2/ps_silva.rds")
+ps_silva<- readRDS("data/cfu/mreObject.rds") %>% 
+  metar::get_phyloseq(.,type="dada2")
 min_throughput<-otu_table(ps_silva) %>% colSums() %>% min()
 max_throughput<-otu_table(ps_silva) %>% colSums() %>% max()
 median_throughput<-median(otu_table(ps_silva) %>% colSums())
@@ -74,15 +76,15 @@ two_bl_sample_participants<-ps_silva %>%
   count() %>%
   dplyr::filter(n==2)
 
-ps_silva<-readRDS("data/processed/DADA2/ps_silva.rds")
-ps_silva<-phyloseq::subset_samples(ps_silva,Participante %in% cfu_participants$Participante)
+# ps_silva<-readRDS("data/processed/DADA2/ps_silva.rds")
+# ps_silva<-phyloseq::subset_samples(ps_silva,Participante %in% cfu_participants$Participante)
 # saveRDS(ps_silva,"data/cfu/DADA2/ps_silva.rds")
-
-myMREObject<-readRDS("data/processed/mreObject.rds")
-myMREObject<-myMREObject %>% 
-  metar::filter_samples(.,samples_cfu_participants$SampleID %>% as.vector())
-myMREObject@wd<-"output/mre_data/cfu/"
-saveRDS(myMREObject,"data/cfu/mreObject.rds")
+# 
+# myMREObject<-readRDS("data/processed/mreObject.rds")
+# myMREObject<-myMREObject %>% 
+#   metar::filter_samples(.,samples_cfu_participants$SampleID %>% as.vector())
+# myMREObject@wd<-"output/mre_data/cfu/"
+# saveRDS(myMREObject,"data/cfu/mreObject.rds")
 
 ```
 
@@ -94,9 +96,8 @@ There were a total of `r n_total_participants` of which `r n_cfu_participants`(`
 ```{r Quality Control, echo=F, message=FALSE, warning=FALSE, paged.print=FALSE, tidy=F}
 suppressWarnings(require(ggpubr))
 suppressWarnings(require(patchwork))
-ps_silva<-readRDS("data/raw/DADA2/ps_silva.rds")
-ps_silva<-phyloseq::subset_samples(ps_silva,Participante %in% cfu_participants$Participante)
-
+ps_silva<- readRDS("data/cfu/mreObject.rds") %>% 
+  metar::get_phyloseq(.,type="dada2")
 # if(rmd_env=="devel") {
 #   require(phyloseq)
 #   rand_ids<-ps_silva %>% 

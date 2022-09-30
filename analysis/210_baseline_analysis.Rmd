@@ -149,10 +149,8 @@ suppressWarnings(require(patchwork))
 suppressWarnings(require(vegan))
 # Load package from local copy
 devtools::load_all("~/Documents/Work/Development/WMGSPipeline/")
-ps_silva<-readRDS("data/cfu/DADA2/ps_silva.rds")
-myMREObject<-readRDS("data/cfu/mreObject.rds")
-myMREObject@wd<-"output/mre_data/cfu"
-
+# ps_silva<-readRDS("data/internal/baseline/mreObject.rds/DADA2/ps_silva.rds")
+myMREObject<-readRDS("data/internal/baseline/mreObject.rds")
 ### BL
 BL_samples<-myMREObject %>% 
   metar::get_meta() %>% 
@@ -168,7 +166,7 @@ auxMREObject@metadata@categorical_vals<-auxMREObject@metadata@categorical_vals %
 #   phyloseq::otu_table() %>% 
 #   rowSums() 
 
-auxMREObject<-metar::dada2_nmds(tax_level = "Genus", mre = auxMREObject,top_n = 50, save_files = F)
+auxMREObject<-metar::dada2_nmds(tax_level = "Genus", mre = auxMREObject,top_n = 50, save_files = T)
 
 p0<-auxMREObject@taxa@dada2@nmds$Genus$top_50$categorical$Center
 
@@ -237,7 +235,7 @@ p0<-aux_res %>%
     ggplot(.,aes(x=Names,y=scores,fill=time_point))+geom_bar(stat="identity")+coord_flip()+
     theme_classic()+ggtitle("C01 vs C02 | Baseline")+
     scale_fill_brewer(palette="Dark2") 
-    ggsave(plot=p0,"output/Deliverables/lefser_C01_vs_C02_Baseline_samples.pdf")
+    ggsave(plot=p0,"output/Deliverables/DifferentialAbundance/lefse/boxplots/lefser_C01_vs_C02_Baseline_samples.pdf")
     
 for(otu_name in aux_res$otu){
   my_ps <- x.2.0
@@ -253,7 +251,7 @@ for(otu_name in aux_res$otu){
                                        bf.message=F,title=title$Names,
                                        type="nonparametric",palette="Dark2") %>% 
   
-   ggsave(.,filename=paste0("output/Deliverables/boxplots/",title$Names,"_vs_Center_Baseline_Samples.pdf"),width=7, height=7)
+   ggsave(.,filename=paste0("output/Deliverables/DifferentialAbundance/lefse/boxplots/",title$Names,"_vs_Center_Baseline_Samples.pdf"),width=7, height=7)
 }
 
 p0
@@ -305,13 +303,5 @@ fit_data$results %>%
   dplyr::mutate('-log(qval)'=-log10(qval)) %>% 
   dplyr::mutate(significant=ifelse(qval<0.05,"q<0.05","ns")) %>% 
   ggplot(.,aes(x=coef,y=`-log(qval)`,color=significant))+geom_point()
-# fit_data$results %>% 
-#   dplyr::filter(qval<0.1) %>% 
-#   dplyr::arrange(coef) %>% 
-#   dplyr::rename(Genus=feature) %>% 
-#   dplyr::left_join(get_phyloseq(myMREObject,type="dada2") %>% 
-#                      phyloseq::tax_table() %>% 
-#                      as.data.frame() %>% 
-#                      dplyr::mutate(Genus=gsub("-",".",Genus))) %>% 
-#   knitr::kable()
+
 ```

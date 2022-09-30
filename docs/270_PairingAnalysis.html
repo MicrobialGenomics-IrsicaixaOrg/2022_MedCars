@@ -11,9 +11,9 @@
 
 <meta name="author" content="Marc Noguera-Julian, PhD." />
 
-<meta name="date" content="2022-09-01" />
+<meta name="date" content="2022-09-28" />
 
-<title>Microbiome association with Mediterranean diet</title>
+<title>Intervention Analysis</title>
 
 <script src="site_libs/header-attrs-2.14/header-attrs.js"></script>
 <script src="site_libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
@@ -349,6 +349,15 @@ div.tocify {
   <a href="230_MedDietScore.html">Mediterranean Diet</a>
 </li>
 <li>
+  <a href="250_PhysicalActivity.html">Physical Activity</a>
+</li>
+<li>
+  <a href="260_FirmicutesBacteroides.html">Firmicutes/Bacteroidetes</a>
+</li>
+<li>
+  <a href="260_FirmicutesBacteroides.html">Functional Analysis</a>
+</li>
+<li>
   <a href="about.html">About</a>
 </li>
 <li>
@@ -366,9 +375,9 @@ div.tocify {
 
 
 
-<h1 class="title toc-ignore">Microbiome association with Mediterranean diet</h1>
+<h1 class="title toc-ignore">Intervention Analysis</h1>
 <h4 class="author">Marc Noguera-Julian, PhD.</h4>
-<h4 class="date">2022-09-01</h4>
+<h4 class="date">2022-09-28</h4>
 
 </div>
 
@@ -393,7 +402,7 @@ div.tocify {
 <div class="tab-content">
 <div id="summary" class="tab-pane fade in active">
 <p>
-<strong>Last updated:</strong> 2022-09-01
+<strong>Last updated:</strong> 2022-09-28
 </p>
 <p>
 <strong>Checks:</strong> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> 6 <span class="glyphicon glyphicon-exclamation-sign text-danger" aria-hidden="true"></span> 1
@@ -417,7 +426,7 @@ This reproducible <a href="https://rmarkdown.rstudio.com">R Markdown</a> analysi
 </div>
 <div id="strongRMarkdownfilestronguncommittedchanges" class="panel-collapse collapse">
 <div class="panel-body">
-<p>The R Markdown is ignored by Git. To know which version of the R Markdown file created these results, you’ll want to first commit it to the Git repo. If you’re still working on the analysis, you can ignore this warning. When you’re finished, you can run <code>wflow_publish</code> to commit the R Markdown file and build the HTML.</p>
+<p>The R Markdown is untracked by Git. To know which version of the R Markdown file created these results, you’ll want to first commit it to the Git repo. If you’re still working on the analysis, you can ignore this warning. When you’re finished, you can run <code>wflow_publish</code> to commit the R Markdown file and build the HTML.</p>
 </div>
 </div>
 </div>
@@ -484,16 +493,16 @@ This reproducible <a href="https://rmarkdown.rstudio.com">R Markdown</a> analysi
 <div class="panel panel-default">
 <div class="panel-heading">
 <p class="panel-title">
-<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomMicrobialGenomicsIrsicaixaOrg2022MedCarstree940511c512797f8ef952c0b2e1224cd2cde0b938targetblank940511ca"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Repository version:</strong> <a href="https://github.com/MicrobialGenomics-IrsicaixaOrg/2022_MedCars/tree/940511c512797f8ef952c0b2e1224cd2cde0b938" target="_blank">940511c</a> </a>
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomMicrobialGenomicsIrsicaixaOrg2022MedCarstree9594b4b1eee834d1666dba133ec4ba2e68d2e3c9targetblank9594b4ba"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Repository version:</strong> <a href="https://github.com/MicrobialGenomics-IrsicaixaOrg/2022_MedCars/tree/9594b4b1eee834d1666dba133ec4ba2e68d2e3c9" target="_blank">9594b4b</a> </a>
 </p>
 </div>
-<div id="strongRepositoryversionstrongahrefhttpsgithubcomMicrobialGenomicsIrsicaixaOrg2022MedCarstree940511c512797f8ef952c0b2e1224cd2cde0b938targetblank940511ca" class="panel-collapse collapse">
+<div id="strongRepositoryversionstrongahrefhttpsgithubcomMicrobialGenomicsIrsicaixaOrg2022MedCarstree9594b4b1eee834d1666dba133ec4ba2e68d2e3c9targetblank9594b4ba" class="panel-collapse collapse">
 <div class="panel-body">
 <p>
 Great! You are using Git for version control. Tracking code development and connecting the code version to the results is critical for reproducibility.
 </p>
 <p>
-The results in this page were generated with repository version <a href="https://github.com/MicrobialGenomics-IrsicaixaOrg/2022_MedCars/tree/940511c512797f8ef952c0b2e1224cd2cde0b938" target="_blank">940511c</a>. See the <em>Past versions</em> tab to see a history of the changes made to the R Markdown and HTML files.
+The results in this page were generated with repository version <a href="https://github.com/MicrobialGenomics-IrsicaixaOrg/2022_MedCars/tree/9594b4b1eee834d1666dba133ec4ba2e68d2e3c9" target="_blank">9594b4b</a>. See the <em>Past versions</em> tab to see a history of the changes made to the R Markdown and HTML files.
 </p>
 <p>
 Note that you need to be careful to ensure that all relevant files for the analysis have been committed to Git prior to generating the results (you can use <code>wflow_publish</code> or <code>wflow_git_commit</code>). workflowr only checks the R Markdown file, but you know if there are other scripts or data files that it depends on. Below is the status of the Git repository when the results were generated:
@@ -504,11 +513,6 @@ Ignored files:
     Ignored:    .Rhistory
     Ignored:    .Rproj.user/
     Ignored:    analysis/.DS_Store
-    Ignored:    analysis/201_exploratory_analysis.Rmd
-    Ignored:    analysis/210_baseline_analysis.Rmd
-    Ignored:    analysis/220_intervention_analysis.Rmd
-    Ignored:    analysis/230_MedDietScore.Rmd
-    Ignored:    analysis/230_fatty_acids.Rmd
     Ignored:    data/.DS_Store
     Ignored:    data/cfu/
     Ignored:    data/internal/
@@ -520,11 +524,18 @@ Ignored files:
     Ignored:    output/mre_data/
 
 Untracked files:
-    Untracked:  code/901_Abstract.Rmd
-    Untracked:  code/901_Abstract.docx
+    Untracked:  analysis/270_PairingAnalysis.Rmd
+    Untracked:  code/902_themes.R
+    Untracked:  code/999_aux_code.R
 
 Unstaged changes:
-    Modified:   code/999_gift_code.R
+    Modified:   analysis/201_exploratory_analysis.Rmd
+    Modified:   analysis/210_baseline_analysis.Rmd
+    Modified:   analysis/220_intervention_analysis.Rmd
+    Modified:   analysis/300_FunctionalAnalysis.Rmd
+    Modified:   code/006_DataPreprocessing.Rmd
+    Modified:   code/006_DataPreprocessing.html
+    Deleted:    code/999_gift_code.R
 
 </code></pre>
 <p>
@@ -544,32 +555,32 @@ There are no past versions. Publish this analysis with <code>wflow_publish()</co
 </div>
 </div>
 </div>
-<div id="fatty-acids---baseline" class="section level2">
-<h2>Fatty Acids - Baseline</h2>
-<p>For all fecal samples obtained from the study participants a paired blood samples was extracted. This was used to measure fatty acid levels:</p>
-<ul>
-<li>Palmitic acid: Palmitic acid (PA) is the most common saturated fatty acid found in the human body and can be provided in the diet or synthesized endogenously from other fatty acids, carbohydrates and amino acids.</li>
-<li>Eicopento: Eicosapentaenoic acid (EPA) is one of several omega-3 fatty acids. It is found in cold-water fatty fish, such as salmon. It is also found in fish oil supplements, along with docosahexaenoic acid (DHA). Omega-3 fatty acids are part of a healthy diet that helps lower risk of heart disease.</li>
-<li>Arachidonic acid: Arachidonic acid (ARA) is a polyunsaturated omega-6 fatty acid.</li>
-<li>Oleic acid: Oleic acid (OA) is a fatty acid that occurs naturally in various animal and vegetable fats and oils. It is an odorless, colorless oil, although commercial samples may be yellowish. In chemical terms, oleic acid is classified as a monounsaturated omega-9 fatty acid</li>
-<li>Alpha-linoleic acid: alpha-Linolenic acid (ALA) is an n−3, or omega-3, essential fatty acid. ALA is found in many seeds and oils, including flaxseed, walnuts, chia, hemp, and many common vegetable oils.</li>
-<li>Gamma-linoleic acid: gamma-Linolenic acid or GLA is a fatty acid found primarily in seed oils</li>
-<li>Palmito-oleic acid: Palmitoleic acid(POA), or (9Z)-hexadec-9-enoic acid, is an omega-7 monounsaturated fatty acid (16:1n-7) with the formula CH3(CH2)5CH=CH(CH2)7COOH that is a common constituent of the glycerides of human adipose tissue. It is present in all tissues but, in general, found in higher concentrations in the liver.</li>
-<li>Elaidic acid: Elaidic acid (ELA) is an unsaturated trans fatty acid, with code C18:1 trans-9. This compound has attracted attention because it is a major trans fat found in hydrogenated vegetable oils, and trans fats have been implicated in heart disease.It is the trans-isomer of oleic acid.</li>
-<li>Estearic acid: Estearic acid (ESA) is a saturated fatty acid with an 18-carbon chain. Stearic acid is more abundant in animal fat (up to 30%) than in vegetable fat (typically &lt;5%).</li>
-<li>Miristic acid: Myristic acid(MA), a long-chain saturated fatty acid (14:0), is one of the most abundant fatty acids in milk fat (above 10%). This fatty acid is known because it accumulates fat in the body, however, its consumption also impacts positively on cardiovascular health.</li>
-<li>Linolenic acid(Not sure it is confused with linoleic acid): Linolenic acid (LNA) is a type of naturally-occurring fatty acid. It can refer to either of two octadecatrienoic acids(ALA and GLA), or a mixture of the two. Linolenate is often found in vegetable oils; traditionally, such fatty acylates are reported as the fatty acids</li>
-<li>Linoleic acid: Linoleic acid (LA) is a polyunsaturated omega-6 fatty acid. It is a colorless or white liquid that is virtually insoluble in water but soluble in many organic solvents.[2] It typically occurs in nature as a triglyceride (ester of glycerin) rather than as a free fatty acid</li>
-<li>n6_n3_ratio: ratio calculated over n-6 unsaturated vs n-3 unsaturated fatty acids.</li>
-</ul>
+<div id="pairing-analysis" class="section level2">
+<h2>Pairing Analysis</h2>
+<p>From Differential Abundance Analysis we have seen that there are a bunch of related ggenera that are overabundant in Month6 samples only in the IG. These genera happen to be all from the Lachnospiraceae family, except for Faecalibacterium.</p>
+<p>Paired Boxplots clearly show that increase/decrease of these genera happens for only a subgroup of the participants. We are interested in confirming of discarding if this genus-specific increase/decrease subgroups of participants do overlap among genera.</p>
 <pre><code>suggested package selbal ✔suggested package DataExplorer ✔suggested package lme4 ✔suggested package merTools ✔</code></pre>
-<p><img src="figure/230_fatty_acids.Rmd/Fatty%20Acids%20Chunk%201-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p><img src="figure/270_PairingAnalysis.Rmd/pairing%20analysis%20chunk%201-1.png" width="672" style="display: block; margin: auto;" /><img src="figure/270_PairingAnalysis.Rmd/pairing%20analysis%20chunk%201-2.png" width="672" style="display: block; margin: auto;" /><img src="figure/270_PairingAnalysis.Rmd/pairing%20analysis%20chunk%201-3.png" width="672" style="display: block; margin: auto;" /></p>
 </div>
-<div id="including-plots" class="section level2">
-<h2>Including Plots</h2>
-<p>You can also embed plots, for example:</p>
-<p><img src="figure/230_fatty_acids.Rmd/pressure-1.png" width="672" style="display: block; margin: auto;" /></p>
-<p>Note that the <code>echo = FALSE</code> parameter was added to the code chunk to prevent printing of the R code that generated the plot.</p>
+<div id="core-microbiome" class="section level2">
+<h2>Core Microbiome</h2>
+<div id="phyloseqgraphtest" class="section level3">
+<h3>phyloseqGraphTest</h3>
+<p>This is an alternative to PERMANOVA, based on distance-based graph neighbouring and permutation.</p>
+</div>
+<div id="spiec-easi" class="section level3">
+<h3>Spiec-Easi</h3>
+<p>This packages uses inverse covariance matrices to build ecological networks. In this analysis we aim to see:</p>
+<ul>
+<li>Whether the ecological network is different, at baseline, for the CG and IG. It should not be.</li>
+<li>Whether there is any alteration in the ecological network of CG and IG separately, at Month6</li>
+</ul>
+<div id="baseline" class="section level4">
+<h4>Baseline</h4>
+<pre><code>suggested package selbal ✔suggested package DataExplorer ✔suggested package lme4 ✔suggested package merTools ✔</code></pre>
+<p><img src="figure/270_PairingAnalysis.Rmd/core%20microbiome%20chunk2%20BL-1.png" width="672" style="display: block; margin: auto;" /><img src="figure/270_PairingAnalysis.Rmd/core%20microbiome%20chunk2%20BL-2.png" width="672" style="display: block; margin: auto;" /> #### Month6</p>
+<pre><code>suggested package selbal ✔suggested package DataExplorer ✔suggested package lme4 ✔suggested package merTools ✔</code></pre>
+<p><img src="figure/270_PairingAnalysis.Rmd/core%20microbiome%20chunk3%20Month6-1.png" width="672" style="display: block; margin: auto;" /><img src="figure/270_PairingAnalysis.Rmd/core%20microbiome%20chunk3%20Month6-2.png" width="672" style="display: block; margin: auto;" /></p>
 <br>
 <p>
 <button type="button" class="btn btn-default btn-workflowr btn-workflowr-sessioninfo" data-toggle="collapse" data-target="#workflowr-sessioninfo" style="display: block;">
@@ -592,76 +603,79 @@ attached base packages:
 [1] stats     graphics  grDevices utils     datasets  methods   base     
 
 other attached packages:
- [1] metar_0.1.5       testthat_3.1.4    ggstatsplot_0.9.3 vegan_2.6-2      
- [5] lattice_0.20-45   permute_0.9-7     patchwork_1.1.1   phylosmith_1.0.6 
- [9] phyloseq_1.38.0   workflowr_1.7.0  
+[1] metar_0.1.5     SpiecEasi_1.1.2 testthat_3.1.4  patchwork_1.1.1
+[5] ggplot2_3.3.6   phyloseq_1.38.0 dplyr_1.0.9    
 
 loaded via a namespace (and not attached):
-  [1] coda_0.19-4            tidyr_1.2.0            ggplot2_3.3.6         
-  [4] bit64_4.0.5            knitr_1.39             wesanderson_0.3.6     
-  [7] data.table_1.14.2      DataExplorer_0.8.2     RCurl_1.98-1.8        
- [10] doParallel_1.0.17      generics_0.1.3         BiocGenerics_0.40.0   
- [13] callr_3.7.1            usethis_2.1.6          proxy_0.4-27          
+  [1] coda_0.19-4            tidyr_1.2.0            bit64_4.0.5           
+  [4] knitr_1.39             wesanderson_0.3.6      data.table_1.14.2     
+  [7] DataExplorer_0.8.2     RCurl_1.98-1.8         doParallel_1.0.17     
+ [10] generics_0.1.3         BiocGenerics_0.40.0    callr_3.7.1           
+ [13] microbiome_1.17.41     usethis_2.1.6          VGAM_1.1-7            
  [16] future_1.27.0          correlation_0.8.1      bit_4.0.4             
  [19] tzdb_0.3.0             httpuv_1.6.5           assertthat_0.2.1      
- [22] viridis_0.6.2          xfun_0.31              jquerylib_0.1.4       
+ [22] WRS2_1.1-4             xfun_0.31              jquerylib_0.1.4       
  [25] evaluate_0.15          promises_1.2.0.1       fansi_1.0.3           
- [28] igraph_1.3.4           DBI_1.1.3              htmlwidgets_1.5.4     
- [31] stats4_4.1.1           paletteer_1.4.0        purrr_0.3.4           
- [34] ellipsis_0.3.2         dplyr_1.0.9            ggpubr_0.4.0          
- [37] backports_1.4.1        insight_0.18.0         prismatic_1.1.0       
- [40] RcppParallel_5.1.5     vctrs_0.4.1            Biobase_2.54.0        
- [43] remotes_2.4.2          here_1.0.1             abind_1.4-5           
- [46] cachem_1.0.6           withr_2.5.0            ggforce_0.3.3         
- [49] vroom_1.5.7            prettyunits_1.1.1      cluster_2.1.3         
- [52] ape_5.6-2              crayon_1.5.1           labeling_0.4.2        
- [55] pkgconfig_2.0.3        units_0.8-0            tweenr_1.0.2          
- [58] GenomeInfoDb_1.30.1    nlme_3.1-158           statsExpressions_1.3.2
- [61] pkgload_1.3.0          blme_1.0-5             devtools_2.4.4        
- [64] rlang_1.0.4            globals_0.15.1         lifecycle_1.0.1       
- [67] miniUI_0.1.1.1         MatrixModels_0.5-0     selbal_0.1.0          
- [70] rprojroot_2.0.3        polyclip_1.10-0        matrixStats_0.62.0    
- [73] datawizard_0.4.1       Matrix_1.4-1           carData_3.0-5         
- [76] Rhdf5lib_1.16.0        boot_1.3-28            whisker_0.4           
- [79] GlobalOptions_0.1.2    processx_3.7.0         png_0.1-7             
- [82] viridisLite_0.4.1      rjson_0.2.21           parameters_0.18.1     
- [85] bitops_1.0-7           getPass_0.2-2          KernSmooth_2.23-20    
- [88] rhdf5filters_1.6.0     Biostrings_2.62.0      shape_1.4.6           
- [91] classInt_0.4-7         stringr_1.4.1          arm_1.12-2            
- [94] parallelly_1.32.1      rstatix_0.7.0          S4Vectors_0.32.4      
- [97] ggsignif_0.6.3         scales_1.2.1           memoise_2.0.1         
-[100] magrittr_2.0.3         plyr_1.8.7             zlibbioc_1.40.0       
-[103] compiler_4.1.1         RColorBrewer_1.1-3     clue_0.3-61           
-[106] lme4_1.1-30            cli_3.3.0              ade4_1.7-19           
-[109] XVector_0.34.0         urlchecker_1.0.1       listenv_0.8.0         
-[112] pbapply_1.5-0          ps_1.7.1               MASS_7.3-58           
-[115] mgcv_1.8-40            ggside_0.2.1           tidyselect_1.1.2      
-[118] stringi_1.7.8          forcats_0.5.1          highr_0.9             
-[121] yaml_2.3.5             ggrepel_0.9.1          grid_4.1.1            
-[124] sass_0.4.2             tools_4.1.1            parallel_4.1.1        
-[127] circlize_0.4.15        rstudioapi_0.13        foreach_1.5.2         
-[130] logging_0.10-108       git2r_0.30.1           gridExtra_2.3         
-[133] farver_2.1.1           Rtsne_0.16             ggraph_2.0.5          
-[136] digest_0.6.29          shiny_1.7.2            networkD3_0.4         
-[139] Rcpp_1.0.9             car_3.1-0              broom_1.0.0           
-[142] BayesFactor_0.9.12-4.4 performance_0.9.1      later_1.3.0           
-[145] httr_1.4.3             sf_1.0-7               ComplexHeatmap_2.10.0 
-[148] effectsize_0.7.0       colorspace_2.0-3       brio_1.1.3            
-[151] fs_1.5.2               IRanges_2.28.0         splines_4.1.1         
-[154] rematch2_2.1.2         graphlayouts_0.8.0     multtest_2.50.0       
-[157] sessioninfo_1.2.2      xtable_1.8-4           jsonlite_1.8.0        
-[160] nloptr_2.0.3           tidygraph_1.2.1        zeallot_0.1.0         
-[163] R6_2.5.1               profvis_0.3.7          broom.mixed_0.2.9.4   
-[166] pillar_1.8.1           htmltools_0.5.3        mime_0.12             
-[169] glue_1.6.2             fastmap_1.1.0          minqa_1.2.4           
-[172] class_7.3-20           codetools_0.2-18       pkgbuild_1.3.1        
-[175] mvtnorm_1.1-3          furrr_0.3.0            utf8_1.2.2            
-[178] bslib_0.4.0            tibble_3.1.8           logger_0.2.2          
-[181] survival_3.3-1         rmarkdown_2.14         desc_1.4.1            
-[184] biomformat_1.22.0      merTools_0.5.2         munsell_0.5.0         
-[187] e1071_1.7-11           GetoptLong_1.0.5       rhdf5_2.38.1          
-[190] GenomeInfoDbData_1.2.7 iterators_1.0.14       reshape2_1.4.4        
-[193] gtable_0.3.0           bayestestR_0.12.1     </code></pre>
+ [28] igraph_1.3.5           DBI_1.1.3              htmlwidgets_1.5.4     
+ [31] reshape_0.8.9          kSamples_1.2-9         stats4_4.1.1          
+ [34] Rmpfr_0.8-9            paletteer_1.4.0        purrr_0.3.4           
+ [37] ellipsis_0.3.2         corrplot_0.92          ggpubr_0.4.0          
+ [40] backports_1.4.1        insight_0.18.0         permute_0.9-7         
+ [43] prismatic_1.1.0        vctrs_0.4.1            Biobase_2.54.0        
+ [46] remotes_2.4.2          here_1.0.1             abind_1.4-5           
+ [49] cachem_1.0.6           withr_2.5.0            ggforce_0.3.3         
+ [52] vroom_1.5.7            vegan_2.6-2            prettyunits_1.1.1     
+ [55] cluster_2.1.3          ape_5.6-2              crayon_1.5.1          
+ [58] glmnet_4.1-4           pkgconfig_2.0.3        SuppDists_1.1-9.7     
+ [61] labeling_0.4.2         tweenr_1.0.2           GenomeInfoDb_1.30.1   
+ [64] nlme_3.1-158           statsExpressions_1.3.2 pkgload_1.3.0         
+ [67] blme_1.0-5             devtools_2.4.4         rlang_1.0.6           
+ [70] globals_0.15.1         lifecycle_1.0.2        miniUI_0.1.1.1        
+ [73] MatrixModels_0.5-0     selbal_0.1.0           rprojroot_2.0.3       
+ [76] polyclip_1.10-0        matrixStats_0.62.0     datawizard_0.4.1      
+ [79] Matrix_1.4-1           mc2d_0.1-21            carData_3.0-5         
+ [82] Rhdf5lib_1.16.0        boot_1.3-28            GlobalOptions_0.1.2   
+ [85] processx_3.7.0         png_0.1-7              rjson_0.2.21          
+ [88] PMCMRplus_1.9.5        parameters_0.18.1      bitops_1.0-7          
+ [91] rhdf5filters_1.6.0     Biostrings_2.62.0      workflowr_1.7.0       
+ [94] shape_1.4.6            afex_1.1-1             stringr_1.4.1         
+ [97] multcompView_0.1-8     arm_1.12-2             parallelly_1.32.1     
+[100] rstatix_0.7.0          S4Vectors_0.32.4       ggsignif_0.6.3        
+[103] scales_1.2.1           memoise_2.0.1          magrittr_2.0.3        
+[106] plyr_1.8.7             zlibbioc_1.40.0        compiler_4.1.1        
+[109] rstantools_2.2.0       RColorBrewer_1.1-3     clue_0.3-61           
+[112] lme4_1.1-30            cli_3.4.1              ade4_1.7-19           
+[115] XVector_0.34.0         urlchecker_1.0.1       lmerTest_3.1-3        
+[118] listenv_0.8.0          pbapply_1.5-0          ps_1.7.1              
+[121] MASS_7.3-58            mgcv_1.8-40            ggside_0.2.1          
+[124] tidyselect_1.1.2       stringi_1.7.8          forcats_0.5.1         
+[127] highr_0.9              yaml_2.3.5             ggrepel_0.9.1         
+[130] grid_4.1.1             sass_0.4.2             tools_4.1.1           
+[133] parallel_4.1.1         circlize_0.4.15        rstudioapi_0.13       
+[136] foreach_1.5.2          logging_0.10-108       git2r_0.30.1          
+[139] gridExtra_2.3          farver_2.1.1           Rtsne_0.16            
+[142] digest_0.6.29          shiny_1.7.2            networkD3_0.4         
+[145] BWStest_0.2.2          Rcpp_1.0.9             car_3.1-0             
+[148] broom_1.0.0            BayesFactor_0.9.12-4.4 performance_0.9.1     
+[151] later_1.3.0            ComplexHeatmap_2.10.0  effectsize_0.7.0      
+[154] colorspace_2.0-3       brio_1.1.3             fs_1.5.2              
+[157] IRanges_2.28.0         splines_4.1.1          rematch2_2.1.2        
+[160] pulsar_0.3.8           multtest_2.50.0        sessioninfo_1.2.2     
+[163] xtable_1.8-4           gmp_0.6-5              jsonlite_1.8.0        
+[166] nloptr_2.0.3           zeallot_0.1.0          R6_2.5.1              
+[169] profvis_0.3.7          broom.mixed_0.2.9.4    pillar_1.8.1          
+[172] htmltools_0.5.3        mime_0.12              glue_1.6.2            
+[175] fastmap_1.1.0          minqa_1.2.4            codetools_0.2-18      
+[178] pkgbuild_1.3.1         mvtnorm_1.1-3          furrr_0.3.0           
+[181] utf8_1.2.2             lattice_0.20-45        bslib_0.4.0           
+[184] tibble_3.1.8           logger_0.2.2           numDeriv_2016.8-1.1   
+[187] huge_1.3.5             survival_3.3-1         rmarkdown_2.14        
+[190] desc_1.4.1             biomformat_1.22.0      merTools_0.5.2        
+[193] munsell_0.5.0          GetoptLong_1.0.5       rhdf5_2.38.1          
+[196] GenomeInfoDbData_1.2.7 iterators_1.0.14       ggstatsplot_0.9.3     
+[199] reshape2_1.4.4         gtable_0.3.1           bayestestR_0.12.1     </code></pre>
+</div>
+</div>
 </div>
 </div>
 

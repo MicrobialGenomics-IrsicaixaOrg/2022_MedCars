@@ -90,7 +90,7 @@ BL_samples<-myMREObject %>%
   dplyr::filter(Timepoint=="BL")
 
 auxMREObject<-myMREObject %>%
-  metar::filter_samples(.,BL_samples$SampleID) 
+  metar::filter_samples(.,BL_samples$SampleID %>% as.vector()) 
 
 auxMREObject@metadata@categorical_vals<-tibble::tribble(~CategoricalVariable,~PaletteName,"METActividadFisicabasaltotal","Set1")
 

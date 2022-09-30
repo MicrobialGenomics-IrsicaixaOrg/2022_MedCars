@@ -75,9 +75,11 @@ source activate picrust2 ### Need a conda environement (conda create -n picrust2
 picrust2_pipeline.py -s data/cfu/DADA2/ps_silva.fas -i  data/cfu/DADA2/ps_silva_ASV.txt -t epa-ng -o data/cfu/DADA2/picrust2_out_pipeline -p 4
 ```
 
-### Analysis
+<!--
+### Wilcoxon 
 
-```{r Functional Analysis chunk 1 Pathways, echo=F, message=FALSE, warning=FALSE, paged.print=FALSE, tidy=F}
+Pathways and gene abundance can be tested using Wilcoxon ranked test but we'll opt out of this, because it is heavy computationally and because we have better options-->
+```{r Functional Analysis chunk 1 Pathways, echo=F, message=FALSE, warning=FALSE, paged.print=FALSE, tidy=F, eval=F}
 suppressWarnings(require(phyloseq))
 suppressWarnings(require(phylosmith))
 suppressWarnings(require(patchwork))
@@ -116,27 +118,510 @@ pathways_to_exclude<-c("PWY-7159","PWY-5531","CHLOROPHYLL-SYN","PWY-7616")
 my_pathway_df<-my_pathway_df %>% 
   dplyr::filter(! pathway %in% pathways_to_exclude )
 
-for (pth in unique(my_pathway_df$pathway)){
-  if(! pth %in% non_zero_C01$pathway){next}
-  print(pth)
-  test_res<-my_pathway_df %>% 
-    dplyr::filter(Center=="C01") %>% 
-    dplyr::filter(pathway==pth) %>% 
-    rstatix::wilcox_test(Abundance~Timepoint,)
-  eff_size<-my_pathway_df %>% 
-    dplyr::filter(Center=="C01") %>% 
-    dplyr::filter(pathway==pth) %>% 
-    rstatix::wilcox_effsize(formula = Abundance~Timepoint,data=.)
-  test_res<-test_res %>% left_join(eff_size,by=c("group1","group2","n1","n2","pathway",".y."))
-  if(test_res$p<0.005){
-    print("Significant")
-    p0<-my_pathway_df %>% 
-    dplyr::filter(Center=="C01") %>% 
-    dplyr::filter(pathway==pth) %>% 
-    dplyr::arrange(Participante) %>% 
-    ggstatsplot::ggwithinstats(.,Timepoint,Abundance,type="np",bf.message = NULL,pairwise.comparisons = T) 
-      ggsave(p0,filename = paste0("output/Deliverables/boxplots/Functional/",pth,"_C01_vs_Timepoint.pdf"))
-  }
+# for (pth in unique(my_pathway_df$pathway)){
+#   if(! pth %in% non_zero_C01$pathway){next}
+#   print(pth)
+#   test_res<-my_pathway_df %>% 
+#     dplyr::filter(Center=="C01") %>% 
+#     dplyr::filter(pathway==pth) %>% 
+#     rstatix::wilcox_test(Abundance~Timepoint,)
+#   eff_size<-my_pathway_df %>% 
+#     dplyr::filter(Center=="C01") %>% 
+#     dplyr::filter(pathway==pth) %>% 
+#     rstatix::wilcox_effsize(formula = Abundance~Timepoint,data=.)
+#   test_res<-test_res %>% left_join(eff_size,by=c("group1","group2","n1","n2","pathway",".y."))
+#   if(test_res$p<0.005){
+#     print("Significant")
+#     p0<-my_pathway_df %>% 
+#     dplyr::filter(Center=="C01") %>% 
+#     dplyr::filter(pathway==pth) %>% 
+#     dplyr::arrange(Participante) %>% 
+#     ggstatsplot::ggwithinstats(.,Timepoint,Abundance,type="np",bf.message = NULL,pairwise.comparisons = T) 
+#       ggsave(p0,filename = paste0("output/Deliverables/boxplots/Functional/",pth,"_C01_vs_Timepoint.pdf"))
+#   }
+# }
+
+```
+
+
+### MaasLin - IG
+
+We are interested in detecting the functional change of the gut microbiome after the nutritional intervention. We are using inferred gene content as obtained from picrust2, using 16s data. Interestingly, picrust2 output is obtained either as a gene familly list (KEGG or EC annotated) or as a pathway list using MetaCyc annotation. The latter uses minPath to detect pathway coverage/abundance.
+
+We'll do both analysis as exploratory. Note that the dimensions of these datasets are large and quite a large number of diufferential abundance genes and pathways are to be expected. We are more interested in either interpreting the iceberg tips of each comparative and to compare the difference sets in IG and CG.
+
+Interestingly, there are much more significantly different pathways and gene familiies vs timepoint within the IG than within the CG.
+
+#### Pathways
+
+```{r DA species maaslin2 C01/IG, include=TRUE, echo=F, message=FALSE, warning=FALSE, paged.print=FALSE, tidy=T,eval=T}
+suppressWarnings(require(phyloseq))
+suppressWarnings(require(phylosmith))
+suppressWarnings(require(patchwork))
+suppressWarnings(require(vegan))
+suppressWarnings(require(ggstatsplot))
+suppressWarnings(require(dplyr))
+# Load package from local copy
+suppressWarnings(devtools::load_all("~/Documents/Work/Development/WMGSPipeline/"))
+myMREObject<-readRDS("data/cfu/mreObject.rds")
+
+
+# Import picrust2 data - Pathways 
+
+my_pathway_df<-read.delim("data/cfu/DADA2/picrust2_out_pipeline/pathways_out/path_abun_unstrat.tsv")
+colnames(my_pathway_df)<-colnames(my_pathway_df) %>% gsub("X","",.)
+
+# colSums(my_pathway_df %>% dplyr::select(-pathway)) ### Not normalized
+
+my_pathway_df<-my_pathway_df %>% mutate_if(is.numeric, ~./sum(.))
+
+pathways_to_exclude<-c("PWY-7159","PWY-5531","CHLOROPHYLL-SYN","PWY-7616")
+my_pathway_df<-my_pathway_df %>% 
+  dplyr::filter(! pathway %in% pathways_to_exclude )
+
+
+input_data<-my_pathway_df
+rownames(input_data)<-input_data$pathway
+input_data$pathway<-NULL
+input_data<-t(input_data)
+
+input_metadata<-metar::get_meta(myMREObject) %>% 
+  dplyr::filter(Center=="C01") %>% 
+  as.data.frame()
+rownames(input_metadata)<-input_metadata$SampleID
+
+input_data<-input_data[input_metadata$SampleID, ]
+
+dir.create("output/Deliverables/DifferentialAbundance/maaslin/", showWarnings = FALSE,recursive = T)
+if( file.exists("output/Deliverables/DifferentialAbundance/maaslin/Volcano_Month6_vs_BL_IGsamples_picrust2.rds") ){
+  fit_data<-readRDS("output/Deliverables/DifferentialAbundance/maaslin/Volcano_Month6_vs_BL_IGsamples_picrust2.rds")
+}else{
+  suppressWarnings(fit_data <- Maaslin2::Maaslin2(input_data=input_data,input_metadata=input_metadata,
+                                                output="output/Deliverables/DifferentialAbundance/maaslin/picrust2C01",
+                                                fixed_effects = c("Timepoint"),min_prevalence = 0.2,
+                                                random_effects = c("Participante"),
+                                                cores=4,plot_heatmap = T, plot_scatter = T))
+  saveRDS(fit_data,file="output/Deliverables/DifferentialAbundance/maaslin/Volcano_Month6_vs_BL_IGsamples_picrust2.rds")
 }
 
+plot_data<-fit_data$results %>% 
+  dplyr::mutate('-log(qval)'=-log10(qval)) %>% 
+  dplyr::mutate(significant=ifelse(qval<0.05,"q<0.05","ns")) %>% 
+  dplyr::mutate(labels=ifelse(significant=="ns",FALSE,TRUE)) %>% 
+  dplyr::mutate(feature=ifelse(significant=="ns","",feature)) 
+  
+p0<-ggplot(plot_data)+
+    geom_point(aes(x=coef,y=`-log(qval)`,color=significant))+
+    ggrepel::geom_text_repel(aes(x=coef,y=`-log(qval)`),size=2,
+                                 label = plot_data$feature,max.overlaps = 30,
+                                 box.padding = unit(0.25, "lines"),
+                                  hjust = 1)+
+    ggtitle("Month6 vs BL | IG")
+
+source("code/902_themes.R")
+
+p1<-p0+theme(plot.title = element_text(face = "bold",
+                                      size = rel(1.2), hjust = 0.5),
+            text = element_text(),
+            panel.background = element_rect(colour = NA),
+            plot.background = element_rect(colour = NA),
+            # panel.border = element_rect(colour = NA),
+            axis.title = element_text(face = "bold",size = rel(1)),
+            axis.title.y = element_text(angle=90,vjust =2),
+            axis.title.x = element_text(vjust = -0.2),
+            axis.text = element_text(),
+            axis.line = element_line(colour="black"),
+            axis.ticks = element_line(),
+            panel.grid.major = element_line(colour="#f0f0f0"),
+            panel.grid.minor = element_blank(),
+            legend.key = element_rect(colour = NA),
+            legend.position = "bottom",
+            legend.direction = "horizontal",
+            legend.key.size= unit(0.2, "cm"),
+            legend.margin = unit(0, "cm"),
+            legend.title = element_text(face="italic"),
+            plot.margin=unit(c(10,5,5,5),"mm"),
+            strip.background=element_rect(colour="#f0f0f0",fill="#f0f0f0"),
+            strip.text = element_text(face="bold")
+    )+scale_colour_Publication() +scale_fill_Publication()
+                             
+ggsave(p1,filename="output/Deliverables/DifferentialAbundance/maaslin/Volcano_Month6_vs_BL_IGsamples_picrust2.pdf")             
+p1
+
+
+```
+
+#### Gene Families
+
+```{r DA Gene Families maaslin2 C01/IG, include=TRUE, echo=F, message=FALSE, warning=FALSE, paged.print=FALSE, tidy=T,eval=T}
+suppressWarnings(require(phyloseq))
+suppressWarnings(require(phylosmith))
+suppressWarnings(require(patchwork))
+suppressWarnings(require(vegan))
+suppressWarnings(require(ggstatsplot))
+suppressWarnings(require(dplyr))
+# Load package from local copy
+suppressWarnings(devtools::load_all("~/Documents/Work/Development/WMGSPipeline/"))
+myMREObject<-readRDS("data/cfu/mreObject.rds")
+
+
+# Import picrust2 data - Pathways 
+
+my_gene_family_df<-read.delim("data/cfu/DADA2/picrust2_out_pipeline/KO_metagenome_out/pred_metagenome_unstrat.tsv.gz")
+colnames(my_gene_family_df)<-colnames(my_gene_family_df) %>% gsub("X","",.)
+
+# colSums(my_gene_family_df %>% dplyr::select(-function.)) ### Not normalized
+
+my_gene_family_df<-my_gene_family_df %>% mutate_if(is.numeric, ~./sum(.))
+
+
+input_data<-my_gene_family_df
+rownames(input_data)<-input_data$function.
+input_data$function.<-NULL
+input_data<-t(input_data)
+
+input_metadata<-metar::get_meta(myMREObject) %>% 
+  dplyr::filter(Center=="C01") %>% 
+  as.data.frame()
+rownames(input_metadata)<-input_metadata$SampleID
+
+input_data<-input_data[input_metadata$SampleID, ]
+
+dir.create("output/Deliverables/DifferentialAbundance/maaslin/", showWarnings = FALSE,recursive = T)
+if(file.exists("output/Deliverables/DifferentialAbundance/maaslin/Volcano_Month6_vs_BL_IGsamples_picrust2genes.rds")){
+  fit_data<-readRDS("output/Deliverables/DifferentialAbundance/maaslin/Volcano_Month6_vs_BL_IGsamples_picrust2genes.rds")
+  }else{
+suppressWarnings(fit_data <- Maaslin2::Maaslin2(input_data=input_data,input_metadata=input_metadata,
+                                                output="output/Deliverables/DifferentialAbundance/maaslin/picrust2_genesC01",
+                                                fixed_effects = c("Timepoint"),min_prevalence = 0.2,
+                                                random_effects = c("Participante"),
+                                                cores=4,plot_heatmap = T, plot_scatter = T))
+  saveRDS(fit_data,file="output/Deliverables/DifferentialAbundance/maaslin/Volcano_Month6_vs_BL_IGsamples_picrust2genes.rds")
+}
+
+plot_data<-fit_data$results %>% 
+  dplyr::mutate('-log(qval)'=-log10(qval)) %>% 
+  dplyr::mutate(significant=ifelse(qval<0.05,"q<0.05","ns")) %>% 
+  dplyr::mutate(labels=ifelse(significant=="ns",FALSE,TRUE)) %>% 
+  dplyr::mutate(feature=ifelse(significant=="ns","",feature)) 
+  
+p0<-ggplot(plot_data)+
+    geom_point(aes(x=coef,y=`-log(qval)`,color=significant))+
+    ggrepel::geom_text_repel(aes(x=coef,y=`-log(qval)`),size=2,
+                                 label = plot_data$feature,max.overlaps = 30,
+                                 box.padding = unit(0.25, "lines"),
+                                  hjust = 1)+
+    ggtitle("Month6 vs BL | IG")
+
+source("code/902_themes.R")
+
+p1<-p0+theme(plot.title = element_text(face = "bold",
+                                      size = rel(1.2), hjust = 0.5),
+            text = element_text(),
+            panel.background = element_rect(colour = NA),
+            plot.background = element_rect(colour = NA),
+            # panel.border = element_rect(colour = NA),
+            axis.title = element_text(face = "bold",size = rel(1)),
+            axis.title.y = element_text(angle=90,vjust =2),
+            axis.title.x = element_text(vjust = -0.2),
+            axis.text = element_text(),
+            axis.line = element_line(colour="black"),
+            axis.ticks = element_line(),
+            panel.grid.major = element_line(colour="#f0f0f0"),
+            panel.grid.minor = element_blank(),
+            legend.key = element_rect(colour = NA),
+            legend.position = "bottom",
+            legend.direction = "horizontal",
+            legend.key.size= unit(0.2, "cm"),
+            legend.margin = unit(0, "cm"),
+            legend.title = element_text(face="italic"),
+            plot.margin=unit(c(10,5,5,5),"mm"),
+            strip.background=element_rect(colour="#f0f0f0",fill="#f0f0f0"),
+            strip.text = element_text(face="bold")
+    )+scale_colour_Publication() +scale_fill_Publication()
+                             
+ggsave(p1,filename="output/Deliverables/DifferentialAbundance/maaslin/Volcano_Month6_vs_BL_IGsamples_picrust2genes.pdf")             
+p1
+
+```
+
+
+### MaasLin - CG
+
+#### Pathways 
+
+```{r DA species maaslin2 C02/CG, include=TRUE, echo=F, message=FALSE, warning=FALSE, paged.print=FALSE, tidy=T,eval=T}
+suppressWarnings(require(phyloseq))
+suppressWarnings(require(phylosmith))
+suppressWarnings(require(patchwork))
+suppressWarnings(require(vegan))
+suppressWarnings(require(ggstatsplot))
+suppressWarnings(require(dplyr))
+# Load package from local copy
+suppressWarnings(devtools::load_all("~/Documents/Work/Development/WMGSPipeline/"))
+myMREObject<-readRDS("data/cfu/mreObject.rds")
+
+
+# Import picrust2 data - Pathways 
+
+my_pathway_df<-read.delim("data/cfu/DADA2/picrust2_out_pipeline/pathways_out/path_abun_unstrat.tsv")
+colnames(my_pathway_df)<-colnames(my_pathway_df) %>% gsub("X","",.)
+
+# colSums(my_pathway_df %>% dplyr::select(-pathway)) ### Not normalized
+
+my_pathway_df<-my_pathway_df %>% mutate_if(is.numeric, ~./sum(.))
+
+pathways_to_exclude<-c("PWY-7159","PWY-5531","CHLOROPHYLL-SYN","PWY-7616")
+my_pathway_df<-my_pathway_df %>% 
+  dplyr::filter(! pathway %in% pathways_to_exclude )
+
+
+input_data<-my_pathway_df
+rownames(input_data)<-input_data$pathway
+input_data$pathway<-NULL
+input_data<-t(input_data)
+
+input_metadata<-metar::get_meta(myMREObject) %>% 
+  dplyr::filter(Center=="C02") %>% 
+  as.data.frame()
+rownames(input_metadata)<-input_metadata$SampleID 
+
+input_data<-input_data[input_metadata$SampleID %>% as.vector(), ] 
+
+dir.create("output/Deliverables/DifferentialAbundance/maaslin/", showWarnings = FALSE,recursive = T)
+if(file.exists("output/Deliverables/DifferentialAbundance/maaslin/Volcano_Month6_vs_BL_CGsamples_picrust2.rds")){
+  fit_data<-readRDS("output/Deliverables/DifferentialAbundance/maaslin/Volcano_Month6_vs_BL_CGsamples_picrust2.rds")
+} else {
+suppressWarnings(fit_data <- Maaslin2::Maaslin2(input_data=input_data,input_metadata=input_metadata,
+                                                output="output/Deliverables/DifferentialAbundance/maaslin/picrust2C02",
+                                                fixed_effects = c("Timepoint"),min_prevalence = 0.2,
+                                                random_effects = c("Participante"),
+                                                cores=4,plot_heatmap = T, plot_scatter = T))
+  saveRDS(fit_data,file="output/Deliverables/DifferentialAbundance/maaslin/Volcano_Month6_vs_BL_CGsamples_picrust2.rds")
+}
+
+plot_data<-fit_data$results %>% 
+  dplyr::mutate('-log(qval)'=-log10(qval)) %>% 
+  dplyr::mutate(significant=ifelse(qval<0.05,"q<0.05","ns")) %>% 
+  dplyr::mutate(labels=ifelse(significant=="ns",FALSE,TRUE)) %>% 
+  dplyr::mutate(feature=ifelse(significant=="ns","",feature)) 
+  
+p0<-ggplot(plot_data)+
+    geom_point(aes(x=coef,y=`-log(qval)`,color=significant))+
+    ggrepel::geom_text_repel(aes(x=coef,y=`-log(qval)`),size=2,
+                                 label = plot_data$feature,max.overlaps = 30,
+                                 box.padding = unit(0.25, "lines"),
+                                  hjust = 1)+
+    ggtitle("Month6 vs BL | CG")
+
+source("code/902_themes.R")
+
+p1<-p0+theme(plot.title = element_text(face = "bold",
+                                      size = rel(1.2), hjust = 0.5),
+            text = element_text(),
+            panel.background = element_rect(colour = NA),
+            plot.background = element_rect(colour = NA),
+            # panel.border = element_rect(colour = NA),
+            axis.title = element_text(face = "bold",size = rel(1)),
+            axis.title.y = element_text(angle=90,vjust =2),
+            axis.title.x = element_text(vjust = -0.2),
+            axis.text = element_text(),
+            axis.line = element_line(colour="black"),
+            axis.ticks = element_line(),
+            panel.grid.major = element_line(colour="#f0f0f0"),
+            panel.grid.minor = element_blank(),
+            legend.key = element_rect(colour = NA),
+            legend.position = "bottom",
+            legend.direction = "horizontal",
+            legend.key.size= unit(0.2, "cm"),
+            legend.margin = unit(0, "cm"),
+            legend.title = element_text(face="italic"),
+            plot.margin=unit(c(10,5,5,5),"mm"),
+            strip.background=element_rect(colour="#f0f0f0",fill="#f0f0f0"),
+            strip.text = element_text(face="bold")
+    )+scale_colour_Publication() +scale_fill_Publication()
+                             
+ggsave(p1,filename="output/Deliverables/DifferentialAbundance/maaslin/Volcano_Month6_vs_BL_CGsamples_picrust2.pdf")             
+p1
+
+```
+
+#### Gene Families
+
+```{r DA Gene Families maaslin2 C02/CG, include=TRUE, echo=F, message=FALSE, warning=FALSE, paged.print=FALSE, tidy=T,eval=T}
+suppressWarnings(require(phyloseq))
+suppressWarnings(require(phylosmith))
+suppressWarnings(require(patchwork))
+suppressWarnings(require(vegan))
+suppressWarnings(require(ggstatsplot))
+suppressWarnings(require(dplyr))
+# Load package from local copy
+suppressWarnings(devtools::load_all("~/Documents/Work/Development/WMGSPipeline/"))
+myMREObject<-readRDS("data/cfu/mreObject.rds")
+
+
+# Import picrust2 data - Pathways 
+
+my_gene_family_df<-read.delim("data/cfu/DADA2/picrust2_out_pipeline/KO_metagenome_out/pred_metagenome_unstrat.tsv.gz")
+colnames(my_gene_family_df)<-colnames(my_gene_family_df) %>% gsub("X","",.)
+
+# colSums(my_gene_family_df %>% dplyr::select(-function.)) ### Not normalized
+
+my_gene_family_df<-my_gene_family_df %>% mutate_if(is.numeric, ~./sum(.))
+
+
+input_data<-my_gene_family_df
+rownames(input_data)<-input_data$function.
+input_data$function.<-NULL
+input_data<-t(input_data)
+
+input_metadata<-metar::get_meta(myMREObject) %>% 
+  dplyr::filter(Center=="C02") %>% 
+  as.data.frame()
+rownames(input_metadata)<-input_metadata$SampleID
+
+input_data<-input_data[input_metadata$SampleID %>% as.vector(), ]
+
+dir.create("output/Deliverables/DifferentialAbundance/maaslin/", showWarnings = FALSE,recursive = T)
+if(file.exists("output/Deliverables/DifferentialAbundance/maaslin/Volcano_Month6_vs_BL_CGsamples_picrust2genes.rds")){
+  fit_data<-readRDS("output/Deliverables/DifferentialAbundance/maaslin/Volcano_Month6_vs_BL_CGsamples_picrust2genes.rds")
+}else{
+suppressWarnings(fit_data <- Maaslin2::Maaslin2(input_data=input_data,input_metadata=input_metadata,
+                                                output="output/Deliverables/DifferentialAbundance/maaslin/picrust2_genesC02",
+                                                fixed_effects = c("Timepoint"),min_prevalence = 0.2,
+                                                random_effects = c("Participante"),
+                                                cores=4,plot_heatmap = T, plot_scatter = T))
+  saveRDS(fit_data,file="output/Deliverables/DifferentialAbundance/maaslin/Volcano_Month6_vs_BL_CGsamples_picrust2genes.rds")
+}
+
+plot_data<-fit_data$results %>% 
+  dplyr::mutate('-log(qval)'=-log10(qval)) %>% 
+  dplyr::mutate(significant=ifelse(qval<0.05,"q<0.05","ns")) %>% 
+  dplyr::mutate(labels=ifelse(significant=="ns",FALSE,TRUE)) %>% 
+  dplyr::mutate(feature=ifelse(significant=="ns","",feature)) 
+  
+p0<-ggplot(plot_data)+
+    geom_point(aes(x=coef,y=`-log(qval)`,color=significant))+
+    ggrepel::geom_text_repel(aes(x=coef,y=`-log(qval)`),size=2,
+                                 label = plot_data$feature,max.overlaps = 30,
+                                 box.padding = unit(0.25, "lines"),
+                                  hjust = 1)+
+    ggtitle("Month6 vs BL | CG")
+
+source("code/902_themes.R")
+
+p1<-p0+theme(plot.title = element_text(face = "bold",
+                                      size = rel(1.2), hjust = 0.5),
+            text = element_text(),
+            panel.background = element_rect(colour = NA),
+            plot.background = element_rect(colour = NA),
+            # panel.border = element_rect(colour = NA),
+            axis.title = element_text(face = "bold",size = rel(1)),
+            axis.title.y = element_text(angle=90,vjust =2),
+            axis.title.x = element_text(vjust = -0.2),
+            axis.text = element_text(),
+            axis.line = element_line(colour="black"),
+            axis.ticks = element_line(),
+            panel.grid.major = element_line(colour="#f0f0f0"),
+            panel.grid.minor = element_blank(),
+            legend.key = element_rect(colour = NA),
+            legend.position = "bottom",
+            legend.direction = "horizontal",
+            legend.key.size= unit(0.2, "cm"),
+            legend.margin = unit(0, "cm"),
+            legend.title = element_text(face="italic"),
+            plot.margin=unit(c(10,5,5,5),"mm"),
+            strip.background=element_rect(colour="#f0f0f0",fill="#f0f0f0"),
+            strip.text = element_text(face="bold")
+    )+scale_colour_Publication() +scale_fill_Publication()
+                             
+ggsave(p1,filename="output/Deliverables/DifferentialAbundance/maaslin/Volcano_Month6_vs_BL_CGsamples_picrust2genes.pdf")             
+p1
+
+
+```
+
+### Enrichment Analysis
+
+In order to further interpret the list of gene families that are either over or under-represented in Month6 respect to Baseline in each of the CG and IG we need to perform some enrichment based analysis that tells us which molecular modules or pathways are over-represented
+```{r enrichment analysis IG, include=TRUE, echo=F, message=FALSE, warning=FALSE, paged.print=FALSE, tidy=T,eval=T}
+suppressWarnings(require(phyloseq))
+suppressWarnings(require(phylosmith))
+suppressWarnings(require(patchwork))
+suppressWarnings(require(vegan))
+suppressWarnings(require(ggstatsplot))
+suppressWarnings(require(dplyr))
+suppressWarnings(require(tidyverse))
+# Load package from local copy
+suppressWarnings(require(clusterProfiler))
+
+IG_gf<-readRDS("output/Deliverables/DifferentialAbundance/maaslin/Volcano_Month6_vs_BL_IGsamples_picrust2genes.rds")
+
+IG_gf$results %>% 
+  dplyr::mutate(significant=ifelse(qval<0.05,"yes","no")) %>% 
+  dplyr::group_by(significant) %>% 
+  dplyr::summarise(cnt=dplyr::n()) %>% 
+  dplyr::mutate(freq = round(cnt / sum(cnt), 3)) %>% 
+  dplyr::arrange(desc(freq))
+
+### KEGG pathway over-representation analysis
+IG_gf_coef_low<-IG_gf$results %>% dplyr::pull(coef) %>% quantile(0.20)
+IG_gf_coef_high<-IG_gf$results %>% dplyr::pull(coef) %>% quantile(0.80)
+
+p0<-IG_gf$results %>% 
+  dplyr::filter(qval<0.05) %>% 
+  dplyr::filter(coef<IG_gf_coef_low | coef>IG_gf_coef_high ) %>% 
+  dplyr::arrange(-coef) %>% 
+  dplyr::pull(feature) %>% 
+  clusterProfiler::enrichKEGG(gene=.,organism = "ko", universe=IG_gf$feature) %>% 
+  enrichplot::dotplot()
+ggsave(p0,filename = "output/Deliverables/DifferentialAbundance/maaslin/IG_KEGG_KO_enrichment.pdf")
+# ### KEGG pathway gene set enrichment analysis
+# l1<-IG_gf$results %>% 
+#   dplyr::filter(qval<0.05) %>% 
+#   dplyr::arrange(-coef) %>% 
+#   dplyr::select(feature,coef) %>% 
+#   tibble::column_to_rownames(var="feature") %>% t() %>% as.vector()
+# 
+# names(l1)<-IG_gf$results %>% 
+#   dplyr::filter(qval<0.1) %>% 
+#   dplyr::arrange(-coef) %>% 
+#   dplyr::select(feature,coef) %>% 
+#   tibble::column_to_rownames(var="feature") %>% t() %>% colnames()
+# 
+# clusterProfiler::gseKEGG(geneList=l1,organism = "ko" ) %>% enrichplot::dotplot() 
+
+
+CG_gf<-readRDS("output/Deliverables/DifferentialAbundance/maaslin/Volcano_Month6_vs_BL_CGsamples_picrust2genes.rds")
+CG_gf_coef_low<-CG_gf$results %>% dplyr::pull(coef) %>% quantile(0.20)
+CG_gf_coef_high<-CG_gf$results %>% dplyr::pull(coef) %>% quantile(0.80)
+
+p1<-CG_gf$results %>% 
+  dplyr::filter(qval<0.05) %>% 
+  dplyr::filter(coef<CG_gf_coef_low | coef>CG_gf_coef_high ) %>% 
+  dplyr::arrange(-coef) %>% 
+  dplyr::pull(feature) %>% 
+  clusterProfiler::enrichKEGG(gene=.,organism = "ko", universe=CG_gf$feature) %>% 
+  enrichplot::dotplot()
+ggsave(p1,filename = "output/Deliverables/DifferentialAbundance/maaslin/CG_KEGG_KO_enrichment.pdf")
+
+IG_gf_counts<-IG_gf$results %>% 
+  dplyr::mutate(significant=ifelse(qval<0.05,"yes","no")) %>% 
+  dplyr::group_by(significant) %>% 
+  dplyr::summarise(cnt=dplyr::n()) %>% 
+  dplyr::mutate(freq = round(cnt / sum(cnt), 3)) %>% 
+  dplyr::arrange(desc(freq))
+
+CG_gf_counts<-CG_gf$results %>% 
+  dplyr::mutate(significant=ifelse(qval<0.05,"yes","no")) %>% 
+  dplyr::group_by(significant) %>% 
+  dplyr::summarise(cnt=dplyr::n()) %>% 
+  dplyr::mutate(freq = round(cnt / sum(cnt), 3)) %>% 
+  dplyr::arrange(desc(freq))
+
+IG_gf_counts %>% 
+  dplyr::select(significant,cnt) %>% 
+  dplyr::left_join(CG_gf_counts,by="significant") %>% 
+  dplyr::rename(IG=cnt.x,CG=cnt.y) %>% 
+  dplyr::select(-freq,-significant) %>% as.data.frame() %>%chisq.test()
 ```

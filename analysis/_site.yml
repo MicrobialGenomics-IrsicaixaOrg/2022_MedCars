@@ -13,12 +13,18 @@ navbar:
     href: 220_intervention_analysis.html
   - text: Mediterranean Diet
     href: 230_MedDietScore.html
+  - text: Fatty Acids
+    href: 240_fatty_acids.html
   - text: Physical Activity
     href: 250_PhysicalActivity.html
   - text: Firmicutes/Bacteroidetes
     href: 260_FirmicutesBacteroides.html
+  - text: Paired Analysis
+    href: 270_PairingAnalysis.html
   - text: Functional Analysis
-    href: 260_FirmicutesBacteroides.html
+    href: 300_FunctionalAnalysis.html
+  - text: Batch Effects
+    href: 320_BatchEffect.html
   - text: About
     href: about.html
   - text: License
