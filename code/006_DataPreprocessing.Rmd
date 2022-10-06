@@ -63,6 +63,7 @@ rownames(my_metadata)<-my_metadata$SampleID
 my_metadata$Gender<-dplyr::if_else(my_metadata$Genero==0,"Male","Female")
 my_metadata$Smoker<-dplyr::if_else(my_metadata$Fumador==0,"Non-smoker","Smoker")
 
+
 ### 
 ### Add new metadata here
 

@@ -576,21 +576,22 @@ p0<-IG_gf$results %>%
   clusterProfiler::enrichKEGG(gene=.,organism = "ko", universe=IG_gf$feature) %>% 
   enrichplot::dotplot()
 ggsave(p0,filename = "output/Deliverables/DifferentialAbundance/maaslin/IG_KEGG_KO_enrichment.pdf")
-# ### KEGG pathway gene set enrichment analysis
-# l1<-IG_gf$results %>% 
-#   dplyr::filter(qval<0.05) %>% 
-#   dplyr::arrange(-coef) %>% 
-#   dplyr::select(feature,coef) %>% 
-#   tibble::column_to_rownames(var="feature") %>% t() %>% as.vector()
-# 
-# names(l1)<-IG_gf$results %>% 
-#   dplyr::filter(qval<0.1) %>% 
-#   dplyr::arrange(-coef) %>% 
-#   dplyr::select(feature,coef) %>% 
-#   tibble::column_to_rownames(var="feature") %>% t() %>% colnames()
-# 
-# clusterProfiler::gseKEGG(geneList=l1,organism = "ko" ) %>% enrichplot::dotplot() 
+### KEGG pathway gene set enrichment analysis
+l1<-IG_gf$results %>%
+  dplyr::filter(qval<0.05) %>%
+  dplyr::arrange(-coef) %>%
+  dplyr::select(feature,coef) %>%
+  tibble::column_to_rownames(var="feature") %>% t() %>% as.vector()
 
+names(l1)<-IG_gf$results %>%
+  dplyr::filter(qval<0.05) %>%
+  dplyr::arrange(-coef) %>%
+  dplyr::select(feature,coef) %>%
+  tibble::column_to_rownames(var="feature") %>% t() %>% colnames()
+
+IG_gse<-clusterProfiler::gseKEGG(geneList=l1,organism = "ko" ) 
+dotplot(IG_gse)
+gseaplot(IG_gse,geneSetID = "ko")
 
 CG_gf<-readRDS("output/Deliverables/DifferentialAbundance/maaslin/Volcano_Month6_vs_BL_CGsamples_picrust2genes.rds")
 CG_gf_coef_low<-CG_gf$results %>% dplyr::pull(coef) %>% quantile(0.20)
@@ -605,6 +606,7 @@ p1<-CG_gf$results %>%
   enrichplot::dotplot()
 ggsave(p1,filename = "output/Deliverables/DifferentialAbundance/maaslin/CG_KEGG_KO_enrichment.pdf")
 
+### Counting
 IG_gf_counts<-IG_gf$results %>% 
   dplyr::mutate(significant=ifelse(qval<0.05,"yes","no")) %>% 
   dplyr::group_by(significant) %>% 
@@ -624,4 +626,90 @@ IG_gf_counts %>%
   dplyr::left_join(CG_gf_counts,by="significant") %>% 
   dplyr::rename(IG=cnt.x,CG=cnt.y) %>% 
   dplyr::select(-freq,-significant) %>% as.data.frame() %>%chisq.test()
+
+CG_test<-CG_gf$results %>% 
+  dplyr::filter(qval<0.05) %>% 
+  dplyr::filter(coef<CG_gf_coef_low | coef>CG_gf_coef_high ) %>% 
+  dplyr::arrange(-coef) %>% 
+  dplyr::pull(feature) %>% 
+  clusterProfiler::KEGG(gene=.,organism = "ko", universe=CG_gf$feature)
+
+
+```
+
+### GSEA 
+
+Gene Set Enrichnmen Analysis (GSEA) is preferred over over-representation analysis, since it used Fold-Change-like values to create a ranked list of genes (or KEGG orthologs in this case). This ranks are used for the analysis.
+
+```{r GSEA chunk1, include=TRUE, echo=F, message=FALSE, warning=FALSE, paged.print=FALSE, tidy=T,eval=T}
+suppressWarnings(require(phyloseq))
+suppressWarnings(require(phylosmith))
+suppressWarnings(require(patchwork))
+suppressWarnings(require(vegan))
+suppressWarnings(require(ggstatsplot))
+suppressWarnings(require(dplyr))
+suppressWarnings(require(tidyverse))
+# Load package from local copy
+suppressWarnings(require(clusterProfiler))
+
+IG_gf<-readRDS("output/Deliverables/DifferentialAbundance/maaslin/Volcano_Month6_vs_BL_IGsamples_picrust2genes.rds")
+
+### KEGG pathway over-representation analysis
+IG_gf_coef_low<-IG_gf$results %>% dplyr::pull(coef) %>% quantile(0.20)
+IG_gf_coef_high<-IG_gf$results %>% dplyr::pull(coef) %>% quantile(0.80)
+
+
+### KEGG pathway gene set enrichment analysis
+l1<-IG_gf$results %>%
+  # dplyr::filter(coef<IG_gf_coef_low | coef > IG_gf_coef_high) %>% 
+  dplyr::filter(qval<0.05) %>%
+  dplyr::arrange(-coef) %>%
+  dplyr::select(feature,coef) %>%
+  tibble::column_to_rownames(var="feature") %>% t() %>% as.vector()
+
+names(l1)<-IG_gf$results %>%
+  # dplyr::filter(coef<IG_gf_coef_low | coef > IG_gf_coef_high) %>% 
+  dplyr::filter(qval<0.05) %>%
+  dplyr::arrange(-coef) %>%
+  dplyr::select(feature,coef) %>%
+  tibble::column_to_rownames(var="feature") %>% t() %>% colnames()
+
+IG_gse<-clusterProfiler::gseKEGG(geneList=l1,organism = "ko" ) 
+p0<-dotplot(IG_gse)
+ggsave(p0,filename = "output/Deliverables/DifferentialAbundance/maaslin/IG_KEGG_KO_GSE_dotplot.pdf")
+# enrichplot::gseaplot2(IG_gse,geneSetID = 1:4)
+heatplot(IG_gse,showCategory = 8,foldChange = l1)
+# browseKEGG(x = l1,pathID = "ko02020")
+
+
+CG_gf<-readRDS("output/Deliverables/DifferentialAbundance/maaslin/Volcano_Month6_vs_BL_CGsamples_picrust2genes.rds")
+
+### KEGG pathway over-representation analysis
+CG_gf_coef_low<-CG_gf$results %>% dplyr::pull(coef) %>% quantile(0.20)
+CG_gf_coef_hCGh<-CG_gf$results %>% dplyr::pull(coef) %>% quantile(0.80)
+
+
+### KEGG pathway gene set enrichment analysis
+l1<-CG_gf$results %>%
+  # dplyr::filter(coef<CG_gf_coef_low | coef > CG_gf_coef_hCGh) %>% 
+  dplyr::filter(qval<0.05) %>%
+  dplyr::arrange(-coef) %>%
+  dplyr::select(feature,coef) %>%
+  tibble::column_to_rownames(var="feature") %>% t() %>% as.vector()
+
+names(l1)<-CG_gf$results %>%
+  # dplyr::filter(coef<CG_gf_coef_low | coef > CG_gf_coef_hCGh) %>% 
+  dplyr::filter(qval<0.05) %>%
+  dplyr::arrange(-coef) %>%
+  dplyr::select(feature,coef) %>%
+  tibble::column_to_rownames(var="feature") %>% t() %>% colnames()
+
+CG_gse<-clusterProfiler::gseKEGG(geneList=l1,organism = "ko" ) ### No terms enriched
+# dotplot(CG_gse)
+# p1<-dotplot(CG_gse)
+# ggsave(p1,filename = "output/Deliverables/DifferentialAbundance/maaslin/CG_KEGG_KO_GSE_dotplot.pdf")
+# # 
+# # enrichplot::gseaplot2(CG_gse,geneSetID = 1:4)
+# heatplot(CG_gse,showCategory = 1,foldChange = l1)
+# browseKEGG(x = l1,pathID = "ko02020")
 ```

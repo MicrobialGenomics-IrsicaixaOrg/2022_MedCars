@@ -261,6 +261,8 @@ metadata_df %>%
 ```
 
 #### Multi-variate
+
+For Baseline samples, there is no significant independent association between workcenter and any of the alpha diversity parameters.
 ```{r batch effects on alpha diversity chunk5,include=TRUE, echo=F, message=FALSE, warning=FALSE, paged.print=FALSE, tidy=T}
 metadata_df<-metadata_df %>% 
    dplyr::mutate(MDScore=MedDietscore) %>% 
@@ -299,6 +301,42 @@ metadata_df %>%
 #   glm(Shannon ~Timepoint + Run,data=.) %>% summary()
 ```
 
+For Month6 samples
+
+```{r batch effects on alpha diversity chunk6,include=TRUE, echo=F, message=FALSE, warning=FALSE, paged.print=FALSE, tidy=T}
+
+
+metadata_df %>%
+  dplyr::filter(Timepoint=="Month6") %>% 
+  dplyr::rename(Age=Edad) %>% 
+  lm(Chao1 ~  Center+Gender+Age+Smoker+Run+UBE+IPAQ+MDScore+BMI,data=.) %>% broom::tidy() %>% knitr::kable(
+    caption = "Multivariate Linear model for Chao1 Diversity, adjusted for Age, Smoking, Alcohol Consumption and Sequencing Run.",
+    col.names = c("Predictor", "B", "SE", "t", "p"),
+    digits = c(0, 2, 3, 2, 3)
+  )
+
+metadata_df %>%
+  dplyr::filter(Timepoint=="Month6") %>% 
+  dplyr::rename(Age=Edad) %>% 
+  lm(Shannon ~  Center+Gender+Age+Smoker+Run+UBE+IPAQ+MDScore+BMI,data=.) %>% broom::tidy() %>% knitr::kable(
+    caption = "Multivariate Linear model for Shannon Diversity, adjusted for Age, Smoking, Alcohol Consumption and Sequencing Run.",
+    col.names = c("Predictor", "B", "SE", "t", "p"),
+    digits = c(0, 2, 3, 2,4)
+  )
+
+metadata_df %>%
+  dplyr::filter(Timepoint=="Month6") %>% 
+  dplyr::rename(Age=Edad) %>% 
+  lm(PD ~  Center+Gender+Age+Smoker+Run+UBE+IPAQ+MDScore+BMI,data=.) %>% broom::tidy() %>% knitr::kable(
+    caption = "Multivariate Linear model for PD Diversity, adjusted for Age, Smoking, Alcohol Consumption and Sequencing Run.",
+    col.names = c("Predictor", "B", "SE", "t", "p"),
+    digits = c(0, 2, 3, 2, 4)
+  )
+#   
+# metadata_df %>% 
+#   dplyr::filter(Center=="C02") %>% 
+#   glm(Shannon ~Timepoint + Run,data=.) %>% summary()
+```
 
 ## Beta Diversity
 
@@ -347,7 +385,16 @@ aux_df %>%
   dplyr::filter(Timepoint=="BL") %>% 
   dplyr::rename(Age=Edad) %>% 
   lm(ratio ~  Center+Gender+Age+Smoker+Run+UBE+IPAQ+MDScore+BMI,data=.)%>% broom::tidy() %>% knitr::kable(
-    caption = "Multivariate Linear model for F/B ratio, adjusted for Age, Smoking, Alcohol Consumption and Sequencing Run.",
+    caption = "BL | Multivariate Linear model for F/B ratio, adjusted for Age, Smoking, Alcohol Consumption and Sequencing Run.",
+    col.names = c("Predictor", "B", "SE", "t", "p"),
+    digits = c(0, 2, 3, 2, 4)
+  )
+
+aux_df %>%
+  dplyr::filter(Timepoint=="Month6") %>% 
+  dplyr::rename(Age=Edad) %>% 
+  lm(ratio ~  Center+Gender+Age+Smoker+Run+UBE+IPAQ+MDScore+BMI,data=.)%>% broom::tidy() %>% knitr::kable(
+    caption = "BL | Multivariate Linear model for F/B ratio, adjusted for Age, Smoking, Alcohol Consumption and Sequencing Run.",
     col.names = c("Predictor", "B", "SE", "t", "p"),
     digits = c(0, 2, 3, 2, 4)
   )
