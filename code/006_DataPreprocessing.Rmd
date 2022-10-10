@@ -56,12 +56,13 @@ load("data/raw/DADA2/DADA2_Rsession_raw.RData")
 my_otu_table<-otu_table(ps_silva)%>% t()
 my_tax_table<-tax_table(ps_silva)
 my_tree<-phy_tree(ps_silva)
-my_metadata<-read.csv("data/raw/Metadata/Metadata_v2.0.csv",sep=";")
+my_metadata<-read.csv("data/raw/Metadata/Metadata_v3.0.csv",sep=";")
 rownames(my_metadata)<-my_metadata$SampleID
 # 
 # ### Duplicate variables for english-publication
 my_metadata$Gender<-dplyr::if_else(my_metadata$Genero==0,"Male","Female")
 my_metadata$Smoker<-dplyr::if_else(my_metadata$Fumador==0,"Non-smoker","Smoker")
+
 
 
 ### 
@@ -74,8 +75,8 @@ date_df<-xlsx::read.xlsx("data/raw/Metadata/FullMetadata_v1.0.xlsx",sheetIndex =
 date_df<-date_df %>% 
   tidyr::pivot_wider(id_cols = Participante,names_from = Timepoint,values_from = visitDate) %>% 
   dplyr::mutate(BL=as.Date(BL,format = "%m/%d/%y")) %>% 
-  dplyr::mutate(Month6=BL+240) %>% 
-  tidyr::pivot_longer(cols = c("BL","Month6"),names_to = "Timepoint",values_to = "Date") 
+  dplyr::mutate(Month8=BL+240) %>% 
+  tidyr::pivot_longer(cols = c("BL","Month8"),names_to = "Timepoint",values_to = "Date") 
 
 
 my_metadata<-date_df %>% 
@@ -233,7 +234,7 @@ n_total_participants<-length(total_participants$Participante)
 two_bl_sample_participants<-ps_silva %>% 
   sample_data() %>% 
   data.frame() %>% 
-  dplyr::filter(Center=="C02") %>%
+  dplyr::filter(Center=="CG") %>%
   dplyr::select("Center","Timepoint","Participante") %>% 
   group_by(Participante,Timepoint) %>% 
   count() %>% 
@@ -255,7 +256,7 @@ samples_cfu_participants<-sample_data(ps_silva) %>%
 two_bl_sample_participants<-ps_silva %>% 
   sample_data() %>% 
   data.frame() %>% 
-  dplyr::filter(Center=="C02") %>%
+  dplyr::filter(Center=="CG") %>%
   dplyr::select("Center","Timepoint","Participante") %>%
   group_by(Participante,Timepoint) %>% 
   count() %>%
@@ -304,10 +305,10 @@ saveRDS(auxMREObject,"data/internal/baseline/mreObject.rds")
 set.seed(1234)
 require(genefilter)
 
-# Samples within center under dietary treatment (C01) - Create a new metar object, define wd accordingly
+# Samples within center under dietary treatment (IG) - Create a new metar object, define wd accordingly
 dir.create("data/internal/IG/",recursive=T,showWarnings = F)
 auxMREObject <- get_meta(myMREObject) %>% 
-  dplyr::filter(Center=="C01") %>%
+  dplyr::filter(Center=="IG") %>%
   dplyr::pull(SampleID) %>% as.vector() %>% 
   metar::filter_samples(sample_ids = .,mre=myMREObject)
 auxMREObject@wd<-"output/mre_data/IG/"
@@ -329,10 +330,10 @@ saveRDS(auxMREObject,"data/internal/IG/mreObject.rds")
 set.seed(1234)
 require(genefilter)
 
-# Samples within center under placebo treatment (C02) - Create a new metar object, define wd accordingly
+# Samples within center under placebo treatment (CG) - Create a new metar object, define wd accordingly
 dir.create("data/internal/CG/",recursive=T,showWarnings = F)
 auxMREObject <- get_meta(myMREObject) %>% 
-  dplyr::filter(Center=="C02") %>%
+  dplyr::filter(Center=="CG") %>%
   dplyr::pull(SampleID) %>% as.vector() %>% 
   metar::filter_samples(sample_ids = .,mre=myMREObject)
 auxMREObject@wd<-"output/mre_data/CG/"

@@ -127,8 +127,8 @@ phyloseq::sample_data(ps_silva) %>% data.frame() %>%
   dplyr::select(Participante,Center,IPAQ,Timepoint) %>% 
   dplyr::group_by(Participante) %>% 
   tidyr::pivot_wider(values_from = IPAQ,names_from = Timepoint) %>% 
-  dplyr::mutate(IPAQDiff=(Month6-BL)) %>% 
-  dplyr::mutate(IPAQRelDiff=((Month6-BL)/(Month6+BL))) %>% 
+  dplyr::mutate(IPAQDiff=(Month8-BL)) %>% 
+  dplyr::mutate(IPAQRelDiff=((Month8-BL)/(Month8+BL))) %>% 
   ggstatsplot::ggbetweenstats(x=Center,y=IPAQRelDiff,type="robust",bf.message = NULL,title="MDScore longitudinal changes vs Center")
 
 ```

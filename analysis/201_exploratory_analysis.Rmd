@@ -48,7 +48,7 @@ n_total_participants<-length(total_participants$Participante)
 two_bl_sample_participants<-ps_silva %>% 
   sample_data() %>% 
   data.frame() %>% 
-  dplyr::filter(Center=="C02") %>%
+  dplyr::filter(Center=="CG") %>%
   dplyr::select("Center","Timepoint","Participante") %>% 
   group_by(Participante,Timepoint) %>% 
   count() %>% 
@@ -70,7 +70,7 @@ samples_cfu_participants<-sample_data(ps_silva) %>%
 two_bl_sample_participants<-ps_silva %>% 
   sample_data() %>% 
   data.frame() %>% 
-  dplyr::filter(Center=="C02") %>%
+  dplyr::filter(Center=="CG") %>%
   dplyr::select("Center","Timepoint","Participante") %>%
   group_by(Participante,Timepoint) %>% 
   count() %>%
@@ -186,7 +186,7 @@ meanByGenus<-meanByGenus[with(meanByGenus, order(-meanAbundance, Genus)), ]
 GenusToInclude<-meanByGenus[1:25,"Genus"]
 
 p1<-phylosmith::phylogeny_profile(phyloseq::subset_taxa(x.2.0.genus %>% 
-                                                          phyloseq::subset_samples(.,Center=="C01"),Genus%in% GenusToInclude),classification="Genus",relative_abundance=F,treatment="Timepoint",sample_labels = NULL)+
+                                                          phyloseq::subset_samples(.,Center=="IG"),Genus%in% GenusToInclude),classification="Genus",relative_abundance=F,treatment="Timepoint",sample_labels = NULL)+
  # theme( panel.grid = element_blank(),axis.title= element_blank(), axis.text= element_blank())+
  #  theme(axis.title.x=element_blank(),axis.text.x=element_blank(),axis.ticks.x=element_blank())+
        theme(
@@ -203,7 +203,7 @@ p1<-phylosmith::phylogeny_profile(phyloseq::subset_taxa(x.2.0.genus %>%
           plot.caption = element_text(size=7))
 
 p2<-phylosmith::phylogeny_profile(phyloseq::subset_taxa(x.2.0.genus %>% 
-                                                           phyloseq::subset_samples(.,Center=="C02"),Genus%in% GenusToInclude),classification="Genus",relative_abundance=F,treatment="Timepoint",sample_labels = NULL,)+
+                                                           phyloseq::subset_samples(.,Center=="CG"),Genus%in% GenusToInclude),classification="Genus",relative_abundance=F,treatment="Timepoint",sample_labels = NULL,)+
  theme( panel.grid = element_blank(),axis.title= element_blank(), axis.text= element_blank())+
   theme(axis.title.x=element_blank(),axis.text.x=element_blank(),axis.ticks.x=element_blank())+
         theme(

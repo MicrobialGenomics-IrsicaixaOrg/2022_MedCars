@@ -111,7 +111,7 @@ When we examine association between this genus and other and MedDiet Score we de
 * Weak but significant correlations between MDScore and Lachnospira and Ruminococcus Genera
 * Weak but significant inverse correlations between MDScore and Bifidobacterium and Oscillibacter genera.
 
-Interestingly, Lachnospira genus showed to be enriched after nutrititional intervention in the Intervention Group(C01) but not in the control group(C02). Lachnospiraceae family species are butyrate producers, which specifically habit mammal digestive tract.  Their role in human health is [controverted] (https://www.ncbi.nlm.nih.gov/pmc/articles/PMC7232163/)
+Interestingly, Lachnospira genus showed to be enriched after nutrititional intervention in the Intervention Group(IG) but not in the control group(CG). Lachnospiraceae family species are butyrate producers, which specifically habit mammal digestive tract.  Their role in human health is [controverted] (https://www.ncbi.nlm.nih.gov/pmc/articles/PMC7232163/)
 
 Lachnospira was also found to be [enriched in higher MD-adherent healthy dults](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC7401267/). Lachnospira spp also increased in lean individuals upon [physical exercising program](https://journals.lww.com/acsm-msse/Fulltext/2018/04000/Exercise_Alters_Gut_Microbiota_Composition_and.14.aspx), linked to an increase in the detection of butyrate and other SCFAs in feces. Other studies have linked Lachnospira to physical activity or active lifestyle.
 
@@ -202,14 +202,14 @@ phyloseq::sample_data(ps_silva) %>% data.frame() %>%
   dplyr::select(Participante,Center,MedDietscore,Timepoint) %>% 
   dplyr::group_by(Participante) %>% 
   tidyr::pivot_wider(values_from = MedDietscore,names_from = Timepoint) %>% 
-  dplyr::mutate(MDScoreDiff=(Month6-BL)) %>% 
+  dplyr::mutate(MDScoreDiff=(Month8-BL)) %>% 
   ggstatsplot::ggbetweenstats(x=Center,y=MDScoreDiff,type="robust",bf.message = NULL,title="MDScore longitudinal changes vs Center")
 
 ```
 
 ### MD Changes vs Alpha diversity
 
-We want to see if there is any relationship between the magnitude of change in MD adherence (reported through MDScore) and the changes in alpha-diversity. For that we will calculate the relative changes in alpha diversity (Shannon only) for each of the participants, defined as either the (ShannonMonth6 - ShannonBL) difference or the  (ShannonMonth6 - ShannonBL)/(ShannonMonth6 + ShannonBL) relative difference and check statistical association with changes in MDScore. Results indicated that there is no significant relationship.
+We want to see if there is any relationship between the magnitude of change in MD adherence (reported through MDScore) and the changes in alpha-diversity. For that we will calculate the relative changes in alpha diversity (Shannon only) for each of the participants, defined as either the (ShannonMonth8 - ShannonBL) difference or the  (ShannonMonth8 - ShannonBL)/(ShannonMonth8 + ShannonBL) relative difference and check statistical association with changes in MDScore. Results indicated that there is no significant relationship.
 
 
 ```{r Intervention chunk 2, echo=F, message=FALSE, warning=FALSE, paged.print=FALSE, tidy=F}
@@ -228,7 +228,7 @@ df1<-sample_data(ps_silva) %>% data.frame() %>%
   dplyr::select(Participante,Center,MedDietscore,Timepoint) %>% 
   dplyr::group_by(Participante) %>% 
   tidyr::pivot_wider(values_from = MedDietscore,names_from = Timepoint) %>% 
-  dplyr::mutate(MDScoreDiff=(Month6-BL))
+  dplyr::mutate(MDScoreDiff=(Month8-BL))
 
 ### Chao1
 df2<-sample_data(ps_silva) %>% data.frame() %>% 
@@ -236,7 +236,7 @@ df2<-sample_data(ps_silva) %>% data.frame() %>%
   dplyr::rename(Chao1=chao1) %>% 
   dplyr::group_by(Participante) %>% 
   tidyr::pivot_wider(values_from = Chao1,names_from = Timepoint) %>% 
-  dplyr::mutate(Chao1Diff=((Month6-BL)/(Month6+BL)))
+  dplyr::mutate(Chao1Diff=((Month8-BL)/(Month8+BL)))
 
 df1 %>% 
   dplyr::left_join(df2,by=c("Participante","Center")) %>% 
@@ -249,7 +249,7 @@ df2<-sample_data(ps_silva) %>% data.frame() %>%
   dplyr::rename(Shannon=diversity_shannon) %>% 
   dplyr::group_by(Participante) %>% 
   tidyr::pivot_wider(values_from = Shannon,names_from = Timepoint) %>% 
-  dplyr::mutate(ShannonRelDiff=((Month6-BL)/(Month6+BL))) 
+  dplyr::mutate(ShannonRelDiff=((Month8-BL)/(Month8+BL))) 
 
 df1 %>% 
   dplyr::left_join(df2,by=c("Participante","Center")) %>% 
@@ -261,7 +261,7 @@ df2<-sample_data(ps_silva) %>% data.frame() %>%
   dplyr::rename(PhyloDiv=PD) %>% 
   dplyr::group_by(Participante) %>% 
   tidyr::pivot_wider(values_from = PhyloDiv,names_from = Timepoint) %>% 
-  dplyr::mutate(PhyloDivDiff=((Month6-BL)/(Month6+BL)))
+  dplyr::mutate(PhyloDivDiff=((Month8-BL)/(Month8+BL)))
 
 df1 %>% 
   dplyr::left_join(df2,by=c("Participante","Center")) %>% 
@@ -289,7 +289,7 @@ df1<-sample_data(ps_silva) %>% data.frame() %>%
   dplyr::select(Participante,Center,MedDietscore,Timepoint) %>% 
   dplyr::group_by(Participante) %>% 
   tidyr::pivot_wider(values_from = MedDietscore,names_from = Timepoint) %>% 
-  dplyr::mutate(MDScoreDiff=(Month6-BL))
+  dplyr::mutate(MDScoreDiff=(Month8-BL))
 
 aux_dist<-read.csv("output/Deliverables/WUnifrac_Distances.csv") %>% 
   dplyr::select(-X) %>% 
@@ -300,7 +300,7 @@ pairwise_distances<-sample_data(ps_silva) %>%
   dplyr::filter(Timepoint=="BL") %>% 
   dplyr::left_join(sample_data(ps_silva) %>%
                      data.frame() %>% 
-                     dplyr::filter(Timepoint=="Month6") %>% 
+                     dplyr::filter(Timepoint=="Month8") %>% 
                      dplyr::select(SampleID,Participante) %>% 
                      dplyr::rename(SampleID2=SampleID)) %>% 
     dplyr::select(SampleID,SampleID2,Participante,Center)
@@ -338,7 +338,7 @@ mddiff_data<-phyloseq::sample_data(ps_silva) %>% data.frame() %>%
   dplyr::select(Participante,Center,MedDietscore,Timepoint) %>% 
   dplyr::group_by(Participante) %>% 
   tidyr::pivot_wider(values_from = MedDietscore,names_from = Timepoint) %>% 
-  dplyr::mutate(MDScoreDiff=(Month6-BL)) %>% 
+  dplyr::mutate(MDScoreDiff=(Month8-BL)) %>% 
   tidyr::drop_na(MDScoreDiff)
 
 my_quantile<-quantile(mddiff_data$MDScoreDiff,0.75) ### quantile == 2
@@ -356,19 +356,19 @@ mddiff_q66<-phyloseq::sample_data(ps_silva) %>% data.frame() %>%
   dplyr::select(Participante,Center,MedDietscore,Timepoint) %>% 
   dplyr::group_by(Participante) %>% 
   tidyr::pivot_wider(values_from = MedDietscore,names_from = Timepoint) %>% 
-  dplyr::mutate(MDScoreDiff=(Month6-BL)) %>% 
+  dplyr::mutate(MDScoreDiff=(Month8-BL)) %>% 
   dplyr::filter(MDScoreDiff>=my_quantile)
 
 
 x.2.0 <- ps_silva %>% 
-  phyloseq::subset_samples(Center=="C01") 
+  phyloseq::subset_samples(Center=="IG") 
   
 threshold<-x.2.0 %>% otu_table( ) %>% colSums() %>% quantile(.,0.01)
 # threshold<-ps_silva %>% otu_table( ) %>% colSums() %>% min()
 set.seed(1234)
 x.2.0 <-phyloseq::rarefy_even_depth(x.2.0,sample.size = threshold)
 
-### C01
+### IG
 ### d samples
 x.2.0<-x.2.0 %>% 
   phyloseq::subset_samples( Participante %in% mddiff_q66$Participante)
@@ -390,13 +390,13 @@ aux_res<- merge(aux_res,tax_table(x.2.0),by.x="Names",by.y="row.names")%>%
   dplyr::mutate(Names=Genus) %>% 
   dplyr::select(otu,Names,scores) %>% 
   dplyr::mutate(Names = forcats::fct_reorder(Names, scores)) %>% 
-  dplyr::mutate(time_point=ifelse(scores>0,"Month6","BL"))
+  dplyr::mutate(time_point=ifelse(scores>0,"Month8","BL"))
 p0<-aux_res %>% 
     ggplot(.,aes(x=Names,y=scores,fill=time_point))+geom_bar(stat="identity")+coord_flip()+
-    theme_classic()+ggtitle("Month6 vs BL | q10")+
+    theme_classic()+ggtitle("Month8 vs BL | q10")+
     scale_fill_brewer(palette="Dark2") 
 
-ggsave(plot=p0,"output/Deliverables/DifferentialAbundance/lefse/boxplots/lefser_Month6_vs_BL_q10_samples.pdf")
+ggsave(plot=p0,"output/Deliverables/DifferentialAbundance/lefse/boxplots/lefser_Month8_vs_BL_q10_samples.pdf")
     
 for(otu_name in aux_res$otu){
   my_ps <- x.2.0
@@ -417,13 +417,13 @@ for(otu_name in aux_res$otu){
 ```
 
 
-Importantly, observed difference in the upper DeltaMDScore quartile, were not observed in the CG upper DeltaMDScore quartile, but were observed in the IG lower DeltaMDSCore (those with reduced adherence to MD in Month6). This may indicate that Increases in butyrate producing genus are related to the intervention itself, not to the changes in adherence to MD, as assessed by MDScore. While, presumably, multifactor intervention has not had the same effect on all individuals on IG, some individuals in the CG may have improved their lifestyle despite receiving only a subgroup of intervention measures. 
+Importantly, observed difference in the upper DeltaMDScore quartile, were not observed in the CG upper DeltaMDScore quartile, but were observed in the IG lower DeltaMDSCore (those with reduced adherence to MD in Month8). This may indicate that Increases in butyrate producing genus are related to the intervention itself, not to the changes in adherence to MD, as assessed by MDScore. While, presumably, multifactor intervention has not had the same effect on all individuals on IG, some individuals in the CG may have improved their lifestyle despite receiving only a subgroup of intervention measures. 
 
-MDScore only assesses the adherence to MD. While diet is a key component of the multifactorial intervention, other components may have had some effect on the gut microbiome composition. Interestingly, the multifactorial intervention also consisted on counseling to improve physical activity. Physical Activity was assessed at BL and Month6 using IPAQ score but can also be ascertained by changes in BMI
+MDScore only assesses the adherence to MD. While diet is a key component of the multifactorial intervention, other components may have had some effect on the gut microbiome composition. Interestingly, the multifactorial intervention also consisted on counseling to improve physical activity. Physical Activity was assessed at BL and Month8 using IPAQ score but can also be ascertained by changes in BMI
 
 ### DeltaMDScore-Genus
 
-An independent way to try to find changes associated to the mediterranean intervention is to focus on the intervention group, and calculate, for every patient, the change in the MDScore, that we can calculate either as absolute or relative value, and try to find associations with bacterial genus increases or decreases in their relative abundance. That is, the change in % of each genus between Month6 and BL samples.
+An independent way to try to find changes associated to the mediterranean intervention is to focus on the intervention group, and calculate, for every patient, the change in the MDScore, that we can calculate either as absolute or relative value, and try to find associations with bacterial genus increases or decreases in their relative abundance. That is, the change in % of each genus between Month8 and BL samples.
 
 ```{r Intervention chunk 5, echo=F, message=FALSE, warning=FALSE, paged.print=FALSE, tidy=F}
 suppressWarnings(require(phyloseq))
@@ -450,18 +450,18 @@ mddiff_data<-phyloseq::sample_data(ps_silva) %>% data.frame() %>%
   dplyr::select(Participante,Center,MedDietscore,Timepoint) %>% 
   dplyr::group_by(Participante) %>% 
   tidyr::pivot_wider(values_from = MedDietscore,names_from = Timepoint) %>% 
-  dplyr::mutate(MDScoreDiff=(Month6-BL)) %>% 
-  dplyr::mutate(MDScoreRelDiff=(Month6-BL)/(Month6+BL)) %>% 
-  dplyr::rename(MDMonth6=Month6,MDBL=BL)
+  dplyr::mutate(MDScoreDiff=(Month8-BL)) %>% 
+  dplyr::mutate(MDScoreRelDiff=(Month8-BL)/(Month8+BL)) %>% 
+  dplyr::rename(MDMonth8=Month8,MDBL=BL)
 
 genusdiff_data<-phyloseq::psmelt(ps_silva ) %>% 
   dplyr::select(Participante,Timepoint,Genus,Abundance) %>% 
   tidyr::pivot_wider(values_from=Abundance,names_from=Timepoint) %>% 
   tidyr::unnest() %>% 
   dplyr::group_by(Participante,Genus) %>% 
-  dplyr::mutate(GenusDiff=Month6-BL) %>% 
-  dplyr::mutate(GenusRelDiff=(Month6-BL)/(Month6+BL)) %>% 
-  dplyr::rename(AbundanceMonth6=Month6,AbundanceBL=BL)
+  dplyr::mutate(GenusDiff=Month8-BL) %>% 
+  dplyr::mutate(GenusRelDiff=(Month8-BL)/(Month8+BL)) %>% 
+  dplyr::rename(AbundanceMonth8=Month8,AbundanceBL=BL)
 
 ### To plot a single genus
 # genusdiff_data %>% 

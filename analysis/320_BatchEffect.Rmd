@@ -102,7 +102,7 @@ metadata_df %>% ggstatsplot::ggbetweenstats(.,x=Run,
 ```
 
 
-Let's see how Month6 vs baseling comparisong are consistent in different runs. This would indicate a batch effect on alpha diversity that could be affecting our design. Note that it would not be affecting Delta comparison testing, since we can reasonably assume that Month6 vs. BL differences are stable.
+Let's see how Month8 vs baseling comparisong are consistent in different runs. This would indicate a batch effect on alpha diversity that could be affecting our design. Note that it would not be affecting Delta comparison testing, since we can reasonably assume that Month8 vs. BL differences are stable.
 
 ### Chao1
 
@@ -112,7 +112,7 @@ Chao1 is the most unstable measure when comparing runs. This is to be expected b
 
 metadata_df %>% 
   dplyr::arrange(Participante,Center) %>% 
-  dplyr::filter(Center=="C01") %>% 
+  dplyr::filter(Center=="IG") %>% 
   ggstatsplot::grouped_ggwithinstats(.,x=Timepoint,type = "nonparametric",grouping.var = Run,
                               y=Chao1,pairwise.comparisons = T,
                               centrality.plotting=T,
@@ -126,7 +126,7 @@ metadata_df %>%
 
 metadata_df %>% 
   dplyr::arrange(Participante,Center) %>% 
-  dplyr::filter(Center=="C02") %>% 
+  dplyr::filter(Center=="CG") %>% 
   ggstatsplot::grouped_ggwithinstats(.,x=Timepoint,type = "nonparametric",grouping.var = Run,
                               y=Chao1,pairwise.comparisons = T,
                               centrality.plotting=T,
@@ -139,11 +139,11 @@ metadata_df %>%
                                                          ))
 # 
 # metadata_df %>% 
-#   dplyr::filter(Center=="C01") %>% 
+#   dplyr::filter(Center=="IG") %>% 
 #   lm(Shannon ~  Run,data=.) %>% summary()
 #   
 # metadata_df %>% 
-#   dplyr::filter(Center=="C02") %>% 
+#   dplyr::filter(Center=="CG") %>% 
 #   glm(Shannon ~Timepoint + Run,data=.) %>% summary()
 ```
 
@@ -153,7 +153,7 @@ metadata_df %>%
 
 metadata_df %>% 
   dplyr::arrange(Participante,Center) %>% 
-  dplyr::filter(Center=="C01") %>% 
+  dplyr::filter(Center=="IG") %>% 
   ggstatsplot::grouped_ggwithinstats(.,x=Timepoint,type = "nonparametric",grouping.var = Run,
                               y=Shannon,pairwise.comparisons = T,
                               centrality.plotting=T,
@@ -167,7 +167,7 @@ metadata_df %>%
 
 metadata_df %>% 
   dplyr::arrange(Participante,Center) %>% 
-  dplyr::filter(Center=="C02") %>% 
+  dplyr::filter(Center=="CG") %>% 
   ggstatsplot::grouped_ggwithinstats(.,x=Timepoint,type = "nonparametric",grouping.var = Run,
                               y=Shannon,pairwise.comparisons = T,
                               centrality.plotting=T,
@@ -180,11 +180,11 @@ metadata_df %>%
                                                          ))
 # 
 # metadata_df %>% 
-#   dplyr::filter(Center=="C01") %>% 
+#   dplyr::filter(Center=="IG") %>% 
 #   lm(Shannon ~  Run,data=.) %>% summary()
 #   
 # metadata_df %>% 
-#   dplyr::filter(Center=="C02") %>% 
+#   dplyr::filter(Center=="CG") %>% 
 #   glm(Shannon ~Timepoint + Run,data=.) %>% summary()
 ```
 ### Phylogenetic diversity
@@ -193,7 +193,7 @@ metadata_df %>%
 
 metadata_df %>% 
   dplyr::arrange(Participante,Center) %>% 
-  dplyr::filter(Center=="C01") %>% 
+  dplyr::filter(Center=="IG") %>% 
   ggstatsplot::grouped_ggwithinstats(.,x=Timepoint,type = "nonparametric",grouping.var = Run,
                               y=PD,pairwise.comparisons = T,
                               centrality.plotting=T,
@@ -207,7 +207,7 @@ metadata_df %>%
 
 metadata_df %>% 
   dplyr::arrange(Participante,Center) %>% 
-  dplyr::filter(Center=="C02") %>% 
+  dplyr::filter(Center=="CG") %>% 
   ggstatsplot::grouped_ggwithinstats(.,x=Timepoint,type = "nonparametric",grouping.var = Run,
                               y=PD,pairwise.comparisons = T,
                               centrality.plotting=T,
@@ -220,11 +220,11 @@ metadata_df %>%
                                                          ))
 # 
 # metadata_df %>% 
-#   dplyr::filter(Center=="C01") %>% 
+#   dplyr::filter(Center=="IG") %>% 
 #   lm(Shannon ~  Run,data=.) %>% summary()
 #   
 # metadata_df %>% 
-#   dplyr::filter(Center=="C02") %>% 
+#   dplyr::filter(Center=="CG") %>% 
 #   glm(Shannon ~Timepoint + Run,data=.) %>% summary()
 ```
 
@@ -235,7 +235,7 @@ In order to make sure that the IG vs CG comparisons are in order and not confoun
 #### Uni-variate
 ```{r batch effects on alpha diversity chunk4,include=TRUE, echo=F, message=FALSE, warning=FALSE, paged.print=FALSE, tidy=T}
 
-### univariate model with no adjustment tells us that C02 has a slight higher shannon diversity.
+### univariate model with no adjustment tells us that CG has a slight higher shannon diversity.
 
 metadata_df %>%
   dplyr::filter(Timepoint=="BL") %>% 
@@ -297,17 +297,17 @@ metadata_df %>%
   )
 #   
 # metadata_df %>% 
-#   dplyr::filter(Center=="C02") %>% 
+#   dplyr::filter(Center=="CG") %>% 
 #   glm(Shannon ~Timepoint + Run,data=.) %>% summary()
 ```
 
-For Month6 samples
+For Month8 samples
 
 ```{r batch effects on alpha diversity chunk6,include=TRUE, echo=F, message=FALSE, warning=FALSE, paged.print=FALSE, tidy=T}
 
 
 metadata_df %>%
-  dplyr::filter(Timepoint=="Month6") %>% 
+  dplyr::filter(Timepoint=="Month8") %>% 
   dplyr::rename(Age=Edad) %>% 
   lm(Chao1 ~  Center+Gender+Age+Smoker+Run+UBE+IPAQ+MDScore+BMI,data=.) %>% broom::tidy() %>% knitr::kable(
     caption = "Multivariate Linear model for Chao1 Diversity, adjusted for Age, Smoking, Alcohol Consumption and Sequencing Run.",
@@ -316,7 +316,7 @@ metadata_df %>%
   )
 
 metadata_df %>%
-  dplyr::filter(Timepoint=="Month6") %>% 
+  dplyr::filter(Timepoint=="Month8") %>% 
   dplyr::rename(Age=Edad) %>% 
   lm(Shannon ~  Center+Gender+Age+Smoker+Run+UBE+IPAQ+MDScore+BMI,data=.) %>% broom::tidy() %>% knitr::kable(
     caption = "Multivariate Linear model for Shannon Diversity, adjusted for Age, Smoking, Alcohol Consumption and Sequencing Run.",
@@ -325,7 +325,7 @@ metadata_df %>%
   )
 
 metadata_df %>%
-  dplyr::filter(Timepoint=="Month6") %>% 
+  dplyr::filter(Timepoint=="Month8") %>% 
   dplyr::rename(Age=Edad) %>% 
   lm(PD ~  Center+Gender+Age+Smoker+Run+UBE+IPAQ+MDScore+BMI,data=.) %>% broom::tidy() %>% knitr::kable(
     caption = "Multivariate Linear model for PD Diversity, adjusted for Age, Smoking, Alcohol Consumption and Sequencing Run.",
@@ -334,7 +334,7 @@ metadata_df %>%
   )
 #   
 # metadata_df %>% 
-#   dplyr::filter(Center=="C02") %>% 
+#   dplyr::filter(Center=="CG") %>% 
 #   glm(Shannon ~Timepoint + Run,data=.) %>% summary()
 ```
 
@@ -391,7 +391,7 @@ aux_df %>%
   )
 
 aux_df %>%
-  dplyr::filter(Timepoint=="Month6") %>% 
+  dplyr::filter(Timepoint=="Month8") %>% 
   dplyr::rename(Age=Edad) %>% 
   lm(ratio ~  Center+Gender+Age+Smoker+Run+UBE+IPAQ+MDScore+BMI,data=.)%>% broom::tidy() %>% knitr::kable(
     caption = "BL | Multivariate Linear model for F/B ratio, adjusted for Age, Smoking, Alcohol Consumption and Sequencing Run.",

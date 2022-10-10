@@ -27,7 +27,7 @@ rmd_env <- "devel"
 
 ## Pairing Analysis
 
-From Differential Abundance Analysis we have seen that there are a bunch of related ggenera that are overabundant in Month6 samples only in the IG. These genera happen to be all from the Lachnospiraceae family, except for Faecalibacterium.
+From Differential Abundance Analysis we have seen that there are a bunch of related ggenera that are overabundant in Month8 samples only in the IG. These genera happen to be all from the Lachnospiraceae family, except for Faecalibacterium.
 
 Paired Boxplots clearly show that increase/decrease of these genera happens for only a subgroup of the participants. We are interested in confirming of discarding if this genus-specific increase/decrease subgroups of participants do overlap among genera.
 
@@ -43,9 +43,9 @@ set.seed(1234)
 devtools::load_all("~/Documents/Work/Development/WMGSPipeline/")
 myMREObject<-readRDS("data/cfu/mreObject.rds")
 
-### Genus Level C01/IG
-if(file.exists("output/Deliverables/DifferentialAbundance/maaslin/Volcano_Month6_vs_BL_IGsamples.rds")){
-  fit_data<-readRDS("output/Deliverables/DifferentialAbundance/maaslin/Volcano_Month6_vs_BL_IGsamples.rds")
+### Genus Level IG/IG
+if(file.exists("output/Deliverables/DifferentialAbundance/maaslin/Volcano_Month8_vs_BL_IGsamples.rds")){
+  fit_data<-readRDS("output/Deliverables/DifferentialAbundance/maaslin/Volcano_Month8_vs_BL_IGsamples.rds")
 } 
 
 sign_genus<-fit_data$results %>% 
@@ -70,16 +70,16 @@ ps_df %>%
   dplyr::group_by(Participante,Genus) %>% 
   dplyr::arrange(Participante,Genus,Timepoint) %>% 
   tidyr::pivot_wider(names_from = Timepoint,values_from = Abundance) %>% 
-  dplyr::mutate(Delta=Month6-BL) %>% 
-  dplyr::select(-BL,-Month6) %>% 
+  dplyr::mutate(Delta=Month8-BL) %>% 
+  dplyr::select(-BL,-Month8) %>% 
   ggstatsplot::grouped_ggbetweenstats(x=Genus,y=Delta,grouping.var = Center)
 
 ps_df %>% 
   dplyr::group_by(Participante,Genus) %>% 
   dplyr::arrange(Participante,Genus,Timepoint) %>% 
   tidyr::pivot_wider(names_from = Timepoint,values_from = Abundance) %>% 
-  dplyr::mutate(Delta=Month6-BL) %>% 
-  dplyr::select(-BL,-Month6) %>% 
+  dplyr::mutate(Delta=Month8-BL) %>% 
+  dplyr::select(-BL,-Month8) %>% 
   tidyr::pivot_wider(names_from = Genus,values_from = Delta) %>% 
   dplyr::ungroup() %>% 
   dplyr::select(-Participante,-Center) %>% 
@@ -108,7 +108,7 @@ devtools::load_all("~/Documents/Work/Development/WMGSPipeline/")
 myMREObject<-readRDS("data/cfu/mreObject.rds")
 
 my_ps<-myMREObject %>% metar::get_phyloseq(.,type="dada2") %>% 
-  phyloseq::subset_samples(Center=="C01") %>% 
+  phyloseq::subset_samples(Center=="IG") %>% 
   phyloseq::tax_glom(.,taxrank="Genus")
 
 gt = phyloseqGraphTest::graph_perm_test(my_ps, sampletype = "Timepoint",
@@ -118,7 +118,7 @@ phyloseqGraphTest::plot_test_network(gt)
 phyloseqGraphTest::plot_permutations(gt)
 
 myMREObject %>% metar::get_phyloseq(.,type="dada2") %>% 
-  phyloseq::subset_samples(Center=="C02") %>% 
+  phyloseq::subset_samples(Center=="CG") %>% 
   phyloseq::tax_glom(.,taxrank="Genus") %>% 
   phyloseqGraphTest::graph_perm_test(., sampletype = "Timepoint",
                      distance = "bray", type = "mst") %>% 
@@ -130,7 +130,7 @@ myMREObject %>% metar::get_phyloseq(.,type="dada2") %>%
 This packages uses inverse covariance matrices to build ecological networks. In this analysis we aim to see:
 
 * Whether the ecological network  is different, at baseline, for the CG and IG. It should not be.
-* Whether there is any alteration in the ecological network of CG and IG separately, at Month6
+* Whether there is any alteration in the ecological network of CG and IG separately, at Month8
 
 #### Baseline
 
@@ -146,59 +146,59 @@ set.seed(1234)
 devtools::load_all("~/Documents/Work/Development/WMGSPipeline/")
 myMREObject<-readRDS("data/cfu/mreObject.rds")
 
-### IG/C01
+### IG/IG
 set.seed(1234)
-my_ps_C01_BL<-myMREObject %>% metar::get_phyloseq(.,type="dada2") %>% 
+my_ps_IG_BL<-myMREObject %>% metar::get_phyloseq(.,type="dada2") %>% 
   phyloseq::rarefy_even_depth() %>% 
   microbiome::core(prevalence = 0.3,detection=2) %>%
   phyloseq::tax_glom(.,taxrank="Genus") %>% 
-  phyloseq::subset_samples(Center=="C01") %>%
+  phyloseq::subset_samples(Center=="IG") %>%
   phyloseq::subset_samples(Timepoint=="BL") 
 
 
 ### Build network and initial graph
-se_mb_C01_BL <- spiec.easi(my_ps_C01_BL, method='mb', lambda.min.ratio=1e-2,
+se_mb_IG_BL <- spiec.easi(my_ps_IG_BL, method='mb', lambda.min.ratio=1e-2,
                            nlambda=20, pulsar.params=list(rep.num=50,ncores=4))
-ig2_mb_C01_BL <- adj2igraph(getRefit(se_mb_C01_BL),  vertex.attr=list(name=taxa_names(my_ps_C01_BL)))
-ig2_mb_C01_BL_LO = igraph::layout_with_fr(ig2_mb_C01_BL)
+ig2_mb_IG_BL <- adj2igraph(getRefit(se_mb_IG_BL),  vertex.attr=list(name=taxa_names(my_ps_IG_BL)))
+ig2_mb_IG_BL_LO = igraph::layout_with_fr(ig2_mb_IG_BL)
 
 ### prune isolated nodes
-Isolated = which(igraph::degree(ig2_mb_C01_BL)==0)
-G2 = igraph::delete.vertices(ig2_mb_C01_BL,Isolated)
-LO2 = ig2_mb_C01_BL_LO[-Isolated,]
+Isolated = which(igraph::degree(ig2_mb_IG_BL)==0)
+G2 = igraph::delete.vertices(ig2_mb_IG_BL,Isolated)
+LO2 = ig2_mb_IG_BL_LO[-Isolated,]
 
 ## Plot Network
-plot_network(G2, my_ps_C01_BL, type='taxa', color="Family",)
+plot_network(G2, my_ps_IG_BL, type='taxa', color="Family",)
 
 
 
-### CG/C02
+### CG/CG
 set.seed(1234)
-my_ps_C02_BL<-myMREObject %>% metar::get_phyloseq(.,type="dada2") %>% 
+my_ps_CG_BL<-myMREObject %>% metar::get_phyloseq(.,type="dada2") %>% 
   phyloseq::rarefy_even_depth() %>% 
   microbiome::core(prevalence = 0.3,detection=2) %>%
   phyloseq::tax_glom(.,taxrank="Genus") %>% 
-  phyloseq::subset_samples(Center=="C02") %>%
+  phyloseq::subset_samples(Center=="CG") %>%
   phyloseq::subset_samples(Timepoint=="BL") 
 
 ### Build network and initial graph
-se_mb_C02_BL <- spiec.easi(my_ps_C02_BL, method='mb', lambda.min.ratio=1e-2,
+se_mb_CG_BL <- spiec.easi(my_ps_CG_BL, method='mb', lambda.min.ratio=1e-2,
                            nlambda=20, pulsar.params=list(rep.num=50,ncores=4))
-ig2_mb_C02_BL <- adj2igraph(getRefit(se_mb_C02_BL),  vertex.attr=list(name=taxa_names(my_ps_C02_BL)))
-ig2_mb_C02_BL_LO = igraph::layout_with_fr(ig2_mb_C02_BL)
+ig2_mb_CG_BL <- adj2igraph(getRefit(se_mb_CG_BL),  vertex.attr=list(name=taxa_names(my_ps_CG_BL)))
+ig2_mb_CG_BL_LO = igraph::layout_with_fr(ig2_mb_CG_BL)
 
 ### prune isolated nodes
-Isolated = which(igraph::degree(ig2_mb_C02_BL)==0)
-G2 = igraph::delete.vertices(ig2_mb_C02_BL,Isolated)
-LO2 = ig2_mb_C02_BL_LO[-Isolated,]
+Isolated = which(igraph::degree(ig2_mb_CG_BL)==0)
+G2 = igraph::delete.vertices(ig2_mb_CG_BL,Isolated)
+LO2 = ig2_mb_CG_BL_LO[-Isolated,]
 
 ## Plot Network
-plot_network(G2, my_ps_C02_BL, type='taxa', color="Family",)
+plot_network(G2, my_ps_CG_BL, type='taxa', color="Family",)
 
 ```
-#### Month6
+#### Month8
 
-```{r core microbiome chunk3 Month6, include=TRUE, echo=F, message=FALSE, warning=FALSE, paged.print=FALSE, tidy=T,eval=T}
+```{r core microbiome chunk3 Month8, include=TRUE, echo=F, message=FALSE, warning=FALSE, paged.print=FALSE, tidy=T,eval=T}
 suppressMessages(require(dplyr))
 suppressMessages(require(phyloseq))
 suppressMessages(require(ggplot2))
@@ -210,52 +210,52 @@ set.seed(1234)
 devtools::load_all("~/Documents/Work/Development/WMGSPipeline/")
 myMREObject<-readRDS("data/cfu/mreObject.rds")
 
-### IG/C01
+### IG/IG
 set.seed(1234)
-my_ps_C01_Month6<-myMREObject %>% metar::get_phyloseq(.,type="dada2") %>% 
+my_ps_IG_Month8<-myMREObject %>% metar::get_phyloseq(.,type="dada2") %>% 
   phyloseq::rarefy_even_depth() %>% 
   microbiome::core(prevalence = 0.3,detection=2) %>%
   phyloseq::tax_glom(.,taxrank="Genus") %>% 
-  phyloseq::subset_samples(Center=="C01") %>%
-  phyloseq::subset_samples(Timepoint=="Month6") 
+  phyloseq::subset_samples(Center=="IG") %>%
+  phyloseq::subset_samples(Timepoint=="Month8") 
 
 ### Build network and initial graph
-se_mb_C01_Month6 <- spiec.easi(my_ps_C01_Month6, method='mb', lambda.min.ratio=1e-2,
+se_mb_IG_Month8 <- spiec.easi(my_ps_IG_Month8, method='mb', lambda.min.ratio=1e-2,
                            nlambda=20, pulsar.params=list(rep.num=50,ncores=4))
-ig2_mb_C01_Month6 <- adj2igraph(getRefit(se_mb_C01_Month6),  vertex.attr=list(name=taxa_names(my_ps_C01_Month6)))
-ig2_mb_C01_Month6_LO = igraph::layout_with_fr(ig2_mb_C01_Month6)
+ig2_mb_IG_Month8 <- adj2igraph(getRefit(se_mb_IG_Month8),  vertex.attr=list(name=taxa_names(my_ps_IG_Month8)))
+ig2_mb_IG_Month8_LO = igraph::layout_with_fr(ig2_mb_IG_Month8)
 
 ### prune isolated nodes
-Isolated = which(igraph::degree(ig2_mb_C01_Month6)==0)
-G2 = igraph::delete.vertices(ig2_mb_C01_Month6,Isolated)
-LO2 = ig2_mb_C01_Month6_LO[-Isolated,]
+Isolated = which(igraph::degree(ig2_mb_IG_Month8)==0)
+G2 = igraph::delete.vertices(ig2_mb_IG_Month8,Isolated)
+LO2 = ig2_mb_IG_Month8_LO[-Isolated,]
 
 ## Plot Network
-plot_network(G2, my_ps_C01_Month6, type='taxa', color="Family",)
+plot_network(G2, my_ps_IG_Month8, type='taxa', color="Family",)
 
 
 
-### CG/C02
+### CG/CG
 set.seed(1234)
-my_ps_C02_Month6<-myMREObject %>% metar::get_phyloseq(.,type="dada2") %>% 
+my_ps_CG_Month8<-myMREObject %>% metar::get_phyloseq(.,type="dada2") %>% 
   phyloseq::rarefy_even_depth() %>% 
   microbiome::core(prevalence = 0.3,detection=2) %>%
   phyloseq::tax_glom(.,taxrank="Genus") %>% 
-  phyloseq::subset_samples(Center=="C02") %>%
-  phyloseq::subset_samples(Timepoint=="Month6") 
+  phyloseq::subset_samples(Center=="CG") %>%
+  phyloseq::subset_samples(Timepoint=="Month8") 
 
 ### Build network and initial graph
-se_mb_C02_Month6 <- spiec.easi(my_ps_C02_Month6, method='mb', lambda.min.ratio=1e-2,
+se_mb_CG_Month8 <- spiec.easi(my_ps_CG_Month8, method='mb', lambda.min.ratio=1e-2,
                            nlambda=20, pulsar.params=list(rep.num=50,ncores=4))
-ig2_mb_C02_Month6 <- adj2igraph(getRefit(se_mb_C02_Month6),  vertex.attr=list(name=taxa_names(my_ps_C02_Month6)))
-ig2_mb_C02_Month6_LO = igraph::layout_with_fr(ig2_mb_C02_Month6)
+ig2_mb_CG_Month8 <- adj2igraph(getRefit(se_mb_CG_Month8),  vertex.attr=list(name=taxa_names(my_ps_CG_Month8)))
+ig2_mb_CG_Month8_LO = igraph::layout_with_fr(ig2_mb_CG_Month8)
 
 ### prune isolated nodes
-Isolated = which(igraph::degree(ig2_mb_C02_Month6)==0)
-G2 = igraph::delete.vertices(ig2_mb_C02_Month6,Isolated)
-LO2 = ig2_mb_C02_Month6_LO[-Isolated,]
+Isolated = which(igraph::degree(ig2_mb_CG_Month8)==0)
+G2 = igraph::delete.vertices(ig2_mb_CG_Month8,Isolated)
+LO2 = ig2_mb_CG_Month8_LO[-Isolated,]
 
 ## Plot Network
-plot_network(G2, my_ps_C02_Month6, type='taxa', color="Family",)
+plot_network(G2, my_ps_CG_Month8, type='taxa', color="Family",)
 
 ```

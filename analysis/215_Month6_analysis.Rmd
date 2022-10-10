@@ -1,6 +1,6 @@
 ---
 site: workflowr::wflow_site
-title: "Month6 Analysis"
+title: "Month8 Analysis"
 author: "Marc Noguera-Julian, PhD. "
 date: "`r format(Sys.time(), '%Y-%m-%d')`"
 header-includes:
@@ -26,7 +26,7 @@ rmd_env <- "devel"
 
 In this Analysis section we aim to describe possible differences between the two pariticpating centers at enf of study, in order to assess whether there are any and if they are relevant in relation to the longtiduinal resultes obtained from the nutritional intervention.
 
-## Month6 Demographics
+## Month8 Demographics
 
 We need to compare the baseline populations in order to see which of the variable should we be testing. 
 
@@ -48,12 +48,11 @@ myMREObject@wd<-"output/mre_data/cfu"
 
 # metar::get_meta(myMREObject) %>% dplyr::glimpse()
 my_table<-metar::get_meta(myMREObject) %>%
-    dplyr::filter(Timepoint=="Month6") %>% 
+    dplyr::filter(Timepoint=="Month8") %>% 
     dplyr::select(Center,Edad,Gender,Smoker,UBE,AF_Colesterol,Peso,Talla,Masagrasaporcentage,METActividadFisicabasaltotal,MedDietscore,Run) %>% as.data.frame() %>% 
     dplyr::rename(Age=Edad,TE=UBE,Cholesterol=AF_Colesterol,Weight=Peso,Height=Talla,BodyFat=Masagrasaporcentage,IPAQ=METActividadFisicabasaltotal,MDScore=MedDietscore) %>% 
     dplyr::mutate(BMI=(Weight/(Height/100)^2)) %>% 
-    dplyr::select(-Height,-Weight) %>% 
-    dplyr::mutate(Center=ifelse(Center=="C01","IG","CG"))
+    dplyr::select(-Height,-Weight)
   
 compareGroups::compareGroups(data = my_table,formula = Center ~ .) %>% 
   compareGroups::createTable() %>% compareGroups::export2md()
@@ -67,7 +66,7 @@ Alpha Diversity refers to the taxonomical richness and evenness of a particular 
 * Shannon Index: Shannon index is an estimator of the number of different taxa in a sample and the evenness of these taxa in the sample bacterial composition.
 * Phylogenetic distance: Phylogenetic distance adds phylogenetic information to the alpha-diversity estimation. In this way, PD increases if taxa in a sample are phylogenetically more distinct.
 
-There are significant differences between groups at month6 in the unadjusted analysis, similary to baseline. Control Group(C02) shows a higher richness, evenness and phylogenetic diversity than intervention group at baseline. Reasons for this are unknown and may be due to socio-geographical features of each population. 
+There are significant differences between groups at month6 in the unadjusted analysis, similary to baseline. Control Group(CG) shows a higher richness, evenness and phylogenetic diversity than intervention group at baseline. Reasons for this are unknown and may be due to socio-geographical features of each population. 
 
 
 ```{r alpha diversity chunk 1, echo=F, message=FALSE, warning=FALSE, paged.print=FALSE, tidy=F,fig.width=5, fig.height=5}
@@ -84,14 +83,14 @@ myMREObject@wd<-"output/mre_data/cfu"
 
 p0<-phyloseq::sample_data(ps_silva) %>% 
   data.frame( ) %>% 
-  dplyr::filter(Timepoint=="Month6") %>% 
+  dplyr::filter(Timepoint=="Month8") %>% 
   dplyr::select(SampleID,Timepoint,Center,Participante,chao1,diversity_shannon) %>% 
   dplyr::group_by(Participante) %>% 
   ggstatsplot::ggbetweenstats(.,x=Center,
                               y=chao1,
                               type = "parametric", 
                               centrality.plotting=T,bf.message = FALSE,
-                              p.adjust.method = "BH",pairwise.display = F, title =  "Chao1 vs Center / Month6",
+                              p.adjust.method = "BH",pairwise.display = F, title =  "Chao1 vs Center / Month8",
                               annotation.args = list(title = "Chao1 index vs Timepoint",
                                                          theme = ggplot2::theme(
                                                                 plot.subtitle = ggplot2::element_text(size = 13),
@@ -101,14 +100,14 @@ p0<-phyloseq::sample_data(ps_silva) %>%
 
 p1<-phyloseq::sample_data(ps_silva) %>% 
   data.frame( ) %>% 
-  dplyr::filter(Timepoint=="Month6") %>% 
+  dplyr::filter(Timepoint=="Month8") %>% 
   dplyr::select(SampleID,Timepoint,Center,Participante,chao1,diversity_shannon) %>% 
   dplyr::group_by(Participante) %>% 
   ggstatsplot::ggbetweenstats(.,x=Center,
                               y=diversity_shannon,
                               type = "parametric", 
                               centrality.plotting=T,bf.message = FALSE,
-                              p.adjust.method = "BH", pairwise.display = F, title =  "Shannon  vs Center / Month6",
+                              p.adjust.method = "BH", pairwise.display = F, title =  "Shannon  vs Center / Month8",
                               annotation.args = list(title = "Shannon index vs Timepoint",
                                                          theme = ggplot2::theme(
                                                                 plot.subtitle = ggplot2::element_text(size = 13),
@@ -118,14 +117,14 @@ p1<-phyloseq::sample_data(ps_silva) %>%
 
 p2<-phyloseq::sample_data(ps_silva) %>% 
   data.frame( ) %>% 
-  dplyr::filter(Timepoint=="Month6") %>% 
+  dplyr::filter(Timepoint=="Month8") %>% 
   dplyr::select(SampleID,Timepoint,Center,Participante,chao1,diversity_shannon,PD) %>% 
   dplyr::group_by(Participante) %>% 
   ggstatsplot::ggbetweenstats(.,x=Center,
                               y=PD,
                               type = "parametric", 
                               centrality.plotting=T,bf.message = FALSE,
-                              p.adjust.method = "BH", pairwise.display = F, title =  "PD  vs Center / Month6",
+                              p.adjust.method = "BH", pairwise.display = F, title =  "PD  vs Center / Month8",
                               annotation.args = list(title = "Shannon index vs Timepoint",
                                                          theme = ggplot2::theme(
                                                                 plot.subtitle = ggplot2::element_text(size = 13),
@@ -151,14 +150,14 @@ suppressWarnings(require(vegan))
 devtools::load_all("~/Documents/Work/Development/WMGSPipeline/")
 # ps_silva<-readRDS("data/internal/baseline/mreObject.rds/DADA2/ps_silva.rds")
 myMREObject<-readRDS("data/cfu/mreObject.rds")
-### Month6
-Month6_samples<-myMREObject %>% 
+### Month8
+Month8_samples<-myMREObject %>% 
   metar::get_meta() %>% 
-  dplyr::filter(Timepoint=="Month6") %>% 
+  dplyr::filter(Timepoint=="Month8") %>% 
   dplyr::pull(SampleID) %>% as.vector()
 
 auxMREObject<-myMREObject %>%
-  metar::filter_samples(.,Month6_samples) 
+  metar::filter_samples(.,Month8_samples) 
 auxMREObject@metadata@categorical_vals<-auxMREObject@metadata@categorical_vals %>% dplyr::filter(CategoricalVariable!="Timepoint")
 
 # auxMREObject %>% 
@@ -190,7 +189,7 @@ We have seen that there are no major changes between centers. We can further ass
 
 Lefse method uses a combination of non-parametric statistics to reveal those bacterial taxa that are either over- or under-represented in any of the timepoints. Note that we are rarefying to 95th percentile coverage in order to optimized sensitivity. This rarefaction process essentially discards the 5% samples with the lowest throughput,
 
-Results indicate that two bacterial genera are over  abundant in the Control Group(C02) vs the Intervention Group(C01), when comparing baseline(Month6)  samples: Lachnospira and Holdemanella. 
+Results indicate that two bacterial genera are over  abundant in the Control Group(CG) vs the Intervention Group(IG), when comparing baseline(Month8)  samples: Lachnospira and Holdemanella. 
 
 
 ```{r differential abundance chunk 1, echo=F, message=FALSE, warning=FALSE, paged.print=FALSE, tidy=F, fig.cap="LDA Lefse plot, showing enrichment of several general in labelled group"}
@@ -210,10 +209,10 @@ threshold<-ps_silva %>% otu_table( ) %>% colSums() %>% quantile(.,0.05)
 set.seed(1234)
 x.2.0 <-phyloseq::rarefy_even_depth(ps_silva,sample.size = threshold)
 # x.2.0<-ps_silva
-### C01
+### IG
 ### d samples
 x.2.0 <- x.2.0 %>% 
-  phyloseq::subset_samples(Timepoint=="Month6")
+  phyloseq::subset_samples(Timepoint=="Month8")
   # microbiome::transform(transform="compositional")
 
 se_ps<-SummarizedExperiment::SummarizedExperiment(assays = list(counts=as.matrix(otu_table(x.2.0))),
@@ -231,12 +230,12 @@ aux_res<- merge(aux_res,tax_table(x.2.0),by.x="Names",by.y="row.names")%>%
   dplyr::mutate(Names=Genus) %>% 
   dplyr::select(otu,Names,scores) %>% 
   dplyr::mutate(Names = forcats::fct_reorder(Names, scores)) %>% 
-  dplyr::mutate(time_point=ifelse(scores<0,"C01","C02"))
+  dplyr::mutate(time_point=ifelse(scores<0,"IG","CG"))
 p0<-aux_res %>% 
     ggplot(.,aes(x=Names,y=scores,fill=time_point))+geom_bar(stat="identity")+coord_flip()+
-    theme_classic()+ggtitle("C01 vs C02 | Month6")+
+    theme_classic()+ggtitle("IG vs CG | Month8")+
     scale_fill_brewer(palette="Dark2") 
-    ggsave(plot=p0,"output/Deliverables/DifferentialAbundance/lefse/boxplots/lefser_C01_vs_C02_Month6_samples.pdf")
+    ggsave(plot=p0,"output/Deliverables/DifferentialAbundance/lefse/boxplots/lefser_IG_vs_CG_Month8_samples.pdf")
     
 for(otu_name in aux_res$otu){
   my_ps <- x.2.0
@@ -252,7 +251,7 @@ for(otu_name in aux_res$otu){
                                        bf.message=F,title=title$Names,
                                        type="nonparametric",palette="Dark2") %>% 
   
-   ggsave(.,filename=paste0("output/Deliverables/DifferentialAbundance/lefse/boxplots/",title$Names,"_vs_Center_Month6_Samples.pdf"),width=7, height=7)
+   ggsave(.,filename=paste0("output/Deliverables/DifferentialAbundance/lefse/boxplots/",title$Names,"_vs_Center_Month8_Samples.pdf"),width=7, height=7)
 }
 
 p0
@@ -264,7 +263,7 @@ MaasLin provides and independent differential abundance test framework, which is
 
 
 
-```{r DA species maaslin2 Month6, include=TRUE, echo=F, message=FALSE, warning=FALSE, paged.print=FALSE, tidy=T,eval=T}
+```{r DA species maaslin2 Month8, include=TRUE, echo=F, message=FALSE, warning=FALSE, paged.print=FALSE, tidy=T,eval=T}
 suppressMessages(require(dplyr))
 suppressMessages(require(phyloseq))
 suppressMessages(require(lefser))
@@ -278,12 +277,12 @@ set.seed(1234)
 devtools::load_all("~/Documents/Work/Development/WMGSPipeline/")
 myMREObject<-readRDS("data/cfu/mreObject.rds")
 
-### Genus Level Month6
+### Genus Level Month8
 input_data<-myMREObject@taxa@dada2@phyloseq %>% 
-  phyloseq::subset_samples(Timepoint=="Month6") %>% tax_glom(.,taxrank="Genus",NArm = F) %>% otu_table() %>% t()
+  phyloseq::subset_samples(Timepoint=="Month8") %>% tax_glom(.,taxrank="Genus",NArm = F) %>% otu_table() %>% t()
 
 colnames(input_data)<-myMREObject@taxa@dada2@phyloseq %>% 
-  phyloseq::subset_samples(Timepoint=="Month6") %>% 
+  phyloseq::subset_samples(Timepoint=="Month8") %>% 
   tax_glom(.,taxrank="Genus",NArm = F) %>% 
   phyloseq::tax_table() %>% data.frame() %>% 
   dplyr::pull(Genus)
@@ -293,7 +292,7 @@ input_metadata<-metar::get_meta(myMREObject) %>% as.data.frame() %>%
 rownames(input_metadata)<-input_metadata$SampleID
 suppressWarnings(fit_data <- Maaslin2::Maaslin2(input_data=input_data,
                                                 input_metadata=input_metadata,
-                                                output="output/Deliverables/DifferentialAbundance/maaslin/genusMonth6",
+                                                output="output/Deliverables/DifferentialAbundance/maaslin/genusMonth8",
                                                 fixed_effects = c("Center"),
                                                 random_effects = c("Gender","UBE","Edad","Run"),
                                                 cores=4,plot_heatmap = T,

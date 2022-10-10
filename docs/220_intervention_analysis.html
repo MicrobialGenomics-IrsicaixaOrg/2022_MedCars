@@ -1,0 +1,1731 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+
+<meta name="author" content="Marc Noguera-Julian, PhD." />
+
+<meta name="date" content="2022-10-06" />
+
+<title>Intervention Analysis</title>
+
+<script src="site_libs/header-attrs-2.14/header-attrs.js"></script>
+<script src="site_libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="site_libs/bootstrap-3.3.5/css/cosmo.min.css" rel="stylesheet" />
+<script src="site_libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/respond.min.js"></script>
+<style>h1 {font-size: 34px;}
+       h1.title {font-size: 38px;}
+       h2 {font-size: 30px;}
+       h3 {font-size: 24px;}
+       h4 {font-size: 18px;}
+       h5 {font-size: 16px;}
+       h6 {font-size: 12px;}
+       code {color: inherit; background-color: rgba(0, 0, 0, 0.04);}
+       pre:not([class]) { background-color: white }</style>
+<script src="site_libs/jqueryui-1.11.4/jquery-ui.min.js"></script>
+<link href="site_libs/tocify-1.9.1/jquery.tocify.css" rel="stylesheet" />
+<script src="site_libs/tocify-1.9.1/jquery.tocify.js"></script>
+<script src="site_libs/navigation-1.1/tabsets.js"></script>
+<link href="site_libs/highlightjs-9.12.0/textmate.css" rel="stylesheet" />
+<script src="site_libs/highlightjs-9.12.0/highlight.js"></script>
+
+<link rel="icon" href="https://github.com/workflowr/workflowr-assets/raw/main/img/reproducible.png">
+<!-- Add a small amount of space between sections. -->
+<style type="text/css">
+div.section {
+  padding-top: 12px;
+}
+</style>
+
+
+
+<style type="text/css">
+  code{white-space: pre-wrap;}
+  span.smallcaps{font-variant: small-caps;}
+  span.underline{text-decoration: underline;}
+  div.column{display: inline-block; vertical-align: top; width: 50%;}
+  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+  ul.task-list{list-style: none;}
+    </style>
+
+<style type="text/css">code{white-space: pre;}</style>
+<script type="text/javascript">
+if (window.hljs) {
+  hljs.configure({languages: []});
+  hljs.initHighlightingOnLoad();
+  if (document.readyState && document.readyState === "complete") {
+    window.setTimeout(function() { hljs.initHighlighting(); }, 0);
+  }
+}
+</script>
+
+
+
+
+
+
+
+
+
+<style type = "text/css">
+.main-container {
+  max-width: 940px;
+  margin-left: auto;
+  margin-right: auto;
+}
+img {
+  max-width:100%;
+}
+.tabbed-pane {
+  padding-top: 12px;
+}
+.html-widget {
+  margin-bottom: 20px;
+}
+button.code-folding-btn:focus {
+  outline: none;
+}
+summary {
+  display: list-item;
+}
+details > summary > p:only-child {
+  display: inline;
+}
+pre code {
+  padding: 0;
+}
+</style>
+
+
+<style type="text/css">
+.dropdown-submenu {
+  position: relative;
+}
+.dropdown-submenu>.dropdown-menu {
+  top: 0;
+  left: 100%;
+  margin-top: -6px;
+  margin-left: -1px;
+  border-radius: 0 6px 6px 6px;
+}
+.dropdown-submenu:hover>.dropdown-menu {
+  display: block;
+}
+.dropdown-submenu>a:after {
+  display: block;
+  content: " ";
+  float: right;
+  width: 0;
+  height: 0;
+  border-color: transparent;
+  border-style: solid;
+  border-width: 5px 0 5px 5px;
+  border-left-color: #cccccc;
+  margin-top: 5px;
+  margin-right: -10px;
+}
+.dropdown-submenu:hover>a:after {
+  border-left-color: #adb5bd;
+}
+.dropdown-submenu.pull-left {
+  float: none;
+}
+.dropdown-submenu.pull-left>.dropdown-menu {
+  left: -100%;
+  margin-left: 10px;
+  border-radius: 6px 0 6px 6px;
+}
+</style>
+
+<script type="text/javascript">
+// manage active state of menu based on current page
+$(document).ready(function () {
+  // active menu anchor
+  href = window.location.pathname
+  href = href.substr(href.lastIndexOf('/') + 1)
+  if (href === "")
+    href = "index.html";
+  var menuAnchor = $('a[href="' + href + '"]');
+
+  // mark it active
+  menuAnchor.tab('show');
+
+  // if it's got a parent navbar menu mark it active as well
+  menuAnchor.closest('li.dropdown').addClass('active');
+
+  // Navbar adjustments
+  var navHeight = $(".navbar").first().height() + 15;
+  var style = document.createElement('style');
+  var pt = "padding-top: " + navHeight + "px; ";
+  var mt = "margin-top: -" + navHeight + "px; ";
+  var css = "";
+  // offset scroll position for anchor links (for fixed navbar)
+  for (var i = 1; i <= 6; i++) {
+    css += ".section h" + i + "{ " + pt + mt + "}\n";
+  }
+  style.innerHTML = "body {" + pt + "padding-bottom: 40px; }\n" + css;
+  document.head.appendChild(style);
+});
+</script>
+
+<!-- tabsets -->
+
+<style type="text/css">
+.tabset-dropdown > .nav-tabs {
+  display: inline-table;
+  max-height: 500px;
+  min-height: 44px;
+  overflow-y: auto;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.tabset-dropdown > .nav-tabs > li.active:before {
+  content: "";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li.active:before {
+  content: "&#xe258;";
+  border: none;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open:before {
+  content: "";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs > li.active {
+  display: block;
+}
+
+.tabset-dropdown > .nav-tabs > li > a,
+.tabset-dropdown > .nav-tabs > li > a:focus,
+.tabset-dropdown > .nav-tabs > li > a:hover {
+  border: none;
+  display: inline-block;
+  border-radius: 4px;
+  background-color: transparent;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li {
+  display: block;
+  float: none;
+}
+
+.tabset-dropdown > .nav-tabs > li {
+  display: none;
+}
+</style>
+
+<!-- code folding -->
+
+
+
+<style type="text/css">
+
+#TOC {
+  margin: 25px 0px 20px 0px;
+}
+@media (max-width: 768px) {
+#TOC {
+  position: relative;
+  width: 100%;
+}
+}
+
+@media print {
+.toc-content {
+  /* see https://github.com/w3c/csswg-drafts/issues/4434 */
+  float: right;
+}
+}
+
+.toc-content {
+  padding-left: 30px;
+  padding-right: 40px;
+}
+
+div.main-container {
+  max-width: 1200px;
+}
+
+div.tocify {
+  width: 20%;
+  max-width: 260px;
+  max-height: 85%;
+}
+
+@media (min-width: 768px) and (max-width: 991px) {
+  div.tocify {
+    width: 25%;
+  }
+}
+
+@media (max-width: 767px) {
+  div.tocify {
+    width: 100%;
+    max-width: none;
+  }
+}
+
+.tocify ul, .tocify li {
+  line-height: 20px;
+}
+
+.tocify-subheader .tocify-item {
+  font-size: 0.90em;
+}
+
+.tocify .list-group-item {
+  border-radius: 0px;
+}
+
+
+</style>
+
+
+
+</head>
+
+<body>
+
+
+<div class="container-fluid main-container">
+
+
+<!-- setup 3col/9col grid for toc_float and main content  -->
+<div class="row">
+<div class="col-xs-12 col-sm-4 col-md-3">
+<div id="TOC" class="tocify">
+</div>
+</div>
+
+<div class="toc-content col-xs-12 col-sm-8 col-md-9">
+
+
+
+
+<div class="navbar navbar-default  navbar-fixed-top" role="navigation">
+  <div class="container">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-bs-toggle="collapse" data-target="#navbar" data-bs-target="#navbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="index.html">MedCars</a>
+    </div>
+    <div id="navbar" class="navbar-collapse collapse">
+      <ul class="nav navbar-nav">
+        <li>
+  <a href="index.html">Home</a>
+</li>
+<li>
+  <a href="201_exploratory_analysis.html">Data Exploration</a>
+</li>
+<li>
+  <a href="210_baseline_analysis.html">Baseline Analysis</a>
+</li>
+<li>
+  <a href="220_intervention_analysis.html">Intervention</a>
+</li>
+<li>
+  <a href="230_MedDietScore.html">Mediterranean Diet</a>
+</li>
+<li>
+  <a href="240_fatty_acids.html">Fatty Acids</a>
+</li>
+<li>
+  <a href="250_PhysicalActivity.html">Physical Activity</a>
+</li>
+<li>
+  <a href="260_FirmicutesBacteroides.html">Firmicutes/Bacteroidetes</a>
+</li>
+<li>
+  <a href="270_PairingAnalysis.html">Paired Analysis</a>
+</li>
+<li>
+  <a href="300_FunctionalAnalysis.html">Functional Analysis</a>
+</li>
+<li>
+  <a href="320_BatchEffect.html">Batch Effects</a>
+</li>
+<li>
+  <a href="about.html">About</a>
+</li>
+<li>
+  <a href="license.html">License</a>
+</li>
+      </ul>
+      <ul class="nav navbar-nav navbar-right">
+        
+      </ul>
+    </div><!--/.nav-collapse -->
+  </div><!--/.container -->
+</div><!--/.navbar -->
+
+<div id="header">
+
+
+
+<h1 class="title toc-ignore">Intervention Analysis</h1>
+<h4 class="author">Marc Noguera-Julian, PhD.</h4>
+<h4 class="date">2022-10-06</h4>
+
+</div>
+
+
+<p>
+<button type="button" class="btn btn-default btn-workflowr btn-workflowr-report" data-toggle="collapse" data-target="#workflowr-report">
+<span class="glyphicon glyphicon-list" aria-hidden="true"></span> workflowr <span class="glyphicon glyphicon-exclamation-sign text-danger" aria-hidden="true"></span>
+</button>
+</p>
+<div id="workflowr-report" class="collapse">
+<ul class="nav nav-tabs">
+<li class="active">
+<a data-toggle="tab" href="#summary">Summary</a>
+</li>
+<li>
+<a data-toggle="tab" href="#checks"> Checks <span class="glyphicon glyphicon-exclamation-sign text-danger" aria-hidden="true"></span> </a>
+</li>
+<li>
+<a data-toggle="tab" href="#versions">Past versions</a>
+</li>
+</ul>
+<div class="tab-content">
+<div id="summary" class="tab-pane fade in active">
+<p>
+<strong>Last updated:</strong> 2022-10-06
+</p>
+<p>
+<strong>Checks:</strong> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> 6 <span class="glyphicon glyphicon-exclamation-sign text-danger" aria-hidden="true"></span> 1
+</p>
+<p>
+<strong>Knit directory:</strong> <code>2022_MedCars/</code> <span class="glyphicon glyphicon-question-sign" aria-hidden="true" title="This is the local directory in which the code in this file was executed."> </span>
+</p>
+<p>
+This reproducible <a href="https://rmarkdown.rstudio.com">R Markdown</a> analysis was created with <a
+  href="https://github.com/workflowr/workflowr">workflowr</a> (version 1.7.0). The <em>Checks</em> tab describes the reproducibility checks that were applied when the results were created. The <em>Past versions</em> tab lists the development history.
+</p>
+<hr>
+</div>
+<div id="checks" class="tab-pane fade">
+<div id="workflowr-checks" class="panel-group">
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRMarkdownfilestronguncommittedchanges"> <span class="glyphicon glyphicon-exclamation-sign text-danger" aria-hidden="true"></span> <strong>R Markdown file:</strong> uncommitted changes </a>
+</p>
+</div>
+<div id="strongRMarkdownfilestronguncommittedchanges" class="panel-collapse collapse">
+<div class="panel-body">
+<p>The R Markdown file has unstaged changes. To know which version of the R Markdown file created these results, you’ll want to first commit it to the Git repo. If you’re still working on the analysis, you can ignore this warning. When you’re finished, you can run <code>wflow_publish</code> to commit the R Markdown file and build the HTML.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongEnvironmentstrongempty"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Environment:</strong> empty </a>
+</p>
+</div>
+<div id="strongEnvironmentstrongempty" class="panel-collapse collapse">
+<div class="panel-body">
+<p>Great job! The global environment was empty. Objects defined in the global environment can affect the analysis in your R Markdown file in unknown ways. For reproduciblity it’s best to always run the code in an empty environment.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongSeedstrongcodesetseed20220720code"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Seed:</strong> <code>set.seed(20220720)</code> </a>
+</p>
+</div>
+<div id="strongSeedstrongcodesetseed20220720code" class="panel-collapse collapse">
+<div class="panel-body">
+<p>The command <code>set.seed(20220720)</code> was run prior to running the code in the R Markdown file. Setting a seed ensures that any results that rely on randomness, e.g. subsampling or permutations, are reproducible.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongSessioninformationstrongrecorded"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Session information:</strong> recorded </a>
+</p>
+</div>
+<div id="strongSessioninformationstrongrecorded" class="panel-collapse collapse">
+<div class="panel-body">
+<p>Great job! Recording the operating system, R version, and package versions is critical for reproducibility.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongCachestrongnone"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Cache:</strong> none </a>
+</p>
+</div>
+<div id="strongCachestrongnone" class="panel-collapse collapse">
+<div class="panel-body">
+<p>Nice! There were no cached chunks for this analysis, so you can be confident that you successfully produced the results during this run.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongFilepathsstrongrelative"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>File paths:</strong> relative </a>
+</p>
+</div>
+<div id="strongFilepathsstrongrelative" class="panel-collapse collapse">
+<div class="panel-body">
+<p>Great job! Using relative paths to the files within your workflowr project makes it easier to run your code on other machines.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomMicrobialGenomicsIrsicaixaOrg2022MedCarstree136c267de0ff399e395309b721fd13d2fdc4cbe4targetblank136c267a"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Repository version:</strong> <a href="https://github.com/MicrobialGenomics-IrsicaixaOrg/2022_MedCars/tree/136c267de0ff399e395309b721fd13d2fdc4cbe4" target="_blank">136c267</a> </a>
+</p>
+</div>
+<div id="strongRepositoryversionstrongahrefhttpsgithubcomMicrobialGenomicsIrsicaixaOrg2022MedCarstree136c267de0ff399e395309b721fd13d2fdc4cbe4targetblank136c267a" class="panel-collapse collapse">
+<div class="panel-body">
+<p>
+Great! You are using Git for version control. Tracking code development and connecting the code version to the results is critical for reproducibility.
+</p>
+<p>
+The results in this page were generated with repository version <a href="https://github.com/MicrobialGenomics-IrsicaixaOrg/2022_MedCars/tree/136c267de0ff399e395309b721fd13d2fdc4cbe4" target="_blank">136c267</a>. See the <em>Past versions</em> tab to see a history of the changes made to the R Markdown and HTML files.
+</p>
+<p>
+Note that you need to be careful to ensure that all relevant files for the analysis have been committed to Git prior to generating the results (you can use <code>wflow_publish</code> or <code>wflow_git_commit</code>). workflowr only checks the R Markdown file, but you know if there are other scripts or data files that it depends on. Below is the status of the Git repository when the results were generated:
+</p>
+<pre><code>
+Ignored files:
+    Ignored:    .DS_Store
+    Ignored:    .Rhistory
+    Ignored:    .Rproj.user/
+    Ignored:    analysis/.DS_Store
+    Ignored:    data/.DS_Store
+    Ignored:    data/cfu/
+    Ignored:    data/internal/
+    Ignored:    data/processed/
+    Ignored:    data/ps_silva_RR.rds
+    Ignored:    data/raw/
+    Ignored:    output/.DS_Store
+    Ignored:    output/Deliverables/
+    Ignored:    output/mre_data/
+
+Unstaged changes:
+    Modified:   analysis/201_exploratory_analysis.Rmd
+    Modified:   analysis/210_baseline_analysis.Rmd
+    Modified:   analysis/215_Month6_analysis.Rmd
+    Modified:   analysis/220_intervention_analysis.Rmd
+    Modified:   analysis/230_MedDietScore.Rmd
+    Modified:   analysis/240_fatty_acids.Rmd
+    Modified:   analysis/250_PhysicalActivity.Rmd
+    Modified:   analysis/260_FirmicutesBacteroides.Rmd
+    Modified:   analysis/270_PairingAnalysis.Rmd
+    Modified:   analysis/300_FunctionalAnalysis.Rmd
+    Modified:   analysis/320_BatchEffect.Rmd
+    Modified:   code/006_DataPreprocessing.Rmd
+    Modified:   code/006_DataPreprocessing.html
+
+</code></pre>
+<p>
+Note that any generated files, e.g. HTML, png, CSS, etc., are not included in this status report because it is ok for generated content to have uncommitted changes.
+</p>
+</div>
+</div>
+</div>
+</div>
+<hr>
+</div>
+<div id="versions" class="tab-pane fade">
+
+<p>
+These are the previous versions of the repository in which changes were made to the R Markdown (<code>analysis/220_intervention_analysis.Rmd</code>) and HTML (<code>docs/220_intervention_analysis.html</code>) files. If you’ve configured a remote Git repository (see <code>?wflow_git_remote</code>), click on the hyperlinks in the table below to view the files as they were in that past version.
+</p>
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+File
+</th>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+<th>
+Message
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/MicrobialGenomics-IrsicaixaOrg/2022_MedCars/blob/136c267de0ff399e395309b721fd13d2fdc4cbe4/analysis/220_intervention_analysis.Rmd" target="_blank">136c267</a>
+</td>
+<td>
+Marc Noguera-Julian
+</td>
+<td>
+2022-10-06
+</td>
+<td>
+final analysis
+</td>
+</tr>
+<tr>
+<td>
+html
+</td>
+<td>
+<a href="https://rawcdn.githack.com/MicrobialGenomics-IrsicaixaOrg/2022_MedCars/136c267de0ff399e395309b721fd13d2fdc4cbe4/docs/220_intervention_analysis.html" target="_blank">136c267</a>
+</td>
+<td>
+Marc Noguera-Julian
+</td>
+<td>
+2022-10-06
+</td>
+<td>
+final analysis
+</td>
+</tr>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/MicrobialGenomics-IrsicaixaOrg/2022_MedCars/blob/4ccdb4cfd6d67a16afbcc4bf4c6e5f54a1b44bd3/analysis/220_intervention_analysis.Rmd" target="_blank">4ccdb4c</a>
+</td>
+<td>
+Marc Noguera-Julian
+</td>
+<td>
+2022-09-30
+</td>
+<td>
+additional analysis
+</td>
+</tr>
+<tr>
+<td>
+html
+</td>
+<td>
+<a href="https://rawcdn.githack.com/MicrobialGenomics-IrsicaixaOrg/2022_MedCars/4ccdb4cfd6d67a16afbcc4bf4c6e5f54a1b44bd3/docs/220_intervention_analysis.html" target="_blank">4ccdb4c</a>
+</td>
+<td>
+Marc Noguera-Julian
+</td>
+<td>
+2022-09-30
+</td>
+<td>
+additional analysis
+</td>
+</tr>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/MicrobialGenomics-IrsicaixaOrg/2022_MedCars/blob/9594b4b1eee834d1666dba133ec4ba2e68d2e3c9/analysis/220_intervention_analysis.Rmd" target="_blank">9594b4b</a>
+</td>
+<td>
+Marc Noguera-Julian
+</td>
+<td>
+2022-09-23
+</td>
+<td>
+maaslin and batch effects
+</td>
+</tr>
+<tr>
+<td>
+html
+</td>
+<td>
+<a href="https://rawcdn.githack.com/MicrobialGenomics-IrsicaixaOrg/2022_MedCars/9594b4b1eee834d1666dba133ec4ba2e68d2e3c9/docs/220_intervention_analysis.html" target="_blank">9594b4b</a>
+</td>
+<td>
+Marc Noguera-Julian
+</td>
+<td>
+2022-09-23
+</td>
+<td>
+maaslin and batch effects
+</td>
+</tr>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/MicrobialGenomics-IrsicaixaOrg/2022_MedCars/blob/1c2dd47bf64409ce32bc85e3c96b5452d29e8fc1/analysis/220_intervention_analysis.Rmd" target="_blank">1c2dd47</a>
+</td>
+<td>
+Marc Noguera-Julian
+</td>
+<td>
+2022-09-14
+</td>
+<td>
+added analysis
+</td>
+</tr>
+<tr>
+<td>
+html
+</td>
+<td>
+<a href="https://rawcdn.githack.com/MicrobialGenomics-IrsicaixaOrg/2022_MedCars/04e10466a28ac8248c1bc5f7d6409de0355524f4/docs/220_intervention_analysis.html" target="_blank">04e1046</a>
+</td>
+<td>
+Marc Noguera-Julian
+</td>
+<td>
+2022-09-02
+</td>
+<td>
+analysis updaet
+</td>
+</tr>
+<tr>
+<td>
+html
+</td>
+<td>
+<a href="https://rawcdn.githack.com/MicrobialGenomics-IrsicaixaOrg/2022_MedCars/748102d042816e40206ff62637b5c98431e4c236/docs/220_intervention_analysis.html" target="_blank">748102d</a>
+</td>
+<td>
+Marc Noguera-Julian
+</td>
+<td>
+2022-08-18
+</td>
+<td>
+various updates, 210 220, 230
+</td>
+</tr>
+<tr>
+<td>
+html
+</td>
+<td>
+<a href="https://rawcdn.githack.com/MicrobialGenomics-IrsicaixaOrg/2022_MedCars/ab9981b9ce1c6950ff30f7e1c739d3fa13912019/docs/220_intervention_analysis.html" target="_blank">ab9981b</a>
+</td>
+<td>
+Marc Noguera-Julian
+</td>
+<td>
+2022-08-18
+</td>
+<td>
+update 220
+</td>
+</tr>
+<tr>
+<td>
+html
+</td>
+<td>
+<a href="https://rawcdn.githack.com/MicrobialGenomics-IrsicaixaOrg/2022_MedCars/e4249eeff71c8393352028353b179b049ae1c8c2/docs/220_intervention_analysis.html" target="_blank">e4249ee</a>
+</td>
+<td>
+Marc Noguera-Julian
+</td>
+<td>
+2022-08-18
+</td>
+<td>
+intervention correction
+</td>
+</tr>
+<tr>
+<td>
+html
+</td>
+<td>
+<a href="https://rawcdn.githack.com/MicrobialGenomics-IrsicaixaOrg/2022_MedCars/601ea51e3b21ba0ec3870ef5008c6c222470b0fc/docs/220_intervention_analysis.html" target="_blank">601ea51</a>
+</td>
+<td>
+Marc Noguera-Julian
+</td>
+<td>
+2022-08-18
+</td>
+<td>
+several improvements
+</td>
+</tr>
+<tr>
+<td>
+html
+</td>
+<td>
+<a href="https://rawcdn.githack.com/MicrobialGenomics-IrsicaixaOrg/2022_MedCars/6006450f6f52b347dfce2287c8f9feb88be7173f/docs/220_intervention_analysis.html" target="_blank">6006450</a>
+</td>
+<td>
+Marc Noguera-Julian
+</td>
+<td>
+2022-08-02
+</td>
+<td>
+Initial Commit
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<hr>
+</div>
+</div>
+</div>
+<div id="introduction" class="section level2">
+<h2>Introduction</h2>
+<p>The main purpose of this analysis is to characterize changes in the microbiome composition related to the nutritional intervention.</p>
+</div>
+<div id="alpha-diversity" class="section level2">
+<h2>Alpha Diversity</h2>
+<div id="chao1---paired-comparison" class="section level3">
+<h3>Chao1 - Paired Comparison</h3>
+<p>For every Center, we statistically test whether species richness, as assessed by Chao1 estimator is different between M0 and M6, after the nutrititional intervention. For that we use a paired t-test comparison. Chao1 index is an estimator of the number of different taxa that are found in the sample.</p>
+<p>Results indicate that in both centers there are slight decreases in Chao1-estimated taxa richness.</p>
+<pre><code>suggested package selbal ✔suggested package DataExplorer ✔suggested package lme4 ✔suggested package merTools ✔</code></pre>
+<p><img src="figure/220_intervention_analysis.Rmd/alpha%20diversity%20chunk%201-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-no-spaces-alpha-diversity-chunk-1-1">
+Past versions of "alpha diversity chunk 1-1.png"
+</button>
+</p>
+<div id="fig-no-spaces-alpha-diversity-chunk-1-1" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/MicrobialGenomics-IrsicaixaOrg/2022_MedCars/blob/136c267de0ff399e395309b721fd13d2fdc4cbe4/docs/figure/220_intervention_analysis.Rmd/alpha diversity chunk 1-1.png" target="_blank">136c267</a>
+</td>
+<td>
+Marc Noguera-Julian
+</td>
+<td>
+2022-10-06
+</td>
+</tr>
+<tr>
+<td>
+<a href="https://github.com/MicrobialGenomics-IrsicaixaOrg/2022_MedCars/blob/6006450f6f52b347dfce2287c8f9feb88be7173f/docs/figure/220_intervention_analysis.Rmd/alpha diversity chunk 1-1.png" target="_blank">6006450</a>
+</td>
+<td>
+Marc Noguera-Julian
+</td>
+<td>
+2022-08-02
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+<div id="shannon---paired-comparison" class="section level3">
+<h3>Shannon - Paired comparison</h3>
+<p>For every Center, we statistically test whether alhpa diversity (Shannon Index) is different between M0 and M6, after the nutrititional intervention. For that we use a paired t-test comparison. Shannon Index is an estimator of how many different taxa are found in the sample and how evenely distributed are these taxa within the sample. The higher the index is, the higher the number of taxa and/or their evenness.</p>
+<p>Results indicate that in both centers there are slight decreases in the alpha diversity after the intervention.</p>
+<pre><code>suggested package selbal ✔suggested package DataExplorer ✔suggested package lme4 ✔suggested package merTools ✔</code></pre>
+<p><img src="figure/220_intervention_analysis.Rmd/alpha%20diversity%20chunk%202-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-no-spaces-alpha-diversity-chunk-2-1">
+Past versions of "alpha diversity chunk 2-1.png"
+</button>
+</p>
+<div id="fig-no-spaces-alpha-diversity-chunk-2-1" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/MicrobialGenomics-IrsicaixaOrg/2022_MedCars/blob/136c267de0ff399e395309b721fd13d2fdc4cbe4/docs/figure/220_intervention_analysis.Rmd/alpha diversity chunk 2-1.png" target="_blank">136c267</a>
+</td>
+<td>
+Marc Noguera-Julian
+</td>
+<td>
+2022-10-06
+</td>
+</tr>
+<tr>
+<td>
+<a href="https://github.com/MicrobialGenomics-IrsicaixaOrg/2022_MedCars/blob/6006450f6f52b347dfce2287c8f9feb88be7173f/docs/figure/220_intervention_analysis.Rmd/alpha diversity chunk 2-1.png" target="_blank">6006450</a>
+</td>
+<td>
+Marc Noguera-Julian
+</td>
+<td>
+2022-08-02
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+<div id="phylogenetic-distance---paired-comparison" class="section level3">
+<h3>Phylogenetic Distance - Paired Comparison</h3>
+<p>For every Center, we statistically test whether alhpa diversity (Shannon Index) is different between M0 and M6, after the nutrititional intervention. For that we use a paired t-test comparison. Shannon Index is an estimator of how many different taxa are found in the sample and how evenely distributed are these taxa within the sample. The higher the index is, the higher the number of taxa and/or their evenness.</p>
+<p>Results indicate that in both centers there are no significant decreases in phylogenetic distance.</p>
+<pre><code>suggested package selbal ✔suggested package DataExplorer ✔suggested package lme4 ✔suggested package merTools ✔</code></pre>
+<p><img src="figure/220_intervention_analysis.Rmd/alpha%20diversity%20chunk%203-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-no-spaces-alpha-diversity-chunk-3-1">
+Past versions of "alpha diversity chunk 3-1.png"
+</button>
+</p>
+<div id="fig-no-spaces-alpha-diversity-chunk-3-1" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/MicrobialGenomics-IrsicaixaOrg/2022_MedCars/blob/136c267de0ff399e395309b721fd13d2fdc4cbe4/docs/figure/220_intervention_analysis.Rmd/alpha diversity chunk 3-1.png" target="_blank">136c267</a>
+</td>
+<td>
+Marc Noguera-Julian
+</td>
+<td>
+2022-10-06
+</td>
+</tr>
+<tr>
+<td>
+<a href="https://github.com/MicrobialGenomics-IrsicaixaOrg/2022_MedCars/blob/6006450f6f52b347dfce2287c8f9feb88be7173f/docs/figure/220_intervention_analysis.Rmd/alpha diversity chunk 3-1.png" target="_blank">6006450</a>
+</td>
+<td>
+Marc Noguera-Julian
+</td>
+<td>
+2022-08-02
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+</div>
+<div id="beta-diversity" class="section level2">
+<h2>Beta Diversity</h2>
+<div id="wunifrac-comparison" class="section level3">
+<h3>WUnifrac Comparison</h3>
+<p>Using paired WUnifrac distances we’ll assess the global change for every patient along the 6-month followup. We will calculate distances between M0 and M6 samples for every patient and check where these are difference between Center in order to reveal larger/smaller changes in any of the centers. As a reminder IG is the center where nutrititional intervention took place.</p>
+<p>Results indicate that the change in the gut microbiome after nutritional interventions is slightly but significantly higher in the IG center.</p>
+<pre><code>suggested package selbal ✔suggested package DataExplorer ✔suggested package lme4 ✔suggested package merTools ✔</code></pre>
+<p><img src="figure/220_intervention_analysis.Rmd/beta%20diversity%20chunk%201-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-no-spaces-beta-diversity-chunk-1-1">
+Past versions of "beta diversity chunk 1-1.png"
+</button>
+</p>
+<div id="fig-no-spaces-beta-diversity-chunk-1-1" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/MicrobialGenomics-IrsicaixaOrg/2022_MedCars/blob/136c267de0ff399e395309b721fd13d2fdc4cbe4/docs/figure/220_intervention_analysis.Rmd/beta diversity chunk 1-1.png" target="_blank">136c267</a>
+</td>
+<td>
+Marc Noguera-Julian
+</td>
+<td>
+2022-10-06
+</td>
+</tr>
+<tr>
+<td>
+<a href="https://github.com/MicrobialGenomics-IrsicaixaOrg/2022_MedCars/blob/6006450f6f52b347dfce2287c8f9feb88be7173f/docs/figure/220_intervention_analysis.Rmd/beta diversity chunk 1-1.png" target="_blank">6006450</a>
+</td>
+<td>
+Marc Noguera-Julian
+</td>
+<td>
+2022-08-02
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+<div id="nmds-ordination" class="section level3">
+<h3>NMDS Ordination</h3>
+<p>In order to see differences between cneters in the longitudinal evolution of the gut microbiome of study participants, we’ll generate the ordination(NMDS) plots for each separately and evaluate, bots visually and statistically, whether these changes exist and are of similar magnitude.</p>
+<p>According to the NMDS plots for IG(IG) and CG(CG) projecting timepoint as colored ellipse, there is no apparent clustering associated to the intervention, while the ordination dominating genus are very similar.</p>
+<pre><code>suggested package selbal ✔suggested package DataExplorer ✔suggested package lme4 ✔suggested package merTools ✔</code></pre>
+<p><img src="figure/220_intervention_analysis.Rmd/beta%20diversity%20chunk%202-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-no-spaces-beta-diversity-chunk-2-1">
+Past versions of "beta diversity chunk 2-1.png"
+</button>
+</p>
+<div id="fig-no-spaces-beta-diversity-chunk-2-1" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/MicrobialGenomics-IrsicaixaOrg/2022_MedCars/blob/136c267de0ff399e395309b721fd13d2fdc4cbe4/docs/figure/220_intervention_analysis.Rmd/beta diversity chunk 2-1.png" target="_blank">136c267</a>
+</td>
+<td>
+Marc Noguera-Julian
+</td>
+<td>
+2022-10-06
+</td>
+</tr>
+<tr>
+<td>
+<a href="https://github.com/MicrobialGenomics-IrsicaixaOrg/2022_MedCars/blob/9594b4b1eee834d1666dba133ec4ba2e68d2e3c9/docs/figure/220_intervention_analysis.Rmd/beta diversity chunk 2-1.png" target="_blank">9594b4b</a>
+</td>
+<td>
+Marc Noguera-Julian
+</td>
+<td>
+2022-09-23
+</td>
+</tr>
+<tr>
+<td>
+<a href="https://github.com/MicrobialGenomics-IrsicaixaOrg/2022_MedCars/blob/e4249eeff71c8393352028353b179b049ae1c8c2/docs/figure/220_intervention_analysis.Rmd/beta diversity chunk 2-1.png" target="_blank">e4249ee</a>
+</td>
+<td>
+Marc Noguera-Julian
+</td>
+<td>
+2022-08-18
+</td>
+</tr>
+<tr>
+<td>
+<a href="https://github.com/MicrobialGenomics-IrsicaixaOrg/2022_MedCars/blob/601ea51e3b21ba0ec3870ef5008c6c222470b0fc/docs/figure/220_intervention_analysis.Rmd/beta diversity chunk 2-1.png" target="_blank">601ea51</a>
+</td>
+<td>
+Marc Noguera-Julian
+</td>
+<td>
+2022-08-18
+</td>
+</tr>
+<tr>
+<td>
+<a href="https://github.com/MicrobialGenomics-IrsicaixaOrg/2022_MedCars/blob/6006450f6f52b347dfce2287c8f9feb88be7173f/docs/figure/220_intervention_analysis.Rmd/beta diversity chunk 2-1.png" target="_blank">6006450</a>
+</td>
+<td>
+Marc Noguera-Julian
+</td>
+<td>
+2022-08-02
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<p><img src="figure/220_intervention_analysis.Rmd/beta%20diversity%20chunk%202-2.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-no-spaces-beta-diversity-chunk-2-2">
+Past versions of "beta diversity chunk 2-2.png"
+</button>
+</p>
+<div id="fig-no-spaces-beta-diversity-chunk-2-2" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/MicrobialGenomics-IrsicaixaOrg/2022_MedCars/blob/136c267de0ff399e395309b721fd13d2fdc4cbe4/docs/figure/220_intervention_analysis.Rmd/beta diversity chunk 2-2.png" target="_blank">136c267</a>
+</td>
+<td>
+Marc Noguera-Julian
+</td>
+<td>
+2022-10-06
+</td>
+</tr>
+<tr>
+<td>
+<a href="https://github.com/MicrobialGenomics-IrsicaixaOrg/2022_MedCars/blob/9594b4b1eee834d1666dba133ec4ba2e68d2e3c9/docs/figure/220_intervention_analysis.Rmd/beta diversity chunk 2-2.png" target="_blank">9594b4b</a>
+</td>
+<td>
+Marc Noguera-Julian
+</td>
+<td>
+2022-09-23
+</td>
+</tr>
+<tr>
+<td>
+<a href="https://github.com/MicrobialGenomics-IrsicaixaOrg/2022_MedCars/blob/e4249eeff71c8393352028353b179b049ae1c8c2/docs/figure/220_intervention_analysis.Rmd/beta diversity chunk 2-2.png" target="_blank">e4249ee</a>
+</td>
+<td>
+Marc Noguera-Julian
+</td>
+<td>
+2022-08-18
+</td>
+</tr>
+<tr>
+<td>
+<a href="https://github.com/MicrobialGenomics-IrsicaixaOrg/2022_MedCars/blob/601ea51e3b21ba0ec3870ef5008c6c222470b0fc/docs/figure/220_intervention_analysis.Rmd/beta diversity chunk 2-2.png" target="_blank">601ea51</a>
+</td>
+<td>
+Marc Noguera-Julian
+</td>
+<td>
+2022-08-18
+</td>
+</tr>
+<tr>
+<td>
+<a href="https://github.com/MicrobialGenomics-IrsicaixaOrg/2022_MedCars/blob/6006450f6f52b347dfce2287c8f9feb88be7173f/docs/figure/220_intervention_analysis.Rmd/beta diversity chunk 2-2.png" target="_blank">6006450</a>
+</td>
+<td>
+Marc Noguera-Julian
+</td>
+<td>
+2022-08-02
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+<div id="permanova" class="section level3">
+<h3>PERMANOVA</h3>
+<p>To Statistically test if there is a significant change in the global structure related to the nutritional intervention in any of the working centers, we use permutational ANOVA(PERMANOVA). This will assess whethere there is an association between timepoint and microbiome composition.</p>
+<div id="intervention-group" class="section level4">
+<h4>Intervention Group</h4>
+<p>Results indicate there is a statistically significant effect of the intervention on the gut microbiome structure (p=0.001), but its magnitude is very low.(R2=0.007)</p>
+<pre><code>suggested package selbal ✔suggested package DataExplorer ✔suggested package lme4 ✔suggested package merTools ✔</code></pre>
+<p><img src="figure/220_intervention_analysis.Rmd/beta%20diversity%20chunk%203-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-no-spaces-beta-diversity-chunk-3-1">
+Past versions of "beta diversity chunk 3-1.png"
+</button>
+</p>
+<div id="fig-no-spaces-beta-diversity-chunk-3-1" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/MicrobialGenomics-IrsicaixaOrg/2022_MedCars/blob/136c267de0ff399e395309b721fd13d2fdc4cbe4/docs/figure/220_intervention_analysis.Rmd/beta diversity chunk 3-1.png" target="_blank">136c267</a>
+</td>
+<td>
+Marc Noguera-Julian
+</td>
+<td>
+2022-10-06
+</td>
+</tr>
+<tr>
+<td>
+<a href="https://github.com/MicrobialGenomics-IrsicaixaOrg/2022_MedCars/blob/ab9981b9ce1c6950ff30f7e1c739d3fa13912019/docs/figure/220_intervention_analysis.Rmd/beta diversity chunk 3-1.png" target="_blank">ab9981b</a>
+</td>
+<td>
+Marc Noguera-Julian
+</td>
+<td>
+2022-08-18
+</td>
+</tr>
+<tr>
+<td>
+<a href="https://github.com/MicrobialGenomics-IrsicaixaOrg/2022_MedCars/blob/e4249eeff71c8393352028353b179b049ae1c8c2/docs/figure/220_intervention_analysis.Rmd/beta diversity chunk 3-1.png" target="_blank">e4249ee</a>
+</td>
+<td>
+Marc Noguera-Julian
+</td>
+<td>
+2022-08-18
+</td>
+</tr>
+<tr>
+<td>
+<a href="https://github.com/MicrobialGenomics-IrsicaixaOrg/2022_MedCars/blob/6006450f6f52b347dfce2287c8f9feb88be7173f/docs/figure/220_intervention_analysis.Rmd/beta diversity chunk 3-1.png" target="_blank">6006450</a>
+</td>
+<td>
+Marc Noguera-Julian
+</td>
+<td>
+2022-08-02
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+<div id="control-group" class="section level4">
+<h4>Control Group</h4>
+<p>Results indicate no statistically significant association is found in the control group.</p>
+<pre><code>suggested package selbal ✔suggested package DataExplorer ✔suggested package lme4 ✔suggested package merTools ✔</code></pre>
+<p><img src="figure/220_intervention_analysis.Rmd/beta%20diversity%20chunk%204-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-no-spaces-beta-diversity-chunk-4-1">
+Past versions of "beta diversity chunk 4-1.png"
+</button>
+</p>
+<div id="fig-no-spaces-beta-diversity-chunk-4-1" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/MicrobialGenomics-IrsicaixaOrg/2022_MedCars/blob/136c267de0ff399e395309b721fd13d2fdc4cbe4/docs/figure/220_intervention_analysis.Rmd/beta diversity chunk 4-1.png" target="_blank">136c267</a>
+</td>
+<td>
+Marc Noguera-Julian
+</td>
+<td>
+2022-10-06
+</td>
+</tr>
+<tr>
+<td>
+<a href="https://github.com/MicrobialGenomics-IrsicaixaOrg/2022_MedCars/blob/9594b4b1eee834d1666dba133ec4ba2e68d2e3c9/docs/figure/220_intervention_analysis.Rmd/beta diversity chunk 4-1.png" target="_blank">9594b4b</a>
+</td>
+<td>
+Marc Noguera-Julian
+</td>
+<td>
+2022-09-23
+</td>
+</tr>
+<tr>
+<td>
+<a href="https://github.com/MicrobialGenomics-IrsicaixaOrg/2022_MedCars/blob/ab9981b9ce1c6950ff30f7e1c739d3fa13912019/docs/figure/220_intervention_analysis.Rmd/beta diversity chunk 4-1.png" target="_blank">ab9981b</a>
+</td>
+<td>
+Marc Noguera-Julian
+</td>
+<td>
+2022-08-18
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div id="differential-abundance" class="section level2">
+<h2>Differential Abundance</h2>
+<p>We have seen that there are no major changes along the nutritional intervention. We can further assess whether there are more subtle differences using differential abundance testing of Month8 vs BL.</p>
+<div id="lefse" class="section level3">
+<h3>LEFSe</h3>
+<p>Lefse method uses a combination of non-parametric statistics to reveal those bacterial taxa that are either over- or under-represented in any of the timepoints. Note that we are rarefying to 95th percentile coverage in order to optimized sensitivity. This rarefaction process essentially discards the 5% samples with the lowest throughput,</p>
+<p>Results indicate that there several bacterial genera that either over or under abundant in Month8 when compared to BL samples. These changes are specific to IG only, since there are no significant changes in CG. Differentually abundant bacterial taxa are shown in the plot:</p>
+<ul>
+<li>Bacteroides, Odoribacter and Clostridiales_vadinBB60 group genus are enriched in Baseline sample. Thus, their abundance is reduced after the nutritional intervention.</li>
+<li>Roseburia, Faecalibacterium and Lachnospira are found to have increased abundance after the nutritional intervention. All of these genus, belong to the Firmicutes phylum and are known butyrate producers.</li>
+</ul>
+<pre><code>suggested package selbal ✔suggested package DataExplorer ✔suggested package lme4 ✔suggested package merTools ✔</code></pre>
+<div class="figure" style="text-align: center">
+<img src="figure/220_intervention_analysis.Rmd/differential%20abundance%20chunk%201-1.png" alt="LDA Lefse plot, showing enrichment of several general in labelled group" width="672" />
+<p class="caption">
+LDA Lefse plot, showing enrichment of several general in labelled group
+</p>
+</div>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-no-spaces-differential-abundance-chunk-1-1">
+Past versions of "differential abundance chunk 1-1.png"
+</button>
+</p>
+<div id="fig-no-spaces-differential-abundance-chunk-1-1" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/MicrobialGenomics-IrsicaixaOrg/2022_MedCars/blob/136c267de0ff399e395309b721fd13d2fdc4cbe4/docs/figure/220_intervention_analysis.Rmd/differential abundance chunk 1-1.png" target="_blank">136c267</a>
+</td>
+<td>
+Marc Noguera-Julian
+</td>
+<td>
+2022-10-06
+</td>
+</tr>
+<tr>
+<td>
+<a href="https://github.com/MicrobialGenomics-IrsicaixaOrg/2022_MedCars/blob/601ea51e3b21ba0ec3870ef5008c6c222470b0fc/docs/figure/220_intervention_analysis.Rmd/differential abundance chunk 1-1.png" target="_blank">601ea51</a>
+</td>
+<td>
+Marc Noguera-Julian
+</td>
+<td>
+2022-08-18
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+<div id="maaslin" class="section level3">
+<h3>MaasLin</h3>
+<p>MaasLin provides and independent differential abundance test framework, which is arguably more adapted to microbiome data and data specificities. In addition, within the statistical model, we can account for random effect and longitudinal design, in the differential testing.</p>
+<p>REsults are pretty equivalent to those obtained with LeFSE,</p>
+<pre><code>suggested package selbal ✔suggested package DataExplorer ✔suggested package lme4 ✔suggested package merTools ✔</code></pre>
+<pre><code>[1] &quot;Creating output folder&quot;
+[1] &quot;Creating output figures folder&quot;
+2022-10-06 22:14:47 INFO::Writing function arguments to log file
+2022-10-06 22:14:47 INFO::Verifying options selected are valid
+2022-10-06 22:14:47 INFO::Determining format of input files
+2022-10-06 22:14:47 INFO::Input format is data samples as rows and metadata samples as rows
+2022-10-06 22:14:47 WARNING::Feature name not found in metadata so not applied to formula as random effect: IPAQ
+2022-10-06 22:14:47 INFO::Formula for random effects: expr ~ (1 | Participante) + (1 | Gender) + (1 | UBE) + (1 | Edad) + (1 | Run)
+2022-10-06 22:14:47 INFO::Formula for fixed effects: expr ~  Timepoint
+2022-10-06 22:14:47 INFO::Filter data based on min abundance and min prevalence
+2022-10-06 22:14:47 INFO::Total samples in data: 554
+2022-10-06 22:14:47 INFO::Min samples required with min abundance for a feature not to be filtered: 110.800000
+2022-10-06 22:14:47 INFO::Total filtered features: 251
+2022-10-06 22:14:47 INFO::Filtered feature names from abundance and prevalence filtering:
+2022-10-06 22:14:47 INFO::Total filtered features with variance filtering: 0
+2022-10-06 22:14:47 INFO::Filtered feature names from variance filtering:
+2022-10-06 22:14:47 INFO::Running selected normalization method: TSS
+2022-10-06 22:14:47 INFO::Applying z-score to standardize continuous metadata
+2022-10-06 22:14:47 INFO::Running selected transform method: LOG
+2022-10-06 22:14:47 INFO::Running selected analysis method: LM
+2022-10-06 22:14:47 INFO::Creating cluster of 4 R processes
+2022-10-06 22:14:59 INFO::Counting total values for each feature
+2022-10-06 22:14:59 INFO::Writing residuals to file output/Deliverables/DifferentialAbundance/maaslin/genusIG/residuals.rds
+2022-10-06 22:14:59 INFO::Writing fitted values to file output/Deliverables/DifferentialAbundance/maaslin/genusIG/fitted.rds
+2022-10-06 22:14:59 INFO::Writing extracted random effects to file output/Deliverables/DifferentialAbundance/maaslin/genusIG/ranef.rds
+2022-10-06 22:14:59 INFO::Writing all results to file (ordered by increasing q-values): output/Deliverables/DifferentialAbundance/maaslin/genusIG/all_results.tsv
+2022-10-06 22:14:59 INFO::Writing the significant results (those which are less than or equal to the threshold of 0.250000 ) to file (ordered by increasing q-values): output/Deliverables/DifferentialAbundance/maaslin/genusIG/significant_results.tsv
+2022-10-06 22:14:59 INFO::Writing heatmap of significant results to file: output/Deliverables/DifferentialAbundance/maaslin/genusIG/heatmap.pdf
+[1] &quot;There is not enough metadata in the associations to create a heatmap plot. Please review the associations in text output file.&quot;
+2022-10-06 22:14:59 INFO::Writing association plots (one for each significant association) to output folder: output/Deliverables/DifferentialAbundance/maaslin/genusIG
+2022-10-06 22:14:59 INFO::Plotting associations from most to least significant, grouped by metadata
+2022-10-06 22:14:59 INFO::Plotting data for metadata number 1, Timepoint
+2022-10-06 22:14:59 INFO::Creating boxplot for categorical data, Timepoint vs Roseburia</code></pre>
+<pre><code>2022-10-06 22:15:00 INFO::Creating boxplot for categorical data, Timepoint vs f_Clostridiales_vadinBB60_group</code></pre>
+<pre><code>2022-10-06 22:15:00 INFO::Creating boxplot for categorical data, Timepoint vs Lachnospira</code></pre>
+<pre><code>2022-10-06 22:15:00 INFO::Creating boxplot for categorical data, Timepoint vs f_Lachnospiraceae</code></pre>
+<pre><code>2022-10-06 22:15:00 INFO::Creating boxplot for categorical data, Timepoint vs Fusicatenibacter</code></pre>
+<pre><code>2022-10-06 22:15:01 INFO::Creating boxplot for categorical data, Timepoint vs Oscillibacter</code></pre>
+<pre><code>2022-10-06 22:15:01 INFO::Creating boxplot for categorical data, Timepoint vs Family_XIII_UCG.001</code></pre>
+<pre><code>2022-10-06 22:15:01 INFO::Creating boxplot for categorical data, Timepoint vs Ruminococcaceae_UCG.010</code></pre>
+<pre><code>2022-10-06 22:15:01 INFO::Creating boxplot for categorical data, Timepoint vs Coprococcus_2</code></pre>
+<pre><code>2022-10-06 22:15:02 INFO::Creating boxplot for categorical data, Timepoint vs Ruminococcaceae_UCG.005</code></pre>
+<pre><code>2022-10-06 22:15:02 INFO::Creating boxplot for categorical data, Timepoint vs Bacteroides</code></pre>
+<pre><code>2022-10-06 22:15:02 INFO::Creating boxplot for categorical data, Timepoint vs Lachnospiraceae_UCG.004</code></pre>
+<pre><code>2022-10-06 22:15:02 INFO::Creating boxplot for categorical data, Timepoint vs Faecalibacterium</code></pre>
+<pre><code>2022-10-06 22:15:03 INFO::Creating boxplot for categorical data, Timepoint vs Barnesiella</code></pre>
+<pre><code>2022-10-06 22:15:03 INFO::Creating boxplot for categorical data, Timepoint vs Phascolarctobacterium</code></pre>
+<pre><code>2022-10-06 22:15:03 INFO::Creating boxplot for categorical data, Timepoint vs Odoribacter</code></pre>
+<pre><code>2022-10-06 22:15:03 INFO::Creating boxplot for categorical data, Timepoint vs Clostridium_sensu_stricto_1</code></pre>
+<pre><code>2022-10-06 22:15:04 INFO::Creating boxplot for categorical data, Timepoint vs Lachnospiraceae_ND3007_group</code></pre>
+<pre><code>2022-10-06 22:15:04 INFO::Creating boxplot for categorical data, Timepoint vs Ruminococcus_1</code></pre>
+<pre><code>2022-10-06 22:15:04 INFO::Creating boxplot for categorical data, Timepoint vs Coprococcus_3</code></pre>
+<pre><code>suggested package selbal ✔suggested package DataExplorer ✔suggested package lme4 ✔suggested package merTools ✔</code></pre>
+<pre><code>[1] &quot;Creating output folder&quot;
+[1] &quot;Creating output figures folder&quot;
+2022-10-06 22:15:22 INFO::Writing function arguments to log file
+2022-10-06 22:15:22 INFO::Verifying options selected are valid
+2022-10-06 22:15:22 INFO::Determining format of input files
+2022-10-06 22:15:22 INFO::Input format is data samples as rows and metadata samples as rows
+2022-10-06 22:15:22 WARNING::Feature name not found in metadata so not applied to formula as random effect: IPAQ
+2022-10-06 22:15:22 INFO::Formula for random effects: expr ~ (1 | Participante) + (1 | Gender) + (1 | UBE) + (1 | Edad) + (1 | Run)
+2022-10-06 22:15:22 INFO::Formula for fixed effects: expr ~  Timepoint
+2022-10-06 22:15:22 INFO::Filter data based on min abundance and min prevalence
+2022-10-06 22:15:22 INFO::Total samples in data: 434
+2022-10-06 22:15:22 INFO::Min samples required with min abundance for a feature not to be filtered: 86.800000
+2022-10-06 22:15:22 INFO::Total filtered features: 242
+2022-10-06 22:15:22 INFO::Filtered feature names from abundance and prevalence filtering:
+2022-10-06 22:15:22 INFO::Total filtered features with variance filtering: 0
+2022-10-06 22:15:22 INFO::Filtered feature names from variance filtering:
+2022-10-06 22:15:22 INFO::Running selected normalization method: TSS
+2022-10-06 22:15:22 INFO::Applying z-score to standardize continuous metadata
+2022-10-06 22:15:22 INFO::Running selected transform method: LOG
+2022-10-06 22:15:22 INFO::Running selected analysis method: LM
+2022-10-06 22:15:22 INFO::Creating cluster of 4 R processes
+2022-10-06 22:15:29 INFO::Counting total values for each feature
+2022-10-06 22:15:29 INFO::Writing residuals to file output/Deliverables/DifferentialAbundance/maaslin/genusCG/residuals.rds
+2022-10-06 22:15:29 INFO::Writing fitted values to file output/Deliverables/DifferentialAbundance/maaslin/genusCG/fitted.rds
+2022-10-06 22:15:29 INFO::Writing extracted random effects to file output/Deliverables/DifferentialAbundance/maaslin/genusCG/ranef.rds
+2022-10-06 22:15:29 INFO::Writing all results to file (ordered by increasing q-values): output/Deliverables/DifferentialAbundance/maaslin/genusCG/all_results.tsv
+2022-10-06 22:15:29 INFO::Writing the significant results (those which are less than or equal to the threshold of 0.250000 ) to file (ordered by increasing q-values): output/Deliverables/DifferentialAbundance/maaslin/genusCG/significant_results.tsv
+2022-10-06 22:15:29 INFO::Writing heatmap of significant results to file: output/Deliverables/DifferentialAbundance/maaslin/genusCG/heatmap.pdf
+[1] &quot;There is not enough metadata in the associations to create a heatmap plot. Please review the associations in text output file.&quot;
+2022-10-06 22:15:29 INFO::Writing association plots (one for each significant association) to output folder: output/Deliverables/DifferentialAbundance/maaslin/genusCG
+2022-10-06 22:15:30 INFO::Plotting associations from most to least significant, grouped by metadata
+2022-10-06 22:15:30 INFO::Plotting data for metadata number 1, Timepoint
+2022-10-06 22:15:30 INFO::Creating boxplot for categorical data, Timepoint vs Odoribacter</code></pre>
+<pre><code>2022-10-06 22:15:30 INFO::Creating boxplot for categorical data, Timepoint vs f_Puniceicoccaceae</code></pre>
+<pre><code>2022-10-06 22:15:30 INFO::Creating boxplot for categorical data, Timepoint vs f_Ruminococcaceae</code></pre>
+<pre><code>2022-10-06 22:15:30 INFO::Creating boxplot for categorical data, Timepoint vs Blautia</code></pre>
+<pre><code>2022-10-06 22:15:30 INFO::Creating boxplot for categorical data, Timepoint vs Phascolarctobacterium</code></pre>
+</div>
+<div id="beta-diversity-1" class="section level3">
+<h3>Beta Diversity</h3>
+</div>
+<div id="differential-abundance-1" class="section level3">
+<h3>Differential Abundance</h3>
+<br>
+<p>
+<button type="button" class="btn btn-default btn-workflowr btn-workflowr-sessioninfo" data-toggle="collapse" data-target="#workflowr-sessioninfo" style="display: block;">
+<span class="glyphicon glyphicon-wrench" aria-hidden="true"></span> Session information
+</button>
+</p>
+<div id="workflowr-sessioninfo" class="collapse">
+<pre><code>R version 4.1.1 (2021-08-10)
+Platform: x86_64-apple-darwin17.0 (64-bit)
+Running under: macOS Big Sur 10.16
+
+Matrix products: default
+BLAS:   /Library/Frameworks/R.framework/Versions/4.1/Resources/lib/libRblas.0.dylib
+LAPACK: /Library/Frameworks/R.framework/Versions/4.1/Resources/lib/libRlapack.dylib
+
+locale:
+[1] en_US.UTF-8/en_US.UTF-8/en_US.UTF-8/C/en_US.UTF-8/en_US.UTF-8
+
+attached base packages:
+[1] stats4    stats     graphics  grDevices utils     datasets  methods  
+[8] base     
+
+other attached packages:
+ [1] metar_0.1.5                 scales_1.2.1               
+ [3] Maaslin2_1.8.0              ggplot2_3.3.6              
+ [5] dplyr_1.0.9                 lefser_1.4.0               
+ [7] SummarizedExperiment_1.24.0 Biobase_2.54.0             
+ [9] GenomicRanges_1.46.1        GenomeInfoDb_1.30.1        
+[11] IRanges_2.28.0              S4Vectors_0.32.4           
+[13] BiocGenerics_0.40.0         MatrixGenerics_1.6.0       
+[15] matrixStats_0.62.0          tidyr_1.2.0                
+[17] mmtable2_0.1.3              testthat_3.1.4             
+[19] ggstatsplot_0.9.3           vegan_2.6-2                
+[21] lattice_0.20-45             permute_0.9-7              
+[23] patchwork_1.1.1             phylosmith_1.0.6           
+[25] phyloseq_1.38.0             workflowr_1.7.0            
+
+loaded via a namespace (and not attached):
+  [1] coda_0.19-4            ragg_1.2.2             bit64_4.0.5           
+  [4] knitr_1.39             multcomp_1.4-19        DelayedArray_0.20.0   
+  [7] wesanderson_0.3.6      data.table_1.14.2      DataExplorer_0.8.2    
+ [10] RCurl_1.98-1.8         doParallel_1.0.17      generics_0.1.3        
+ [13] microbiome_1.17.41     TH.data_1.1-1          callr_3.7.1           
+ [16] usethis_2.1.6          proxy_0.4-27           future_1.27.0         
+ [19] correlation_0.8.1      bit_4.0.4              tzdb_0.3.0            
+ [22] xml2_1.3.3             lubridate_1.8.0        httpuv_1.6.5          
+ [25] assertthat_0.2.1       viridis_0.6.2          xfun_0.31             
+ [28] jquerylib_0.1.4        evaluate_0.15          promises_1.2.0.1      
+ [31] DEoptimR_1.0-11        fansi_1.0.3            igraph_1.3.5          
+ [34] DBI_1.1.3              htmlwidgets_1.5.4      hash_2.2.6.2          
+ [37] paletteer_1.4.0        purrr_0.3.4            ellipsis_0.3.2        
+ [40] ggpubr_0.4.0           backports_1.4.1        insight_0.18.0        
+ [43] prismatic_1.1.0        libcoin_1.0-9          RcppParallel_5.1.5    
+ [46] vctrs_0.4.1            remotes_2.4.2          here_1.0.1            
+ [49] abind_1.4-5            cachem_1.0.6           withr_2.5.0           
+ [52] ggforce_0.3.3          robustbase_0.95-0      vroom_1.5.7           
+ [55] prettyunits_1.1.1      getopt_1.20.3          cluster_2.1.3         
+ [58] ape_5.6-2              crayon_1.5.1           labeling_0.4.2        
+ [61] pkgconfig_2.0.3        units_0.8-0            tweenr_1.0.2          
+ [64] nlme_3.1-158           statsExpressions_1.3.2 pkgload_1.3.0         
+ [67] blme_1.0-5             devtools_2.4.4         rlang_1.0.6           
+ [70] globals_0.15.1         lifecycle_1.0.2        miniUI_0.1.1.1        
+ [73] sandwich_3.0-2         selbal_0.1.0           rprojroot_2.0.3       
+ [76] polyclip_1.10-0        datawizard_0.4.1       Matrix_1.4-1          
+ [79] lpsymphony_1.22.0      carData_3.0-5          zoo_1.8-10            
+ [82] Rhdf5lib_1.16.0        boot_1.3-28            whisker_0.4           
+ [85] GlobalOptions_0.1.2    processx_3.7.0         png_0.1-7             
+ [88] viridisLite_0.4.1      rjson_0.2.21           parameters_0.18.1     
+ [91] bitops_1.0-7           getPass_0.2-2          KernSmooth_2.23-20    
+ [94] rhdf5filters_1.6.0     Biostrings_2.62.0      shape_1.4.6           
+ [97] classInt_0.4-7         afex_1.1-1             stringr_1.4.1         
+[100] coin_1.4-2             arm_1.12-2             parallelly_1.32.1     
+[103] rstatix_0.7.0          ggsignif_0.6.3         memoise_2.0.1         
+[106] magrittr_2.0.3         plyr_1.8.7             zlibbioc_1.40.0       
+[109] compiler_4.1.1         RColorBrewer_1.1-3     clue_0.3-61           
+[112] lme4_1.1-30            snakecase_0.11.0       cli_3.4.1             
+[115] ade4_1.7-19            XVector_0.34.0         urlchecker_1.0.1      
+[118] lmerTest_3.1-3         listenv_0.8.0          pbapply_1.5-0         
+[121] ps_1.7.1               MASS_7.3-58            mgcv_1.8-40           
+[124] ggside_0.2.1           tidyselect_1.1.2       stringi_1.7.8         
+[127] forcats_0.5.1          textshaping_0.3.6      highr_0.9             
+[130] yaml_2.3.5             ggrepel_0.9.1          grid_4.1.1            
+[133] sass_0.4.2             tools_4.1.1            parallel_4.1.1        
+[136] circlize_0.4.15        rstudioapi_0.13        foreach_1.5.2         
+[139] logging_0.10-108       git2r_0.30.1           optparse_1.7.3        
+[142] janitor_2.1.0          gridExtra_2.3          farver_2.1.1          
+[145] Rtsne_0.16             ggraph_2.0.5           digest_0.6.29         
+[148] shiny_1.7.2            networkD3_0.4          Rcpp_1.0.9            
+[151] car_3.1-0              broom_1.0.0            performance_0.9.1     
+[154] later_1.3.0            httr_1.4.4             sf_1.0-7              
+[157] ComplexHeatmap_2.10.0  effectsize_0.7.0       colorspace_2.0-3      
+[160] brio_1.1.3             fs_1.5.2               splines_4.1.1         
+[163] rematch2_2.1.2         graphlayouts_0.8.0     multtest_2.50.0       
+[166] systemfonts_1.0.4      sessioninfo_1.2.2      xtable_1.8-4          
+[169] jsonlite_1.8.0         nloptr_2.0.3           tidygraph_1.2.1       
+[172] zeallot_0.1.0          modeltools_0.2-23      gt_0.6.0              
+[175] R6_2.5.1               profvis_0.3.7          broom.mixed_0.2.9.4   
+[178] pillar_1.8.1           htmltools_0.5.3        mime_0.12             
+[181] glue_1.6.2             fastmap_1.1.0          minqa_1.2.4           
+[184] class_7.3-20           codetools_0.2-18       pcaPP_2.0-2           
+[187] pkgbuild_1.3.1         mvtnorm_1.1-3          furrr_0.3.0           
+[190] utf8_1.2.2             bslib_0.4.0            tibble_3.1.8          
+[193] logger_0.2.2           numDeriv_2016.8-1.1    biglm_0.9-2.1         
+[196] survival_3.3-1         rmarkdown_2.14         desc_1.4.1            
+[199] biomformat_1.22.0      merTools_0.5.2         munsell_0.5.0         
+[202] e1071_1.7-11           GetoptLong_1.0.5       rhdf5_2.38.1          
+[205] GenomeInfoDbData_1.2.7 iterators_1.0.14       reshape2_1.4.4        
+[208] gtable_0.3.1           bayestestR_0.12.1     </code></pre>
+</div>
+</div>
+</div>
+
+
+<!-- Adjust MathJax settings so that all math formulae are shown using
+TeX fonts only; see
+https://docs.mathjax.org/en/latest/web/configuration.html. This will make
+the presentation more consistent at the cost of the webpage sometimes
+taking slightly longer to load. Note that this only works because the
+footer is added to webpages before the MathJax javascript. -->
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    "HTML-CSS": { availableFonts: ["TeX"] }
+  });
+</script>
+
+
+
+
+</div>
+</div>
+
+</div>
+
+<script>
+
+// add bootstrap table styles to pandoc tables
+function bootstrapStylePandocTables() {
+  $('tr.odd').parent('tbody').parent('table').addClass('table table-condensed');
+}
+$(document).ready(function () {
+  bootstrapStylePandocTables();
+});
+
+
+</script>
+
+<!-- tabsets -->
+
+<script>
+$(document).ready(function () {
+  window.buildTabsets("TOC");
+});
+
+$(document).ready(function () {
+  $('.tabset-dropdown > .nav-tabs > li').click(function () {
+    $(this).parent().toggleClass('nav-tabs-open');
+  });
+});
+</script>
+
+<!-- code folding -->
+
+<script>
+$(document).ready(function ()  {
+
+    // temporarily add toc-ignore selector to headers for the consistency with Pandoc
+    $('.unlisted.unnumbered').addClass('toc-ignore')
+
+    // move toc-ignore selectors from section div to header
+    $('div.section.toc-ignore')
+        .removeClass('toc-ignore')
+        .children('h1,h2,h3,h4,h5').addClass('toc-ignore');
+
+    // establish options
+    var options = {
+      selectors: "h1,h2,h3",
+      theme: "bootstrap3",
+      context: '.toc-content',
+      hashGenerator: function (text) {
+        return text.replace(/[.\\/?&!#<>]/g, '').replace(/\s/g, '_');
+      },
+      ignoreSelector: ".toc-ignore",
+      scrollTo: 0
+    };
+    options.showAndHide = true;
+    options.smoothScroll = true;
+
+    // tocify
+    var toc = $("#TOC").tocify(options).data("toc-tocify");
+});
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>

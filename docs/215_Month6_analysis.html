@@ -1,0 +1,1279 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+
+<meta name="author" content="Marc Noguera-Julian, PhD." />
+
+<meta name="date" content="2022-10-06" />
+
+<title>Month8 Analysis</title>
+
+<script src="site_libs/header-attrs-2.14/header-attrs.js"></script>
+<script src="site_libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="site_libs/bootstrap-3.3.5/css/cosmo.min.css" rel="stylesheet" />
+<script src="site_libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/respond.min.js"></script>
+<style>h1 {font-size: 34px;}
+       h1.title {font-size: 38px;}
+       h2 {font-size: 30px;}
+       h3 {font-size: 24px;}
+       h4 {font-size: 18px;}
+       h5 {font-size: 16px;}
+       h6 {font-size: 12px;}
+       code {color: inherit; background-color: rgba(0, 0, 0, 0.04);}
+       pre:not([class]) { background-color: white }</style>
+<script src="site_libs/jqueryui-1.11.4/jquery-ui.min.js"></script>
+<link href="site_libs/tocify-1.9.1/jquery.tocify.css" rel="stylesheet" />
+<script src="site_libs/tocify-1.9.1/jquery.tocify.js"></script>
+<script src="site_libs/navigation-1.1/tabsets.js"></script>
+<link href="site_libs/highlightjs-9.12.0/textmate.css" rel="stylesheet" />
+<script src="site_libs/highlightjs-9.12.0/highlight.js"></script>
+<script src="site_libs/kePrint-0.0.1/kePrint.js"></script>
+<link href="site_libs/lightable-0.0.1/lightable.css" rel="stylesheet" />
+
+<link rel="icon" href="https://github.com/workflowr/workflowr-assets/raw/main/img/reproducible.png">
+<!-- Add a small amount of space between sections. -->
+<style type="text/css">
+div.section {
+  padding-top: 12px;
+}
+</style>
+
+
+
+<style type="text/css">
+  code{white-space: pre-wrap;}
+  span.smallcaps{font-variant: small-caps;}
+  span.underline{text-decoration: underline;}
+  div.column{display: inline-block; vertical-align: top; width: 50%;}
+  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+  ul.task-list{list-style: none;}
+    </style>
+
+<style type="text/css">code{white-space: pre;}</style>
+<script type="text/javascript">
+if (window.hljs) {
+  hljs.configure({languages: []});
+  hljs.initHighlightingOnLoad();
+  if (document.readyState && document.readyState === "complete") {
+    window.setTimeout(function() { hljs.initHighlighting(); }, 0);
+  }
+}
+</script>
+
+
+
+
+
+
+
+
+
+<style type = "text/css">
+.main-container {
+  max-width: 940px;
+  margin-left: auto;
+  margin-right: auto;
+}
+img {
+  max-width:100%;
+}
+.tabbed-pane {
+  padding-top: 12px;
+}
+.html-widget {
+  margin-bottom: 20px;
+}
+button.code-folding-btn:focus {
+  outline: none;
+}
+summary {
+  display: list-item;
+}
+details > summary > p:only-child {
+  display: inline;
+}
+pre code {
+  padding: 0;
+}
+</style>
+
+
+<style type="text/css">
+.dropdown-submenu {
+  position: relative;
+}
+.dropdown-submenu>.dropdown-menu {
+  top: 0;
+  left: 100%;
+  margin-top: -6px;
+  margin-left: -1px;
+  border-radius: 0 6px 6px 6px;
+}
+.dropdown-submenu:hover>.dropdown-menu {
+  display: block;
+}
+.dropdown-submenu>a:after {
+  display: block;
+  content: " ";
+  float: right;
+  width: 0;
+  height: 0;
+  border-color: transparent;
+  border-style: solid;
+  border-width: 5px 0 5px 5px;
+  border-left-color: #cccccc;
+  margin-top: 5px;
+  margin-right: -10px;
+}
+.dropdown-submenu:hover>a:after {
+  border-left-color: #adb5bd;
+}
+.dropdown-submenu.pull-left {
+  float: none;
+}
+.dropdown-submenu.pull-left>.dropdown-menu {
+  left: -100%;
+  margin-left: 10px;
+  border-radius: 6px 0 6px 6px;
+}
+</style>
+
+<script type="text/javascript">
+// manage active state of menu based on current page
+$(document).ready(function () {
+  // active menu anchor
+  href = window.location.pathname
+  href = href.substr(href.lastIndexOf('/') + 1)
+  if (href === "")
+    href = "index.html";
+  var menuAnchor = $('a[href="' + href + '"]');
+
+  // mark it active
+  menuAnchor.tab('show');
+
+  // if it's got a parent navbar menu mark it active as well
+  menuAnchor.closest('li.dropdown').addClass('active');
+
+  // Navbar adjustments
+  var navHeight = $(".navbar").first().height() + 15;
+  var style = document.createElement('style');
+  var pt = "padding-top: " + navHeight + "px; ";
+  var mt = "margin-top: -" + navHeight + "px; ";
+  var css = "";
+  // offset scroll position for anchor links (for fixed navbar)
+  for (var i = 1; i <= 6; i++) {
+    css += ".section h" + i + "{ " + pt + mt + "}\n";
+  }
+  style.innerHTML = "body {" + pt + "padding-bottom: 40px; }\n" + css;
+  document.head.appendChild(style);
+});
+</script>
+
+<!-- tabsets -->
+
+<style type="text/css">
+.tabset-dropdown > .nav-tabs {
+  display: inline-table;
+  max-height: 500px;
+  min-height: 44px;
+  overflow-y: auto;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.tabset-dropdown > .nav-tabs > li.active:before {
+  content: "";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li.active:before {
+  content: "&#xe258;";
+  border: none;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open:before {
+  content: "";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs > li.active {
+  display: block;
+}
+
+.tabset-dropdown > .nav-tabs > li > a,
+.tabset-dropdown > .nav-tabs > li > a:focus,
+.tabset-dropdown > .nav-tabs > li > a:hover {
+  border: none;
+  display: inline-block;
+  border-radius: 4px;
+  background-color: transparent;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li {
+  display: block;
+  float: none;
+}
+
+.tabset-dropdown > .nav-tabs > li {
+  display: none;
+}
+</style>
+
+<!-- code folding -->
+
+
+
+<style type="text/css">
+
+#TOC {
+  margin: 25px 0px 20px 0px;
+}
+@media (max-width: 768px) {
+#TOC {
+  position: relative;
+  width: 100%;
+}
+}
+
+@media print {
+.toc-content {
+  /* see https://github.com/w3c/csswg-drafts/issues/4434 */
+  float: right;
+}
+}
+
+.toc-content {
+  padding-left: 30px;
+  padding-right: 40px;
+}
+
+div.main-container {
+  max-width: 1200px;
+}
+
+div.tocify {
+  width: 20%;
+  max-width: 260px;
+  max-height: 85%;
+}
+
+@media (min-width: 768px) and (max-width: 991px) {
+  div.tocify {
+    width: 25%;
+  }
+}
+
+@media (max-width: 767px) {
+  div.tocify {
+    width: 100%;
+    max-width: none;
+  }
+}
+
+.tocify ul, .tocify li {
+  line-height: 20px;
+}
+
+.tocify-subheader .tocify-item {
+  font-size: 0.90em;
+}
+
+.tocify .list-group-item {
+  border-radius: 0px;
+}
+
+
+</style>
+
+
+
+</head>
+
+<body>
+
+
+<div class="container-fluid main-container">
+
+
+<!-- setup 3col/9col grid for toc_float and main content  -->
+<div class="row">
+<div class="col-xs-12 col-sm-4 col-md-3">
+<div id="TOC" class="tocify">
+</div>
+</div>
+
+<div class="toc-content col-xs-12 col-sm-8 col-md-9">
+
+
+
+
+<div class="navbar navbar-default  navbar-fixed-top" role="navigation">
+  <div class="container">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-bs-toggle="collapse" data-target="#navbar" data-bs-target="#navbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="index.html">MedCars</a>
+    </div>
+    <div id="navbar" class="navbar-collapse collapse">
+      <ul class="nav navbar-nav">
+        <li>
+  <a href="index.html">Home</a>
+</li>
+<li>
+  <a href="201_exploratory_analysis.html">Data Exploration</a>
+</li>
+<li>
+  <a href="210_baseline_analysis.html">Baseline Analysis</a>
+</li>
+<li>
+  <a href="220_intervention_analysis.html">Intervention</a>
+</li>
+<li>
+  <a href="230_MedDietScore.html">Mediterranean Diet</a>
+</li>
+<li>
+  <a href="240_fatty_acids.html">Fatty Acids</a>
+</li>
+<li>
+  <a href="250_PhysicalActivity.html">Physical Activity</a>
+</li>
+<li>
+  <a href="260_FirmicutesBacteroides.html">Firmicutes/Bacteroidetes</a>
+</li>
+<li>
+  <a href="270_PairingAnalysis.html">Paired Analysis</a>
+</li>
+<li>
+  <a href="300_FunctionalAnalysis.html">Functional Analysis</a>
+</li>
+<li>
+  <a href="320_BatchEffect.html">Batch Effects</a>
+</li>
+<li>
+  <a href="about.html">About</a>
+</li>
+<li>
+  <a href="license.html">License</a>
+</li>
+      </ul>
+      <ul class="nav navbar-nav navbar-right">
+        
+      </ul>
+    </div><!--/.nav-collapse -->
+  </div><!--/.container -->
+</div><!--/.navbar -->
+
+<div id="header">
+
+
+
+<h1 class="title toc-ignore">Month8 Analysis</h1>
+<h4 class="author">Marc Noguera-Julian, PhD.</h4>
+<h4 class="date">2022-10-06</h4>
+
+</div>
+
+
+<p>
+<button type="button" class="btn btn-default btn-workflowr btn-workflowr-report" data-toggle="collapse" data-target="#workflowr-report">
+<span class="glyphicon glyphicon-list" aria-hidden="true"></span> workflowr <span class="glyphicon glyphicon-exclamation-sign text-danger" aria-hidden="true"></span>
+</button>
+</p>
+<div id="workflowr-report" class="collapse">
+<ul class="nav nav-tabs">
+<li class="active">
+<a data-toggle="tab" href="#summary">Summary</a>
+</li>
+<li>
+<a data-toggle="tab" href="#checks"> Checks <span class="glyphicon glyphicon-exclamation-sign text-danger" aria-hidden="true"></span> </a>
+</li>
+<li>
+<a data-toggle="tab" href="#versions">Past versions</a>
+</li>
+</ul>
+<div class="tab-content">
+<div id="summary" class="tab-pane fade in active">
+<p>
+<strong>Last updated:</strong> 2022-10-06
+</p>
+<p>
+<strong>Checks:</strong> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> 6 <span class="glyphicon glyphicon-exclamation-sign text-danger" aria-hidden="true"></span> 1
+</p>
+<p>
+<strong>Knit directory:</strong> <code>2022_MedCars/</code> <span class="glyphicon glyphicon-question-sign" aria-hidden="true" title="This is the local directory in which the code in this file was executed."> </span>
+</p>
+<p>
+This reproducible <a href="https://rmarkdown.rstudio.com">R Markdown</a> analysis was created with <a
+  href="https://github.com/workflowr/workflowr">workflowr</a> (version 1.7.0). The <em>Checks</em> tab describes the reproducibility checks that were applied when the results were created. The <em>Past versions</em> tab lists the development history.
+</p>
+<hr>
+</div>
+<div id="checks" class="tab-pane fade">
+<div id="workflowr-checks" class="panel-group">
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRMarkdownfilestronguncommittedchanges"> <span class="glyphicon glyphicon-exclamation-sign text-danger" aria-hidden="true"></span> <strong>R Markdown file:</strong> uncommitted changes </a>
+</p>
+</div>
+<div id="strongRMarkdownfilestronguncommittedchanges" class="panel-collapse collapse">
+<div class="panel-body">
+<p>The R Markdown file has unstaged changes. To know which version of the R Markdown file created these results, you’ll want to first commit it to the Git repo. If you’re still working on the analysis, you can ignore this warning. When you’re finished, you can run <code>wflow_publish</code> to commit the R Markdown file and build the HTML.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongEnvironmentstrongempty"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Environment:</strong> empty </a>
+</p>
+</div>
+<div id="strongEnvironmentstrongempty" class="panel-collapse collapse">
+<div class="panel-body">
+<p>Great job! The global environment was empty. Objects defined in the global environment can affect the analysis in your R Markdown file in unknown ways. For reproduciblity it’s best to always run the code in an empty environment.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongSeedstrongcodesetseed20220720code"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Seed:</strong> <code>set.seed(20220720)</code> </a>
+</p>
+</div>
+<div id="strongSeedstrongcodesetseed20220720code" class="panel-collapse collapse">
+<div class="panel-body">
+<p>The command <code>set.seed(20220720)</code> was run prior to running the code in the R Markdown file. Setting a seed ensures that any results that rely on randomness, e.g. subsampling or permutations, are reproducible.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongSessioninformationstrongrecorded"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Session information:</strong> recorded </a>
+</p>
+</div>
+<div id="strongSessioninformationstrongrecorded" class="panel-collapse collapse">
+<div class="panel-body">
+<p>Great job! Recording the operating system, R version, and package versions is critical for reproducibility.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongCachestrongnone"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Cache:</strong> none </a>
+</p>
+</div>
+<div id="strongCachestrongnone" class="panel-collapse collapse">
+<div class="panel-body">
+<p>Nice! There were no cached chunks for this analysis, so you can be confident that you successfully produced the results during this run.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongFilepathsstrongrelative"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>File paths:</strong> relative </a>
+</p>
+</div>
+<div id="strongFilepathsstrongrelative" class="panel-collapse collapse">
+<div class="panel-body">
+<p>Great job! Using relative paths to the files within your workflowr project makes it easier to run your code on other machines.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomMicrobialGenomicsIrsicaixaOrg2022MedCarstree136c267de0ff399e395309b721fd13d2fdc4cbe4targetblank136c267a"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Repository version:</strong> <a href="https://github.com/MicrobialGenomics-IrsicaixaOrg/2022_MedCars/tree/136c267de0ff399e395309b721fd13d2fdc4cbe4" target="_blank">136c267</a> </a>
+</p>
+</div>
+<div id="strongRepositoryversionstrongahrefhttpsgithubcomMicrobialGenomicsIrsicaixaOrg2022MedCarstree136c267de0ff399e395309b721fd13d2fdc4cbe4targetblank136c267a" class="panel-collapse collapse">
+<div class="panel-body">
+<p>
+Great! You are using Git for version control. Tracking code development and connecting the code version to the results is critical for reproducibility.
+</p>
+<p>
+The results in this page were generated with repository version <a href="https://github.com/MicrobialGenomics-IrsicaixaOrg/2022_MedCars/tree/136c267de0ff399e395309b721fd13d2fdc4cbe4" target="_blank">136c267</a>. See the <em>Past versions</em> tab to see a history of the changes made to the R Markdown and HTML files.
+</p>
+<p>
+Note that you need to be careful to ensure that all relevant files for the analysis have been committed to Git prior to generating the results (you can use <code>wflow_publish</code> or <code>wflow_git_commit</code>). workflowr only checks the R Markdown file, but you know if there are other scripts or data files that it depends on. Below is the status of the Git repository when the results were generated:
+</p>
+<pre><code>
+Ignored files:
+    Ignored:    .DS_Store
+    Ignored:    .Rhistory
+    Ignored:    .Rproj.user/
+    Ignored:    analysis/.DS_Store
+    Ignored:    data/.DS_Store
+    Ignored:    data/cfu/
+    Ignored:    data/internal/
+    Ignored:    data/processed/
+    Ignored:    data/ps_silva_RR.rds
+    Ignored:    data/raw/
+    Ignored:    output/.DS_Store
+    Ignored:    output/Deliverables/
+    Ignored:    output/mre_data/
+
+Unstaged changes:
+    Modified:   analysis/201_exploratory_analysis.Rmd
+    Modified:   analysis/210_baseline_analysis.Rmd
+    Modified:   analysis/215_Month6_analysis.Rmd
+    Modified:   analysis/220_intervention_analysis.Rmd
+    Modified:   analysis/230_MedDietScore.Rmd
+    Modified:   analysis/240_fatty_acids.Rmd
+    Modified:   analysis/250_PhysicalActivity.Rmd
+    Modified:   analysis/260_FirmicutesBacteroides.Rmd
+    Modified:   analysis/270_PairingAnalysis.Rmd
+    Modified:   analysis/300_FunctionalAnalysis.Rmd
+    Modified:   analysis/320_BatchEffect.Rmd
+    Modified:   code/006_DataPreprocessing.Rmd
+    Modified:   code/006_DataPreprocessing.html
+
+</code></pre>
+<p>
+Note that any generated files, e.g. HTML, png, CSS, etc., are not included in this status report because it is ok for generated content to have uncommitted changes.
+</p>
+</div>
+</div>
+</div>
+</div>
+<hr>
+</div>
+<div id="versions" class="tab-pane fade">
+
+<p>
+These are the previous versions of the repository in which changes were made to the R Markdown (<code>analysis/215_Month6_analysis.Rmd</code>) and HTML (<code>docs/215_Month6_analysis.html</code>) files. If you’ve configured a remote Git repository (see <code>?wflow_git_remote</code>), click on the hyperlinks in the table below to view the files as they were in that past version.
+</p>
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+File
+</th>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+<th>
+Message
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/MicrobialGenomics-IrsicaixaOrg/2022_MedCars/blob/136c267de0ff399e395309b721fd13d2fdc4cbe4/analysis/215_Month6_analysis.Rmd" target="_blank">136c267</a>
+</td>
+<td>
+Marc Noguera-Julian
+</td>
+<td>
+2022-10-06
+</td>
+<td>
+final analysis
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<hr>
+</div>
+</div>
+</div>
+<p>In this Analysis section we aim to describe possible differences between the two pariticpating centers at enf of study, in order to assess whether there are any and if they are relevant in relation to the longtiduinal resultes obtained from the nutritional intervention.</p>
+<div id="month8-demographics" class="section level2">
+<h2>Month8 Demographics</h2>
+<p>We need to compare the baseline populations in order to see which of the variable should we be testing.</p>
+<p>At baseline, populations were comparable in anthropotmetric measures. However, IG was younger and had a higher proportion of women. In addition, IG participant also showed a higher consumption of alcohol as measured in TE and a slight higher phyisical activity.</p>
+<pre><code>suggested package selbal ✔suggested package DataExplorer ✔suggested package lme4 ✔suggested package merTools ✔</code></pre>
+<table class="table table-striped table-condensed" style="width: auto !important; margin-left: auto; margin-right: auto;">
+<caption>
+Summary descriptives table by groups of `Center’
+</caption>
+<thead>
+<tr>
+<th style="text-align:left;">
+</th>
+<th style="text-align:center;">
+CG
+</th>
+<th style="text-align:center;">
+IG
+</th>
+<th style="text-align:center;">
+p.overall
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;font-style: italic;border-bottom: 1px solid grey">
+</td>
+<td style="text-align:center;font-style: italic;border-bottom: 1px solid grey">
+N=217
+</td>
+<td style="text-align:center;font-style: italic;border-bottom: 1px solid grey">
+N=277
+</td>
+<td style="text-align:center;font-style: italic;border-bottom: 1px solid grey">
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Age
+</td>
+<td style="text-align:center;">
+44.7 (7.02)
+</td>
+<td style="text-align:center;">
+42.5 (6.97)
+</td>
+<td style="text-align:center;">
+&lt;0.001
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Gender:
+</td>
+<td style="text-align:center;">
+</td>
+<td style="text-align:center;">
+</td>
+<td style="text-align:center;">
+0.001
+</td>
+</tr>
+<tr>
+<td style="text-align:left;padding-left: 2em;" indentlevel="1">
+Female
+</td>
+<td style="text-align:center;">
+25 (11.5%)
+</td>
+<td style="text-align:center;">
+64 (23.1%)
+</td>
+<td style="text-align:center;">
+</td>
+</tr>
+<tr>
+<td style="text-align:left;padding-left: 2em;" indentlevel="1">
+Male
+</td>
+<td style="text-align:center;">
+192 (88.5%)
+</td>
+<td style="text-align:center;">
+213 (76.9%)
+</td>
+<td style="text-align:center;">
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Smoker:
+</td>
+<td style="text-align:center;">
+</td>
+<td style="text-align:center;">
+</td>
+<td style="text-align:center;">
+0.221
+</td>
+</tr>
+<tr>
+<td style="text-align:left;padding-left: 2em;" indentlevel="1">
+Non-smoker
+</td>
+<td style="text-align:center;">
+171 (78.8%)
+</td>
+<td style="text-align:center;">
+204 (73.6%)
+</td>
+<td style="text-align:center;">
+</td>
+</tr>
+<tr>
+<td style="text-align:left;padding-left: 2em;" indentlevel="1">
+Smoker
+</td>
+<td style="text-align:center;">
+46 (21.2%)
+</td>
+<td style="text-align:center;">
+73 (26.4%)
+</td>
+<td style="text-align:center;">
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+TE
+</td>
+<td style="text-align:center;">
+0.33 (0.33)
+</td>
+<td style="text-align:center;">
+0.50 (0.49)
+</td>
+<td style="text-align:center;">
+&lt;0.001
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Cholesterol
+</td>
+<td style="text-align:center;">
+0.44 (0.50)
+</td>
+<td style="text-align:center;">
+0.38 (0.49)
+</td>
+<td style="text-align:center;">
+0.189
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+BodyFat
+</td>
+<td style="text-align:center;">
+25.9 (7.06)
+</td>
+<td style="text-align:center;">
+26.6 (7.61)
+</td>
+<td style="text-align:center;">
+0.316
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+IPAQ
+</td>
+<td style="text-align:center;">
+4916 (5870)
+</td>
+<td style="text-align:center;">
+5295 (4803)
+</td>
+<td style="text-align:center;">
+0.446
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+MDScore
+</td>
+<td style="text-align:center;">
+8.74 (1.91)
+</td>
+<td style="text-align:center;">
+9.48 (1.80)
+</td>
+<td style="text-align:center;">
+&lt;0.001
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Run:
+</td>
+<td style="text-align:center;">
+</td>
+<td style="text-align:center;">
+</td>
+<td style="text-align:center;">
+&lt;0.001
+</td>
+</tr>
+<tr>
+<td style="text-align:left;padding-left: 2em;" indentlevel="1">
+Run1
+</td>
+<td style="text-align:center;">
+83 (38.2%)
+</td>
+<td style="text-align:center;">
+81 (29.2%)
+</td>
+<td style="text-align:center;">
+</td>
+</tr>
+<tr>
+<td style="text-align:left;padding-left: 2em;" indentlevel="1">
+Run2
+</td>
+<td style="text-align:center;">
+96 (44.2%)
+</td>
+<td style="text-align:center;">
+82 (29.6%)
+</td>
+<td style="text-align:center;">
+</td>
+</tr>
+<tr>
+<td style="text-align:left;padding-left: 2em;" indentlevel="1">
+Run3
+</td>
+<td style="text-align:center;">
+38 (17.5%)
+</td>
+<td style="text-align:center;">
+114 (41.2%)
+</td>
+<td style="text-align:center;">
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+BMI
+</td>
+<td style="text-align:center;">
+27.0 (4.33)
+</td>
+<td style="text-align:center;">
+26.8 (3.87)
+</td>
+<td style="text-align:center;">
+0.560
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="alpha-diversity" class="section level2">
+<h2>Alpha-Diversity</h2>
+<p>Alpha Diversity refers to the taxonomical richness and evenness of a particular sample. Alpha Diversity can be assess by a wide set of estimators and indices. Here we’ll use:</p>
+<ul>
+<li>Chao1 Estimator: Chao1 approximates the real number of different taxa in a sample.</li>
+<li>Shannon Index: Shannon index is an estimator of the number of different taxa in a sample and the evenness of these taxa in the sample bacterial composition.</li>
+<li>Phylogenetic distance: Phylogenetic distance adds phylogenetic information to the alpha-diversity estimation. In this way, PD increases if taxa in a sample are phylogenetically more distinct.</li>
+</ul>
+<p>There are significant differences between groups at month6 in the unadjusted analysis, similary to baseline. Control Group(CG) shows a higher richness, evenness and phylogenetic diversity than intervention group at baseline. Reasons for this are unknown and may be due to socio-geographical features of each population.</p>
+<pre><code>suggested package selbal ✔suggested package DataExplorer ✔suggested package lme4 ✔suggested package merTools ✔</code></pre>
+<p><img src="figure/215_Month6_analysis.Rmd/alpha%20diversity%20chunk%201-1.png" width="480" style="display: block; margin: auto;" /></p>
+</div>
+<div id="beta-diversity" class="section level2">
+<h2>Beta-Diversity</h2>
+<div id="nmds-ordination" class="section level3">
+<h3>NMDS Ordination</h3>
+<p>In order to see differences between centers at baseline, we perform an ordination analysis + PERMANOVA with baseline samples only. We can see that there is no clustering whatsoever within baseline samples vs Center. This is confirmed by PERMANOVA test, showing that effect of Center variable on microbiome structure is not significant.</p>
+<pre><code>suggested package selbal ✔suggested package DataExplorer ✔suggested package lme4 ✔suggested package merTools ✔</code></pre>
+<div class="figure" style="text-align: center">
+<img src="figure/215_Month6_analysis.Rmd/beta%20diversity%20chunk%202-1.png" alt="NMDS ordination plot for baseline samples. Color ellipse indicates plot area containing 95% of sample  for each specific group" width="672" />
+<p class="caption">
+NMDS ordination plot for baseline samples. Color ellipse indicates plot area containing 95% of sample for each specific group
+</p>
+</div>
+<pre><code># A tibble: 4 × 6
+  id        Df SumOfSqs      R2     F Pr..F.
+  &lt;chr&gt;  &lt;dbl&gt;    &lt;dbl&gt;   &lt;dbl&gt; &lt;dbl&gt;  &lt;dbl&gt;
+1 Center     1    0.117 0.00388  1.92  0.039
+2 Gender     1    0.197 0.00653  3.23  0.002
+3 Smoker     1    0.134 0.00443  2.19  0.02 
+4 Run        2    0.250 0.00829  2.05  0.006</code></pre>
+<table>
+<thead>
+<tr>
+<th style="text-align:left;">
+id
+</th>
+<th style="text-align:right;">
+Df
+</th>
+<th style="text-align:right;">
+SumOfSqs
+</th>
+<th style="text-align:right;">
+R2
+</th>
+<th style="text-align:right;">
+F
+</th>
+<th style="text-align:right;">
+Pr..F.
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+Center
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+0.1173054
+</td>
+<td style="text-align:right;">
+0.0038834
+</td>
+<td style="text-align:right;">
+1.918061
+</td>
+<td style="text-align:right;">
+0.039
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Gender
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+0.1972445
+</td>
+<td style="text-align:right;">
+0.0065297
+</td>
+<td style="text-align:right;">
+3.233737
+</td>
+<td style="text-align:right;">
+0.002
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Smoker
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+0.1339280
+</td>
+<td style="text-align:right;">
+0.0044336
+</td>
+<td style="text-align:right;">
+2.191068
+</td>
+<td style="text-align:right;">
+0.020
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Run
+</td>
+<td style="text-align:right;">
+2
+</td>
+<td style="text-align:right;">
+0.2504527
+</td>
+<td style="text-align:right;">
+0.0082912
+</td>
+<td style="text-align:right;">
+2.052498
+</td>
+<td style="text-align:right;">
+0.006
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div id="differential-abundance" class="section level2">
+<h2>Differential Abundance</h2>
+<p>We have seen that there are no major changes between centers. We can further assess whether there are more subtle differences using differential abundance testing of Center01 (Intervention Group) vs Center02(Control Group)</p>
+<div id="lefse" class="section level3">
+<h3>LEFSe</h3>
+<p>Lefse method uses a combination of non-parametric statistics to reveal those bacterial taxa that are either over- or under-represented in any of the timepoints. Note that we are rarefying to 95th percentile coverage in order to optimized sensitivity. This rarefaction process essentially discards the 5% samples with the lowest throughput,</p>
+<p>Results indicate that two bacterial genera are over abundant in the Control Group(CG) vs the Intervention Group(IG), when comparing baseline(Month8) samples: Lachnospira and Holdemanella.</p>
+<pre><code>suggested package selbal ✔suggested package DataExplorer ✔suggested package lme4 ✔suggested package merTools ✔</code></pre>
+<div class="figure" style="text-align: center">
+<img src="figure/215_Month6_analysis.Rmd/differential%20abundance%20chunk%201-1.png" alt="LDA Lefse plot, showing enrichment of several general in labelled group" width="672" />
+<p class="caption">
+LDA Lefse plot, showing enrichment of several general in labelled group
+</p>
+</div>
+</div>
+<div id="maaslin" class="section level3">
+<h3>MaasLin</h3>
+<p>MaasLin provides and independent differential abundance test framework, which is arguably more adapted to microbiome data and data specificities. In addition, within the statistical model, we can account for random effect and longitudinal design, in the differential testing.</p>
+<pre><code>suggested package selbal ✔suggested package DataExplorer ✔suggested package lme4 ✔suggested package merTools ✔</code></pre>
+<pre><code>[1] &quot;Creating output folder&quot;
+[1] &quot;Creating output figures folder&quot;
+2022-10-06 22:05:17 INFO::Writing function arguments to log file
+2022-10-06 22:05:17 INFO::Verifying options selected are valid
+2022-10-06 22:05:17 INFO::Determining format of input files
+2022-10-06 22:05:17 INFO::Input format is data samples as rows and metadata samples as rows
+2022-10-06 22:05:17 INFO::Formula for random effects: expr ~ (1 | Gender) + (1 | UBE) + (1 | Edad) + (1 | Run)
+2022-10-06 22:05:17 INFO::Formula for fixed effects: expr ~  Center
+2022-10-06 22:05:17 INFO::Filter data based on min abundance and min prevalence
+2022-10-06 22:05:17 INFO::Total samples in data: 494
+2022-10-06 22:05:17 INFO::Min samples required with min abundance for a feature not to be filtered: 98.800000
+2022-10-06 22:05:17 INFO::Total filtered features: 245
+2022-10-06 22:05:17 INFO::Filtered feature names from abundance and prevalence filtering:
+2022-10-06 22:05:17 INFO::Total filtered features with variance filtering: 0
+2022-10-06 22:05:17 INFO::Filtered feature names from variance filtering:
+2022-10-06 22:05:17 INFO::Running selected normalization method: TSS
+2022-10-06 22:05:17 INFO::Applying z-score to standardize continuous metadata
+2022-10-06 22:05:17 INFO::Running selected transform method: LOG
+2022-10-06 22:05:17 INFO::Running selected analysis method: LM
+2022-10-06 22:05:17 INFO::Creating cluster of 4 R processes
+2022-10-06 22:05:24 INFO::Counting total values for each feature
+2022-10-06 22:05:24 INFO::Writing residuals to file output/Deliverables/DifferentialAbundance/maaslin/genusMonth8/residuals.rds
+2022-10-06 22:05:24 INFO::Writing fitted values to file output/Deliverables/DifferentialAbundance/maaslin/genusMonth8/fitted.rds
+2022-10-06 22:05:24 INFO::Writing extracted random effects to file output/Deliverables/DifferentialAbundance/maaslin/genusMonth8/ranef.rds
+2022-10-06 22:05:24 INFO::Writing all results to file (ordered by increasing q-values): output/Deliverables/DifferentialAbundance/maaslin/genusMonth8/all_results.tsv
+2022-10-06 22:05:24 INFO::Writing the significant results (those which are less than or equal to the threshold of 0.250000 ) to file (ordered by increasing q-values): output/Deliverables/DifferentialAbundance/maaslin/genusMonth8/significant_results.tsv
+2022-10-06 22:05:24 INFO::Writing heatmap of significant results to file: output/Deliverables/DifferentialAbundance/maaslin/genusMonth8/heatmap.pdf
+[1] &quot;There is not enough metadata in the associations to create a heatmap plot. Please review the associations in text output file.&quot;
+2022-10-06 22:05:24 INFO::Writing association plots (one for each significant association) to output folder: output/Deliverables/DifferentialAbundance/maaslin/genusMonth8
+2022-10-06 22:05:24 INFO::Plotting associations from most to least significant, grouped by metadata
+2022-10-06 22:05:24 INFO::Plotting data for metadata number 1, Center
+2022-10-06 22:05:24 INFO::Creating boxplot for categorical data, Center vs Ruminococcaceae_UCG.005</code></pre>
+<pre><code>2022-10-06 22:05:24 INFO::Creating boxplot for categorical data, Center vs f_Clostridiales_vadinBB60_group</code></pre>
+<pre><code>2022-10-06 22:05:24 INFO::Creating boxplot for categorical data, Center vs Lachnospiraceae_UCG.004</code></pre>
+<p><img src="figure/215_Month6_analysis.Rmd/DA%20species%20maaslin2%20Month8-1.png" width="672" style="display: block; margin: auto;" /></p>
+<br>
+<p>
+<button type="button" class="btn btn-default btn-workflowr btn-workflowr-sessioninfo" data-toggle="collapse" data-target="#workflowr-sessioninfo" style="display: block;">
+<span class="glyphicon glyphicon-wrench" aria-hidden="true"></span> Session information
+</button>
+</p>
+<div id="workflowr-sessioninfo" class="collapse">
+<pre><code>R version 4.1.1 (2021-08-10)
+Platform: x86_64-apple-darwin17.0 (64-bit)
+Running under: macOS Big Sur 10.16
+
+Matrix products: default
+BLAS:   /Library/Frameworks/R.framework/Versions/4.1/Resources/lib/libRblas.0.dylib
+LAPACK: /Library/Frameworks/R.framework/Versions/4.1/Resources/lib/libRlapack.dylib
+
+locale:
+[1] en_US.UTF-8/en_US.UTF-8/en_US.UTF-8/C/en_US.UTF-8/en_US.UTF-8
+
+attached base packages:
+[1] stats4    stats     graphics  grDevices utils     datasets  methods  
+[8] base     
+
+other attached packages:
+ [1] metar_0.1.5                 Maaslin2_1.8.0             
+ [3] ggplot2_3.3.6               dplyr_1.0.9                
+ [5] ggstatsplot_0.9.3           testthat_3.1.4             
+ [7] lefser_1.4.0                SummarizedExperiment_1.24.0
+ [9] Biobase_2.54.0              GenomicRanges_1.46.1       
+[11] GenomeInfoDb_1.30.1         IRanges_2.28.0             
+[13] S4Vectors_0.32.4            BiocGenerics_0.40.0        
+[15] MatrixGenerics_1.6.0        matrixStats_0.62.0         
+[17] vegan_2.6-2                 lattice_0.20-45            
+[19] permute_0.9-7               patchwork_1.1.1            
+[21] phylosmith_1.0.6            phyloseq_1.38.0            
+[23] workflowr_1.7.0            
+
+loaded via a namespace (and not attached):
+  [1] svglite_2.1.0          class_7.3-20           ps_1.7.1              
+  [4] foreach_1.5.2          rprojroot_2.0.3        crayon_1.5.1          
+  [7] MASS_7.3-58            rhdf5filters_1.6.0     nlme_3.1-158          
+ [10] backports_1.4.1        rlang_1.0.6            XVector_0.34.0        
+ [13] performance_0.9.1      nloptr_2.0.3           callr_3.7.1           
+ [16] optparse_1.7.3         flextable_0.7.2        rjson_0.2.21          
+ [19] bit64_4.0.5            glue_1.6.2             parallel_4.1.1        
+ [22] processx_3.7.0         classInt_0.4-7         tidyselect_1.1.2      
+ [25] usethis_2.1.6          tidyr_1.2.0            zoo_1.8-10            
+ [28] sf_1.0-7               ggpubr_0.4.0           chron_2.3-57          
+ [31] xtable_1.8-4           magrittr_2.0.3         evaluate_0.15         
+ [34] gdtools_0.2.4          cli_3.4.1              zlibbioc_1.40.0       
+ [37] DataExplorer_0.8.2     rstudioapi_0.13        miniUI_0.1.1.1        
+ [40] furrr_0.3.0            whisker_0.4            logger_0.2.2          
+ [43] bslib_0.4.0            shiny_1.7.2            xfun_0.31             
+ [46] clue_0.3-61            parameters_0.18.1      pkgbuild_1.3.1        
+ [49] multtest_2.50.0        cluster_2.1.3          tidygraph_1.2.1       
+ [52] biomformat_1.22.0      tibble_3.1.8           ggrepel_0.9.1         
+ [55] logging_0.10-108       ape_5.6-2              listenv_0.8.0         
+ [58] Biostrings_2.62.0      png_0.1-7              future_1.27.0         
+ [61] zeallot_0.1.0          withr_2.5.0            bitops_1.0-7          
+ [64] ggforce_0.3.3          plyr_1.8.7             pcaPP_2.0-2           
+ [67] e1071_1.7-11           coda_0.19-4            pillar_1.8.1          
+ [70] RcppParallel_5.1.5     GlobalOptions_0.1.2    cachem_1.0.6          
+ [73] multcomp_1.4-19        fs_1.5.2               GetoptLong_1.0.5      
+ [76] hash_2.2.6.2           paletteer_1.4.0        vctrs_0.4.1           
+ [79] ellipsis_0.3.2         generics_0.1.3         devtools_2.4.4        
+ [82] tools_4.1.1            compareGroups_4.5.1    munsell_0.5.0         
+ [85] tweenr_1.0.2           networkD3_0.4          proxy_0.4-27          
+ [88] DelayedArray_0.20.0    fastmap_1.1.0          compiler_4.1.1        
+ [91] pkgload_1.3.0          abind_1.4-5            httpuv_1.6.5          
+ [94] sessioninfo_1.2.2      GenomeInfoDbData_1.2.7 gridExtra_2.3         
+ [97] utf8_1.2.2             later_1.3.0            selbal_0.1.0          
+[100] prismatic_1.1.0        jsonlite_1.8.0         arm_1.12-2            
+[103] scales_1.2.1           pbapply_1.5-0          carData_3.0-5         
+[106] promises_1.2.0.1       car_3.1-0              doParallel_1.0.17     
+[109] effectsize_0.7.0       rmarkdown_2.14         sandwich_3.0-2        
+[112] textshaping_0.3.6      blme_1.0-5             webshot_0.5.3         
+[115] Rtsne_0.16             forcats_0.5.1          igraph_1.3.5          
+[118] survival_3.3-1         yaml_2.3.5             systemfonts_1.0.4     
+[121] htmltools_0.5.3        memoise_2.0.1          profvis_0.3.7         
+[124] modeltools_0.2-23      graphlayouts_0.8.0     here_1.0.1            
+[127] viridisLite_0.4.1      digest_0.6.29          assertthat_0.2.1      
+[130] mime_0.12              wesanderson_0.3.6      bayestestR_0.12.1     
+[133] units_0.8-0            remotes_2.4.2          data.table_1.14.2     
+[136] urlchecker_1.0.1       lpsymphony_1.22.0      ragg_1.2.2            
+[139] splines_4.1.1          labeling_0.4.2         rematch2_2.1.2        
+[142] Rhdf5lib_1.16.0        RCurl_1.98-1.8         broom_1.0.0           
+[145] rhdf5_2.38.1           colorspace_2.0-3       base64enc_0.1-3       
+[148] shape_1.4.6            libcoin_1.0-9          broom.mixed_0.2.9.4   
+[151] nnet_7.3-17            sass_0.4.2             Rcpp_1.0.9            
+[154] coin_1.4-2             mvtnorm_1.1-3          circlize_0.4.15       
+[157] fansi_1.0.3            tzdb_0.3.0             truncnorm_1.0-8       
+[160] brio_1.1.3             parallelly_1.32.1      R6_2.5.1              
+[163] grid_4.1.1             lifecycle_1.0.2        statsExpressions_1.3.2
+[166] zip_2.2.0              writexl_1.4.0          datawizard_0.4.1      
+[169] ggsignif_0.6.3         minqa_1.2.4            getopt_1.20.3         
+[172] jquerylib_0.1.4        snakecase_0.11.0       robustbase_0.95-0     
+[175] Matrix_1.4-1           desc_1.4.1             TH.data_1.1-1         
+[178] RColorBrewer_1.1-3     iterators_1.0.14       stringr_1.4.1         
+[181] htmlwidgets_1.5.4      officer_0.4.3          polyclip_1.10-0       
+[184] purrr_0.3.4            rvest_1.0.2            ComplexHeatmap_2.10.0 
+[187] mgcv_1.8-40            globals_0.15.1         insight_0.18.0        
+[190] codetools_0.2-18       lubridate_1.8.0        getPass_0.2-2         
+[193] prettyunits_1.1.1      correlation_0.8.1      gtable_0.3.1          
+[196] DBI_1.1.3              git2r_0.30.1           httr_1.4.4            
+[199] highr_0.9              KernSmooth_2.23-20     stringi_1.7.8         
+[202] vroom_1.5.7            reshape2_1.4.4         farver_2.1.1          
+[205] uuid_1.1-0             viridis_0.6.2          mice_3.14.0           
+[208] xml2_1.3.3             boot_1.3-28            kableExtra_1.3.4      
+[211] lme4_1.1-30            ade4_1.7-19            DEoptimR_1.0-11       
+[214] bit_4.0.4              ggside_0.2.1           ggraph_2.0.5          
+[217] janitor_2.1.0          pkgconfig_2.0.3        biglm_0.9-2.1         
+[220] rstatix_0.7.0          HardyWeinberg_1.7.5    Rsolnp_1.16           
+[223] knitr_1.39             merTools_0.5.2        </code></pre>
+</div>
+</div>
+</div>
+
+
+<!-- Adjust MathJax settings so that all math formulae are shown using
+TeX fonts only; see
+https://docs.mathjax.org/en/latest/web/configuration.html. This will make
+the presentation more consistent at the cost of the webpage sometimes
+taking slightly longer to load. Note that this only works because the
+footer is added to webpages before the MathJax javascript. -->
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    "HTML-CSS": { availableFonts: ["TeX"] }
+  });
+</script>
+
+
+
+
+</div>
+</div>
+
+</div>
+
+<script>
+
+// add bootstrap table styles to pandoc tables
+function bootstrapStylePandocTables() {
+  $('tr.odd').parent('tbody').parent('table').addClass('table table-condensed');
+}
+$(document).ready(function () {
+  bootstrapStylePandocTables();
+});
+
+
+</script>
+
+<!-- tabsets -->
+
+<script>
+$(document).ready(function () {
+  window.buildTabsets("TOC");
+});
+
+$(document).ready(function () {
+  $('.tabset-dropdown > .nav-tabs > li').click(function () {
+    $(this).parent().toggleClass('nav-tabs-open');
+  });
+});
+</script>
+
+<!-- code folding -->
+
+<script>
+$(document).ready(function ()  {
+
+    // temporarily add toc-ignore selector to headers for the consistency with Pandoc
+    $('.unlisted.unnumbered').addClass('toc-ignore')
+
+    // move toc-ignore selectors from section div to header
+    $('div.section.toc-ignore')
+        .removeClass('toc-ignore')
+        .children('h1,h2,h3,h4,h5').addClass('toc-ignore');
+
+    // establish options
+    var options = {
+      selectors: "h1,h2,h3",
+      theme: "bootstrap3",
+      context: '.toc-content',
+      hashGenerator: function (text) {
+        return text.replace(/[.\\/?&!#<>]/g, '').replace(/\s/g, '_');
+      },
+      ignoreSelector: ".toc-ignore",
+      scrollTo: 0
+    };
+    options.showAndHide = true;
+    options.smoothScroll = true;
+
+    // tocify
+    var toc = $("#TOC").tocify(options).data("toc-tocify");
+});
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>

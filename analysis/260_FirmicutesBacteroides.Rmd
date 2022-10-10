@@ -75,7 +75,7 @@ tax_glom(ps_silva,taxrank="Phylum", NArm = F) %>%
   dplyr::filter(Phylum %in% c("Firmicutes","Bacteroidetes")) %>% 
   tidyr::pivot_wider(names_from=Phylum,values_from = Abundance) %>% 
   dplyr::mutate(ratio=Firmicutes/Bacteroidetes) %>% 
-  dplyr::filter(Center=="C01") %>% 
+  dplyr::filter(Center=="IG") %>% 
   dplyr::arrange(Participante) %>% 
   ggstatsplot::ggwithinstats(Timepoint,ratio,pairwise.comparisons = T,type="np",bf.message = NULL,title = "Firmicutes/Bacteroidetes vs Timepoint | IG")
 
@@ -86,7 +86,7 @@ tax_glom(ps_silva,taxrank="Phylum", NArm = F) %>%
   tidyr::pivot_wider(names_from=Phylum,values_from = Abundance) %>% 
   dplyr::arrange(Participante) %>% 
   dplyr::mutate(ratio=Firmicutes/Bacteroidetes) %>% 
-  dplyr::filter(Center=="C02") %>% 
+  dplyr::filter(Center=="CG") %>% 
   ggstatsplot::ggwithinstats(Timepoint,ratio,type="np",pairwise.comparisons = T,bf.message = NULL,title = "Firmicutes/Bacteroidetes vs Timepoint | CG")
 
 ### Compared Deltas between IG and CG.
@@ -97,9 +97,9 @@ tax_glom(ps_silva,taxrank="Phylum", NArm = F) %>%
   tidyr::pivot_wider(names_from=Phylum,values_from = Abundance) %>% 
   dplyr::arrange(Participante) %>% 
   dplyr::mutate(ratio=Firmicutes/Bacteroidetes) %>% 
-  dplyr::mutate(Center=ifelse(Center=="C01","IG","CG")) %>% 
+  dplyr::mutate(Center=ifelse(Center=="IG","IG","CG")) %>% 
   tidyr::pivot_wider(names_from = Timepoint,values_from = ratio,id_cols = Participante) %>% 
-  dplyr::mutate(DeltaRatio=Month6-BL) %>% 
+  dplyr::mutate(DeltaRatio=Month8-BL) %>% 
   dplyr::left_join(get_meta(myMREObject)) %>% 
   dplyr::select(DeltaRatio,Center) %>% 
   ggstatsplot::ggbetweenstats(Center,DeltaRatio,bf.message = F,type="np",title="Delta F/B Ratio vs Center")
@@ -191,33 +191,33 @@ ratio_df<-tax_glom(ps_silva,taxrank="Phylum", NArm = F) %>%
   dplyr::mutate(ratio=Firmicutes/Bacteroidetes) %>%
   dplyr::select(-Firmicutes,-Bacteroidetes) %>% 
   tidyr::pivot_wider(values_from = ratio ,names_from = Timepoint) %>% 
-  dplyr::mutate(RatioDiff=(Month6-BL))
+  dplyr::mutate(RatioDiff=(Month8-BL))
 
 mddiff_data<-phyloseq::sample_data(ps_silva) %>% data.frame() %>% 
   dplyr::select(Participante,Center,MedDietscore,Timepoint) %>% 
   dplyr::group_by(Participante) %>% 
   tidyr::pivot_wider(values_from = MedDietscore,names_from = Timepoint) %>% 
-  dplyr::mutate(MDScoreDiff=(Month6-BL)) %>% 
-  dplyr::mutate(MDScoreRelDiff=(Month6-BL)/(Month6+BL)) %>% 
-  dplyr::rename(MDMonth6=Month6,MDBL=BL)
+  dplyr::mutate(MDScoreDiff=(Month8-BL)) %>% 
+  dplyr::mutate(MDScoreRelDiff=(Month8-BL)/(Month8+BL)) %>% 
+  dplyr::rename(MDMonth8=Month8,MDBL=BL)
     
 ipaqdiff_data<-phyloseq::sample_data(ps_silva) %>% data.frame() %>% 
   dplyr::rename(IPAQ=METActividadFisicabasaltotal) %>% 
   dplyr::select(Participante,Center,IPAQ,Timepoint) %>% 
   dplyr::group_by(Participante) %>% 
   tidyr::pivot_wider(values_from = IPAQ,names_from = Timepoint) %>% 
-  dplyr::mutate(IPAQDiff=(Month6-BL)) %>% 
-  dplyr::mutate(IPAQRelDiff=(Month6-BL)/(Month6+BL)) %>% 
-  dplyr::rename(MDMonth6=Month6,MDBL=BL)
+  dplyr::mutate(IPAQDiff=(Month8-BL)) %>% 
+  dplyr::mutate(IPAQRelDiff=(Month8-BL)/(Month8+BL)) %>% 
+  dplyr::rename(MDMonth8=Month8,MDBL=BL)
 
 ratio_df %>% 
   dplyr::left_join(mddiff_data,by=c("Participante","Center")) %>% 
-  dplyr::filter(Center=="C01") %>% 
-  ggstatsplot::ggscatterstats(MDScoreDiff,RatioDiff,type="np",bf.message = NULL,title = "DeltaRatio vs DeltaMDScore | C01")
+  dplyr::filter(Center=="IG") %>% 
+  ggstatsplot::ggscatterstats(MDScoreDiff,RatioDiff,type="np",bf.message = NULL,title = "DeltaRatio vs DeltaMDScore | IG")
 
 ratio_df %>% 
   dplyr::left_join(ipaqdiff_data,by=c("Participante","Center")) %>% 
-  dplyr::filter(Center=="C01") %>% 
-  ggstatsplot::ggscatterstats(IPAQRelDiff,RatioDiff,type="np",bf.message = NULL,title = "DeltaRatio vs DeltaIPAQ | C01")
+  dplyr::filter(Center=="IG") %>% 
+  ggstatsplot::ggscatterstats(IPAQRelDiff,RatioDiff,type="np",bf.message = NULL,title = "DeltaRatio vs DeltaIPAQ | IG")
 
 ```
