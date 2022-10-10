@@ -1,0 +1,506 @@
+---
+site: workflowr::wflow_site
+title: "Microbiome association with Mediterranean diet"
+author: "Marc Noguera-Julian, PhD. "
+date: "`r format(Sys.time(), '%Y-%m-%d')`"
+header-includes:
+- \usepackage{fancyhdr}
+- \usepackage{lipsum}
+- \pagestyle{fancy}
+- \fancyhead[CO,CE]{Microbioma intestinal en intervencion nutricional}
+- \fancyfoot[LO,RE]{Marc Noguera-Julian, IrsiCaixa}
+- \fancyhead[LE,RO]{\thepage}
+- \fancyfoot[CO,CE]{}
+- \usepackage[default]{sourcesanspro}
+- \usepackage[T1]{fontenc}
+- \usepackage{eso-pic,graphicx,transparent}
+mainfont: Helvetica
+output: html_document
+---
+
+```{r setup, include=TRUE, echo=F, message=FALSE, warning=FALSE, paged.print=FALSE, tidy=F}
+knitr::opts_chunk$set(echo = FALSE)
+knitr::opts_knit$set(root.dir = here::here())
+rmd_env <- "devel"
+```
+
+## MedDiet Score - Baseline
+
+We will use Mediterranean Diet Score (MedDietScore) to assess whether participant's adherence to mediterranean diet (MD) shows any association with microbiome composition or derived parameters. MedDietScore is an integer score ranging from 0 to 14, obtained from a simplified dietary questionnaire (PREDIMED). A medDietScore of 14 indicates maximal adherence to MD while 0 indicates no adherence at all.
+
+### Alpha Diversity - Baseline
+
+We will check, at baseline, if MedDietScore shows any association with Alpha diversity measures (Chao1, Shannon, PD). Results indicate no correlation between any of the alpha-diversity parameters and MedDietScore.
+
+```{r BL Alpha Diversity Chunk 1, echo=F, message=FALSE, warning=FALSE, paged.print=FALSE, tidy=F}
+suppressWarnings(require(phyloseq))
+suppressWarnings(require(phylosmith))
+suppressWarnings(require(patchwork))
+suppressWarnings(require(vegan))
+suppressWarnings(require(ggstatsplot))
+# Load package from local copy
+suppressWarnings(devtools::load_all("~/Documents/Work/Development/WMGSPipeline/"))
+ps_silva<-readRDS("data/cfu/DADA2/ps_silva.rds")
+myMREObject<-readRDS("data/cfu/mreObject.rds")
+myMREObject@wd<-"output/mre_data/cfu"
+
+p0<-phyloseq::sample_data(ps_silva) %>% data.frame() %>% dplyr::filter(Timepoint=="BL") %>% 
+  dplyr::select(MedDietscore,chao1,diversity_shannon,PD) %>% 
+  dplyr::rename(MedDietScore=MedDietscore) %>% 
+  ggstatsplot::ggscatterstats(x=MedDietScore,y=chao1,type="np",bf.message = NULL,title = "Chao1 vs MedDietScore | BL")
+
+p1 <- phyloseq::sample_data(ps_silva) %>% data.frame() %>% dplyr::filter(Timepoint=="BL") %>% 
+  dplyr::select(MedDietscore,chao1,diversity_shannon,PD) %>% 
+  dplyr::rename(MedDietScore=MedDietscore) %>% 
+  dplyr::rename(Shannon=diversity_shannon) %>% 
+  ggstatsplot::ggscatterstats(x=MedDietScore,y=Shannon,type="np",bf.message = NULL,title = "Shannon vs MedDietScore | BL")
+
+p2 <- phyloseq::sample_data(ps_silva) %>% data.frame() %>% dplyr::filter(Timepoint=="BL") %>% 
+  dplyr::select(MedDietscore,chao1,diversity_shannon,PD) %>% 
+  dplyr::rename(MedDietScore=MedDietscore) %>% 
+  dplyr::rename(Shannon=diversity_shannon) %>% 
+  dplyr::rename(PhyloDist=PD) %>% 
+  ggstatsplot::ggscatterstats(x=MedDietScore,y=PhyloDist,type="np",bf.message = NULL,title = "PhyloDist vs MedDietScore")
+
+p0
+p1
+p2
+
+```
+
+### NMDS Ordination - Baseline
+
+We want to check, for baseline samples, if there is any relationship between gut microbiome composition and MedDietScore. For that we perform an NMDS ordination on baseline samples (see baseline analysis) and use each sample NMDS1 and NMDS2 axis coordinate to check correlation with MedDietScore.
+
+```{r BL Ordination chunk 1, echo=F, message=FALSE, warning=FALSE, paged.print=FALSE, tidy=F}
+suppressWarnings(require(phyloseq))
+suppressWarnings(require(phylosmith))
+suppressWarnings(require(patchwork))
+suppressWarnings(require(vegan))
+suppressWarnings(require(ggstatsplot))
+# Load package from local copy
+suppressWarnings(devtools::load_all("~/Documents/Work/Development/WMGSPipeline/"))
+ps_silva<-readRDS("data/cfu/DADA2/ps_silva.rds")
+myMREObject<-readRDS("data/cfu/mreObject.rds")
+myMREObject@wd<-"output/mre_data/cfu"
+
+### BL
+BL_samples<-myMREObject %>% 
+  metar::get_meta() %>% 
+  dplyr::filter(Timepoint=="BL")
+
+auxMREObject<-myMREObject %>%
+  metar::filter_samples(.,BL_samples$SampleID %>% as.vector()) 
+
+auxMREObject@metadata@categorical_vals<-auxMREObject@metadata@categorical_vals %>% dplyr::filter(CategoricalVariable!="Timepoint")
+auxMREObject@taxa@dada2@phyloseq <- auxMREObject@taxa@dada2@phyloseq %>% 
+  phyloseq::transform_sample_counts(., function(x) ((x/sum(x))))
+auxMREObject<-metar::dada2_nmds(tax_level = "Genus", mre = auxMREObject,top_n = 50, save_files = F)
+
+auxMREObject@taxa@dada2@nmds$Genus$top_50$numeric$MedDietscore &
+   theme(plot.title = element_text(size=12)) &
+   theme(plot.subtitle = element_text(size=7))
+
+```
+
+### MDScore-Genus correlation
+
+Apparently, there is a significant correlation between NMDS1 and MedDiet Score. Note, that according to baseline exploration, NMDS1 loads were clearly dominated by Bacteroides presence. In addition we will examine also other genus within this dataset. We will select those that are present in at least 20% of the samples.
+When we examine association between this genus and other and MedDiet Score we detect:
+
+* Weak but significant correlations between MDScore and Lachnospira and Ruminococcus Genera
+* Weak but significant inverse correlations between MDScore and Bifidobacterium and Oscillibacter genera.
+
+Interestingly, Lachnospira genus showed to be enriched after nutrititional intervention in the Intervention Group(IG) but not in the control group(CG). Lachnospiraceae family species are butyrate producers, which specifically habit mammal digestive tract.  Their role in human health is [controverted] (https://www.ncbi.nlm.nih.gov/pmc/articles/PMC7232163/)
+
+Lachnospira was also found to be [enriched in higher MD-adherent healthy dults](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC7401267/). Lachnospira spp also increased in lean individuals upon [physical exercising program](https://journals.lww.com/acsm-msse/Fulltext/2018/04000/Exercise_Alters_Gut_Microbiota_Composition_and.14.aspx), linked to an increase in the detection of butyrate and other SCFAs in feces. Other studies have linked Lachnospira to physical activity or active lifestyle.
+
+Lachnospira has also been linked to the consumption of high-fiber diet in [two independent populations](https://doi.org/10.1017/S0007114518002465) and a randomized clinical study in healthy adults shifting from [whole grains to refined ones](https://pubmed.ncbi.nlm.nih.gov/28179226/)
+
+```{r BL Ordination chunk 2, echo=F, message=FALSE, warning=FALSE, paged.print=FALSE, tidy=F,fig.cap="Correlation heatmap showin correlation values between selected bacterial genus and MDScore values. Blank squares indicate marginally significant correlations (0.05<p<0.1) while values indicate correlation values (r) for significant correlations(p<0.05)"}
+suppressWarnings(require(phyloseq))
+suppressWarnings(require(phylosmith))
+suppressWarnings(require(patchwork))
+suppressWarnings(require(vegan))
+suppressWarnings(require(ggstatsplot))
+# Load package from local copy
+suppressWarnings(devtools::load_all("~/Documents/Work/Development/WMGSPipeline/"))
+ps_silva<-readRDS("data/cfu/DADA2/ps_silva.rds")
+myMREObject<-readRDS("data/cfu/mreObject.rds")
+myMREObject@wd<-"output/mre_data/cfu"
+
+### BL
+BL_samples<-myMREObject %>% 
+  metar::get_meta() %>% 
+  dplyr::filter(Timepoint=="BL")
+
+auxMREObject<-myMREObject %>%
+  metar::filter_samples(.,BL_samples$SampleID %>% as.vector()) 
+
+auxMREObject@metadata@categorical_vals<-auxMREObject@metadata@categorical_vals %>% dplyr::filter(CategoricalVariable!="Timepoint")
+auxMREObject@taxa@dada2@phyloseq <- auxMREObject@taxa@dada2@phyloseq 
+
+my_ps<-metar::get_phyloseq(auxMREObject,type="dada2") %>% 
+  phyloseq::transform_sample_counts(., function(x) ((x/sum(x)))) %>%
+  phyloseq::tax_glom(.,taxrank="Genus",NArm = F) 
+
+wh0=genefilter_sample(my_ps,filterfun_sample(function(x) x>0), A=0.2*nsamples(my_ps)) # Remove singletons
+my_ps<-prune_taxa(wh0,my_ps)
+
+long_psmelt<-my_ps %>% 
+  # microbiome::transform(.,transform="clr") %>%
+  speedyseq::psmelt() %>% 
+  dplyr::select(MedDietscore,Participante,Abundance,Genus) 
+
+bac_genus<-long_psmelt %>% 
+  dplyr::group_by(Genus) %>% 
+  dplyr::summarise(mean=mean(Abundance),var=var(Abundance)) %>% 
+  dplyr::arrange(desc(mean)) 
+
+aux_corr_mat<-long_psmelt %>% 
+  dplyr::filter(Genus %in% bac_genus$Genus) %>% 
+  dplyr::filter(! is.na(MedDietscore)) %>% 
+  tidyr::pivot_wider(values_from = Abundance,names_from = Genus) %>% 
+  dplyr::select(-Participante) %>% as.data.frame() %>% as.matrix()
+
+rcorr_obj<- aux_corr_mat %>% Hmisc::rcorr(type = "spearman") 
+  
+corr_genus<-colnames(rcorr_obj$P[,-1])[rcorr_obj$P[1,-1]<0.1] ### Genus with some significant correlation with MedDietScore
+
+corr_genus_mat<-long_psmelt %>% 
+  dplyr::filter(Genus %in% corr_genus) %>% 
+  dplyr::filter(! is.na(MedDietscore)) %>% 
+  tidyr::pivot_wider(values_from = Abundance,names_from = Genus) %>% 
+  dplyr::select(-Participante) %>% as.data.frame() %>% as.matrix()
+
+# chart.Correlation(corr_genus_mat, histogram = TRUE, pch = 19,method = "spearman")
+testRes = corrplot::cor.mtest(corr_genus_mat, conf.level = 0.95,method="spearman")
+
+corrplot::corrplot(cor(corr_genus_mat,method = "spearman")[1:2,], p.mat = testRes$p[1:2,], method = 'circle', type = 'upper',insig = "blank",
+         addCoef.col ='black', number.cex = 0.8, order = NULL, diag=FALSE, sig.level=0.05, tl.col = "black") 
+```
+
+## Intervention
+
+### MedDietScore Changes
+
+We want to assess it MedDietScore changes after the intervention and if there are any differences between groups in order to assess the effectivity of the intervention. We can see that the median change in the Control Group is 0 while in the intervention group is +1, thus showing an improvement in MD adherence in the intervention group and significant differences in these changes between both groups.
+
+```{r Intervention chunk 1, echo=F, message=FALSE, warning=FALSE, paged.print=FALSE, tidy=F}
+suppressWarnings(require(phyloseq))
+suppressWarnings(require(phylosmith))
+suppressWarnings(require(patchwork))
+suppressWarnings(require(vegan))
+suppressWarnings(require(ggstatsplot))
+# Load package from local copy
+suppressWarnings(devtools::load_all("~/Documents/Work/Development/WMGSPipeline/"))
+ps_silva<-readRDS("data/cfu/DADA2/ps_silva.rds")
+myMREObject<-readRDS("data/cfu/mreObject.rds")
+myMREObject@wd<-"output/mre_data/cfu"
+
+phyloseq::sample_data(ps_silva) %>% data.frame() %>% 
+  dplyr::select(Participante,Center,MedDietscore,Timepoint) %>% 
+  dplyr::group_by(Participante) %>% 
+  tidyr::pivot_wider(values_from = MedDietscore,names_from = Timepoint) %>% 
+  dplyr::mutate(MDScoreDiff=(Month8-BL)) %>% 
+  ggstatsplot::ggbetweenstats(x=Center,y=MDScoreDiff,type="robust",bf.message = NULL,title="MDScore longitudinal changes vs Center")
+
+```
+
+### MD Changes vs Alpha diversity
+
+We want to see if there is any relationship between the magnitude of change in MD adherence (reported through MDScore) and the changes in alpha-diversity. For that we will calculate the relative changes in alpha diversity (Shannon only) for each of the participants, defined as either the (ShannonMonth8 - ShannonBL) difference or the  (ShannonMonth8 - ShannonBL)/(ShannonMonth8 + ShannonBL) relative difference and check statistical association with changes in MDScore. Results indicated that there is no significant relationship.
+
+
+```{r Intervention chunk 2, echo=F, message=FALSE, warning=FALSE, paged.print=FALSE, tidy=F}
+suppressWarnings(require(phyloseq))
+suppressWarnings(require(phylosmith))
+suppressWarnings(require(patchwork))
+suppressWarnings(require(vegan))
+suppressWarnings(require(ggstatsplot))
+# Load package from local copy
+suppressWarnings(devtools::load_all("~/Documents/Work/Development/WMGSPipeline/"))
+ps_silva<-readRDS("data/cfu/DADA2/ps_silva.rds")
+myMREObject<-readRDS("data/cfu/mreObject.rds")
+myMREObject@wd<-"output/mre_data/cfu"
+
+df1<-sample_data(ps_silva) %>% data.frame() %>% 
+  dplyr::select(Participante,Center,MedDietscore,Timepoint) %>% 
+  dplyr::group_by(Participante) %>% 
+  tidyr::pivot_wider(values_from = MedDietscore,names_from = Timepoint) %>% 
+  dplyr::mutate(MDScoreDiff=(Month8-BL))
+
+### Chao1
+df2<-sample_data(ps_silva) %>% data.frame() %>% 
+  dplyr::select(Participante,Center, chao1,  Timepoint) %>% 
+  dplyr::rename(Chao1=chao1) %>% 
+  dplyr::group_by(Participante) %>% 
+  tidyr::pivot_wider(values_from = Chao1,names_from = Timepoint) %>% 
+  dplyr::mutate(Chao1Diff=((Month8-BL)/(Month8+BL)))
+
+df1 %>% 
+  dplyr::left_join(df2,by=c("Participante","Center")) %>% 
+  ggstatsplot::ggscatterstats(MDScoreDiff,Chao1Diff,type="robust",bf.message=NULL, title="MD vs Chao1 Changes")
+
+
+### Shannon
+df2<-sample_data(ps_silva) %>% data.frame() %>% 
+  dplyr::select(Participante,Center, diversity_shannon,  Timepoint) %>% 
+  dplyr::rename(Shannon=diversity_shannon) %>% 
+  dplyr::group_by(Participante) %>% 
+  tidyr::pivot_wider(values_from = Shannon,names_from = Timepoint) %>% 
+  dplyr::mutate(ShannonRelDiff=((Month8-BL)/(Month8+BL))) 
+
+df1 %>% 
+  dplyr::left_join(df2,by=c("Participante","Center")) %>% 
+  ggstatsplot::ggscatterstats(MDScoreDiff,ShannonRelDiff,type="robust",bf.message=NULL, title="MD vs Shannon Changes")
+
+### PhyloGenetic Div
+df2<-sample_data(ps_silva) %>% data.frame() %>% 
+  dplyr::select(Participante,Center, PD,  Timepoint) %>% 
+  dplyr::rename(PhyloDiv=PD) %>% 
+  dplyr::group_by(Participante) %>% 
+  tidyr::pivot_wider(values_from = PhyloDiv,names_from = Timepoint) %>% 
+  dplyr::mutate(PhyloDivDiff=((Month8-BL)/(Month8+BL)))
+
+df1 %>% 
+  dplyr::left_join(df2,by=c("Participante","Center")) %>% 
+  ggstatsplot::ggscatterstats(MDScoreDiff,PhyloDivDiff,type="robust",bf.message=NULL, title="MD vs Chao1 Changes")
+
+```
+
+### MD Changes vs. Beta-Diversity
+
+We want to see if there is any relationship between the magnitude of change in MD adherence (reported through MDScore) and the magnitude of changes in the composition of the gut microbiome of the participants. For that we will calculate the relative changes using Weighted-Unifrac distance for each of the participants, and check statistical association with changes in MDScore. Results indicated that there is no significant relationship (p=0.08)
+
+```{r Intervention chunk 3, echo=F, message=FALSE, warning=FALSE, paged.print=FALSE, tidy=F}
+suppressWarnings(require(phyloseq))
+suppressWarnings(require(phylosmith))
+suppressWarnings(require(patchwork))
+suppressWarnings(require(vegan))
+suppressWarnings(require(ggstatsplot))
+# Load package from local copy
+suppressWarnings(devtools::load_all("~/Documents/Work/Development/WMGSPipeline/"))
+ps_silva<-readRDS("data/cfu/DADA2/ps_silva.rds")
+myMREObject<-readRDS("data/cfu/mreObject.rds")
+myMREObject@wd<-"output/mre_data/cfu"
+
+df1<-sample_data(ps_silva) %>% data.frame() %>% 
+  dplyr::select(Participante,Center,MedDietscore,Timepoint) %>% 
+  dplyr::group_by(Participante) %>% 
+  tidyr::pivot_wider(values_from = MedDietscore,names_from = Timepoint) %>% 
+  dplyr::mutate(MDScoreDiff=(Month8-BL))
+
+aux_dist<-read.csv("output/Deliverables/WUnifrac_Distances.csv") %>% 
+  dplyr::select(-X) %>% 
+  dplyr::rename(SampleID=Sample1,SampleID2=Sample2)
+
+pairwise_distances<-sample_data(ps_silva) %>% 
+  data.frame() %>% 
+  dplyr::filter(Timepoint=="BL") %>% 
+  dplyr::left_join(sample_data(ps_silva) %>%
+                     data.frame() %>% 
+                     dplyr::filter(Timepoint=="Month8") %>% 
+                     dplyr::select(SampleID,Participante) %>% 
+                     dplyr::rename(SampleID2=SampleID)) %>% 
+    dplyr::select(SampleID,SampleID2,Participante,Center)
+
+
+pairwise_distances %>% 
+  dplyr::left_join(.,aux_dist) %>% 
+  dplyr::left_join(df1,by=c("Participante","Center")) %>% 
+  dplyr::left_join(pairwise_distances,by=c("Participante","Center")) %>% 
+  ggstatsplot::ggscatterstats(MDScoreDiff,WUnifracDistance,type="robust",bf.message=NULL, title="MD vs WUnifrac Changes")
+
+```
+
+
+### Stratified Analysis
+
+In order to further study whether increased MD-Adherence was related to the increase in several bacterial genera we souhgt to stratify individuals by the increase on MDscore along the study. For this we extracted the 10% individuals with the highest increased adherence to MD, disregarding the center where they were allocated to, in order to characterize the changes of their microbiome after the intervention time window.
+
+
+
+```{r Intervention chunk 4, echo=F, message=FALSE, warning=FALSE, paged.print=FALSE, tidy=F}
+suppressWarnings(require(phyloseq))
+suppressWarnings(require(phylosmith))
+suppressWarnings(require(patchwork))
+suppressWarnings(require(vegan))
+suppressWarnings(require(ggstatsplot))
+suppressWarnings(require(lefser))
+# Load package from local copy
+suppressWarnings(devtools::load_all("~/Documents/Work/Development/WMGSPipeline/"))
+ps_silva<-readRDS("data/cfu/DADA2/ps_silva.rds")
+myMREObject<-readRDS("data/cfu/mreObject.rds")
+myMREObject@wd<-"output/mre_data/cfu"
+
+mddiff_data<-phyloseq::sample_data(ps_silva) %>% data.frame() %>% 
+  dplyr::select(Participante,Center,MedDietscore,Timepoint) %>% 
+  dplyr::group_by(Participante) %>% 
+  tidyr::pivot_wider(values_from = MedDietscore,names_from = Timepoint) %>% 
+  dplyr::mutate(MDScoreDiff=(Month8-BL)) %>% 
+  tidyr::drop_na(MDScoreDiff)
+
+my_quantile<-quantile(mddiff_data$MDScoreDiff,0.75) ### quantile == 2
+
+# mddiff_data%>% 
+#   ggplot(aes(x=MDScoreDiff))+
+#     geom_histogram(aes(y =..density..),
+#                    breaks = seq(-7, 6, by = 1), 
+#                    colour = "black", 
+#                    fill = "white") +
+#     geom_vline(aes(xintercept = my_quantile))
+
+
+mddiff_q66<-phyloseq::sample_data(ps_silva) %>% data.frame() %>% 
+  dplyr::select(Participante,Center,MedDietscore,Timepoint) %>% 
+  dplyr::group_by(Participante) %>% 
+  tidyr::pivot_wider(values_from = MedDietscore,names_from = Timepoint) %>% 
+  dplyr::mutate(MDScoreDiff=(Month8-BL)) %>% 
+  dplyr::filter(MDScoreDiff>=my_quantile)
+
+
+x.2.0 <- ps_silva %>% 
+  phyloseq::subset_samples(Center=="IG") 
+  
+threshold<-x.2.0 %>% otu_table( ) %>% colSums() %>% quantile(.,0.01)
+# threshold<-ps_silva %>% otu_table( ) %>% colSums() %>% min()
+set.seed(1234)
+x.2.0 <-phyloseq::rarefy_even_depth(x.2.0,sample.size = threshold)
+
+### IG
+### d samples
+x.2.0<-x.2.0 %>% 
+  phyloseq::subset_samples( Participante %in% mddiff_q66$Participante)
+  
+  # microbiome::transform(transform="compositional")
+
+se_ps<-SummarizedExperiment::SummarizedExperiment(assays = list(counts=as.matrix(otu_table(x.2.0))),
+                                                  colData=sample_data(x.2.0),
+                                                  rowData=tax_table(x.2.0))
+aux_res<-lefser(expr=se_ps,groupCol="Timepoint",blockCol = NULL,lda.threshold = 1)
+aux_res<- merge(aux_res,tax_table(x.2.0),by.x="Names",by.y="row.names")%>% 
+  dplyr::select(Names,Phylum,Class,Order,Family,Genus,scores) %>% 
+  dplyr::mutate(Class=ifelse(is.na(Class),Phylum,Class)) %>% 
+  dplyr::mutate(Order=ifelse(is.na(Order),Class,Order)) %>% 
+  dplyr::mutate(Family=ifelse(is.na(Family),Order,Family)) %>% 
+  dplyr::mutate(Genus=ifelse(is.na(Genus),paste0(Family,"_spp"),Genus)) %>% 
+  dplyr::filter(! is.na(Genus)) %>% 
+  dplyr::mutate(otu=Names) %>% 
+  dplyr::mutate(Names=Genus) %>% 
+  dplyr::select(otu,Names,scores) %>% 
+  dplyr::mutate(Names = forcats::fct_reorder(Names, scores)) %>% 
+  dplyr::mutate(time_point=ifelse(scores>0,"Month8","BL"))
+p0<-aux_res %>% 
+    ggplot(.,aes(x=Names,y=scores,fill=time_point))+geom_bar(stat="identity")+coord_flip()+
+    theme_classic()+ggtitle("Month8 vs BL | q10")+
+    scale_fill_brewer(palette="Dark2") 
+
+ggsave(plot=p0,"output/Deliverables/DifferentialAbundance/lefse/boxplots/lefser_Month8_vs_BL_q10_samples.pdf")
+    
+for(otu_name in aux_res$otu){
+  my_ps <- x.2.0
+  title <- aux_res %>% 
+    dplyr::filter(otu==otu_name) 
+  my_ps %>% 
+  phyloseq::psmelt()%>% 
+  dplyr::filter(OTU==otu_name) %>% 
+  ggstatsplot::ggbetweenstats(data = .,x=Timepoint,y=Abundance,
+                                       xlab=NULL,ylab=NULL,centrality.plotting=T,
+                                      title=title$Names,
+                                       method="bayes",palette="Dark2") %>% 
+  
+   ggsave(.,filename=paste0("output/Deliverables/DifferentialAbundance/lefse/boxplots/",title$Names,"_vs_Timepoint_q10_Samples.pdf"),width=7, height=7)
+}
+
+    
+```
+
+
+Importantly, observed difference in the upper DeltaMDScore quartile, were not observed in the CG upper DeltaMDScore quartile, but were observed in the IG lower DeltaMDSCore (those with reduced adherence to MD in Month8). This may indicate that Increases in butyrate producing genus are related to the intervention itself, not to the changes in adherence to MD, as assessed by MDScore. While, presumably, multifactor intervention has not had the same effect on all individuals on IG, some individuals in the CG may have improved their lifestyle despite receiving only a subgroup of intervention measures. 
+
+MDScore only assesses the adherence to MD. While diet is a key component of the multifactorial intervention, other components may have had some effect on the gut microbiome composition. Interestingly, the multifactorial intervention also consisted on counseling to improve physical activity. Physical Activity was assessed at BL and Month8 using IPAQ score but can also be ascertained by changes in BMI
+
+### DeltaMDScore-Genus
+
+An independent way to try to find changes associated to the mediterranean intervention is to focus on the intervention group, and calculate, for every patient, the change in the MDScore, that we can calculate either as absolute or relative value, and try to find associations with bacterial genus increases or decreases in their relative abundance. That is, the change in % of each genus between Month8 and BL samples.
+
+```{r Intervention chunk 5, echo=F, message=FALSE, warning=FALSE, paged.print=FALSE, tidy=F}
+suppressWarnings(require(phyloseq))
+suppressWarnings(require(phylosmith))
+suppressWarnings(require(patchwork))
+suppressWarnings(require(vegan))
+suppressWarnings(require(ggstatsplot))
+suppressWarnings(require(lefser))
+# Load package from local copy
+suppressWarnings(devtools::load_all("~/Documents/Work/Development/WMGSPipeline/"))
+ps_silva<-readRDS("data/cfu/DADA2/ps_silva.rds")
+myMREObject<-readRDS("data/cfu/mreObject.rds")
+myMREObject@wd<-"output/mre_data/cfu"
+
+ps_silva<-metar::get_phyloseq(myMREObject,type="dada2") %>% 
+  phyloseq::transform_sample_counts(., function(x) ((x/sum(x)))) %>%
+  phyloseq::tax_glom(.,taxrank="Genus",NArm = F) 
+
+wh0=genefilter_sample(ps_silva,filterfun_sample(function(x) x>0), A=0.2*nsamples(ps_silva)) # Remove singletons
+ps_silva<-prune_taxa(wh0,ps_silva)
+
+
+mddiff_data<-phyloseq::sample_data(ps_silva) %>% data.frame() %>% 
+  dplyr::select(Participante,Center,MedDietscore,Timepoint) %>% 
+  dplyr::group_by(Participante) %>% 
+  tidyr::pivot_wider(values_from = MedDietscore,names_from = Timepoint) %>% 
+  dplyr::mutate(MDScoreDiff=(Month8-BL)) %>% 
+  dplyr::mutate(MDScoreRelDiff=(Month8-BL)/(Month8+BL)) %>% 
+  dplyr::rename(MDMonth8=Month8,MDBL=BL)
+
+genusdiff_data<-phyloseq::psmelt(ps_silva ) %>% 
+  dplyr::select(Participante,Timepoint,Genus,Abundance) %>% 
+  tidyr::pivot_wider(values_from=Abundance,names_from=Timepoint) %>% 
+  tidyr::unnest() %>% 
+  dplyr::group_by(Participante,Genus) %>% 
+  dplyr::mutate(GenusDiff=Month8-BL) %>% 
+  dplyr::mutate(GenusRelDiff=(Month8-BL)/(Month8+BL)) %>% 
+  dplyr::rename(AbundanceMonth8=Month8,AbundanceBL=BL)
+
+### To plot a single genus
+# genusdiff_data %>% 
+#   dplyr::left_join(mddiff_data,by="Participante") %>%
+#   dplyr::filter(Genus=="Lachnospira") %>% 
+#   ggstatsplot::ggscatterstats(MDScoreRelDiff,GenusDiff)
+
+
+mdgenusdiff_data<-genusdiff_data %>% 
+  dplyr::left_join(mddiff_data,by="Participante") %>% 
+  dplyr::select(GenusDiff,MDScoreRelDiff) %>% 
+  tidyr::drop_na() %>% 
+  dplyr::ungroup() %>% 
+  tidyr::pivot_wider(values_from = GenusDiff,names_from=Genus) %>% tidyr::unnest() 
+
+### To obtain genus that show high prevalence
+prop_zero_threshold=1
+hp_genus<-mdgenusdiff_data %>% as.data.frame() %>% apply(., 2, function(c)(sum(c==0)))  %>% as.data.frame() %>% 
+  dplyr::rename(counts='.') %>% 
+  dplyr::mutate(prop_zero=counts/(nrow(mdgenusdiff_data)-2)) %>% 
+  dplyr::filter(prop_zero<prop_zero_threshold) %>% rownames()
+
+aux_corr_mat<-mdgenusdiff_data %>% 
+  dplyr::select(hp_genus) %>% 
+  dplyr::select(-Participante) %>% 
+  as.data.frame() %>% 
+  as.matrix()
+
+rcorr_obj<- aux_corr_mat %>% Hmisc::rcorr(type = "spearman") 
+  
+corr_genus<-colnames(rcorr_obj$P[,-1])[rcorr_obj$P[1,-1]<0.05] ### Genus with some significant correlation with Delta_MedDietScore
+
+corr_genus_mat<-aux_corr_mat[,c("MDScoreRelDiff",corr_genus)]
+
+# chart.Correlation(corr_genus_mat, histogram = TRUE, pch = 19,method = "spearman")
+testRes = corrplot::cor.mtest(corr_genus_mat, conf.level = 0.95,method="spearman")
+
+corrplot::corrplot(cor(corr_genus_mat,method = "spearman")[1:2,], p.mat = testRes$p[1:2,], method = 'circle', type = 'upper',insig = "blank",
+         addCoef.col ='black', number.cex = 0.8, order = NULL, diag=FALSE, sig.level=0.05, tl.col = "black") 
+
+  
+```

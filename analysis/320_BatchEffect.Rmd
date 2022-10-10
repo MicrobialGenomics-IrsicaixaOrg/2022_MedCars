@@ -1,0 +1,466 @@
+---
+site: workflowr::wflow_site
+title: "Batch effect analysis"
+author: "Marc Noguera-Julian, PhD. "
+date: "`r format(Sys.time(), '%Y-%m-%d')`"
+header-includes:
+- \usepackage{fancyhdr}
+- \usepackage{lipsum}
+- \pagestyle{fancy}
+- \fancyhead[CO,CE]{Microbioma intestinal en intervencion nutricional}
+- \fancyfoot[LO,RE]{Marc Noguera-Julian, IrsiCaixa}
+- \fancyhead[LE,RO]{\thepage}
+- \fancyfoot[CO,CE]{}
+- \usepackage[default]{sourcesanspro}
+- \usepackage[T1]{fontenc}
+- \usepackage{eso-pic,graphicx,transparent}
+mainfont: Helvetica
+output: html_document
+---
+
+```{r setup, include=TRUE, echo=F, message=FALSE, warning=FALSE, paged.print=FALSE, tidy=T}
+knitr::opts_chunk$set(echo = FALSE)
+knitr::opts_knit$set(root.dir = here::here())
+rmd_env <- "devel"
+```
+
+## Introduction
+
+MedCars-Microbiome study had about 1100 samples that had to be 16S-sequenced. Due to experimental design, sequencing was performed using MiSeq Illumina instrument, that has a limited throughput. This limitation tranlsated in samples being divided in three independent sequencing runs. While technology provides good quality data, sequencing error models can be run-specific and affect downstream data. This needs to be checked. 
+
+Samples were carefully distributed in order to have the two samples from the same participant in the same run in order to keep to longitudinal design and comparability of samples. Nonetheless, we need to know if IG and CG samples were distributed among runs in a balanced way.
+
+We can see, that CG samples were underrepresented in Run3, while they were a bit overrepresented in Run2. Timepoint was not linked to any significant imbalance among runs, as expected.
+
+```{r Batch effect chunk1, include=TRUE, echo=F, message=FALSE, warning=FALSE, paged.print=FALSE, tidy=T}
+suppressWarnings(require(phyloseq))
+suppressWarnings(require(phylosmith))
+suppressWarnings(require(patchwork))
+suppressWarnings(require(vegan))
+suppressWarnings(require(ggstatsplot))
+suppressWarnings(require(xlsx))
+# Load package from local copy
+suppressWarnings(devtools::load_all("~/Documents/Work/Development/WMGSPipeline/"))
+ps_silva<-readRDS("data/cfu/DADA2/ps_silva.rds")
+myMREObject<-readRDS("data/cfu/mreObject.rds")
+myMREObject@wd<-"output/mre_data/cfu"
+
+metadata_df<-metar::get_meta(myMREObject)
+
+table(metadata_df$Run,metadata_df$Center) %>%  chisq.test() ### Wel balanced
+table(metadata_df$Run,metadata_df$Timepoint) %>%  chisq.test() ### Well balanced 
+```
+
+## Alpha Diversity
+
+Of note, alpha diversity measures are different among the different runs. Alpha diversity measures (Chao1, Shannon and PD), are more sensitive to sequencing error and inferred error models. Due to the imbalance of IG/CG samples through runs, this could be affecting the IG vs. CG comparisong when all runs are considered alltogether.
+
+```{r batch effects on alpha diversity chunk1,include=TRUE, echo=F, message=FALSE, warning=FALSE, paged.print=FALSE, tidy=T}
+alpha_df<-phyloseq::estimate_richness(get_phyloseq(myMREObject,type="dada2")) %>% as.data.frame()
+rownames(alpha_df)<-gsub("X","",rownames(alpha_df))
+alpha_df$SampleID<-rownames(alpha_df)
+metadata_df<-metadata_df %>% 
+  dplyr::left_join(alpha_df) 
+  
+metadata_df %>% ggstatsplot::ggbetweenstats(.,x=Run,
+                              y=Chao1,
+                              type = "parametric", 
+                              centrality.plotting=T,bf.message = FALSE,
+                              p.adjust.method = "BH",pairwise.display = F, title =  "Chao1 vs Run ",
+                              annotation.args = list(title = "Chao1 index vs Run",
+                                                         theme = ggplot2::theme(
+                                                                plot.subtitle = ggplot2::element_text(size = 13),
+                                                                plot.title = ggplot2::element_text(size = 14)
+                                                                )
+                                                         ))
+
+metadata_df %>% ggstatsplot::ggbetweenstats(.,x=Run,
+                              y=Shannon,
+                              type = "parametric", 
+                              centrality.plotting=T,bf.message = FALSE,
+                              p.adjust.method = "BH",pairwise.display = F, title =  "Shannon vs Run ",
+                              annotation.args = list(title = "Shannon index vs Run",
+                                                         theme = ggplot2::theme(
+                                                                plot.subtitle = ggplot2::element_text(size = 13),
+                                                                plot.title = ggplot2::element_text(size = 14)
+                                                                )
+                                                         ))
+
+
+metadata_df %>% ggstatsplot::ggbetweenstats(.,x=Run,
+                              y=PD,
+                              type = "parametric", 
+                              centrality.plotting=T,bf.message = FALSE,
+                              p.adjust.method = "BH",pairwise.display = F, title =  "PD vs Run ",
+                              annotation.args = list(title = "PD index vs Run",
+                                                         theme = ggplot2::theme(
+                                                                plot.subtitle = ggplot2::element_text(size = 13),
+                                                                plot.title = ggplot2::element_text(size = 14)
+                                                                )
+                                                         ))
+
+```
+
+
+Let's see how Month8 vs baseling comparisong are consistent in different runs. This would indicate a batch effect on alpha diversity that could be affecting our design. Note that it would not be affecting Delta comparison testing, since we can reasonably assume that Month8 vs. BL differences are stable.
+
+### Chao1
+
+Chao1 is the most unstable measure when comparing runs. This is to be expected because the rare ASV have more weight in this measure.
+
+```{r batch effects on alpha diversity chunk2,include=TRUE, echo=F, message=FALSE, warning=FALSE, paged.print=FALSE, tidy=T}
+
+metadata_df %>% 
+  dplyr::arrange(Participante,Center) %>% 
+  dplyr::filter(Center=="IG") %>% 
+  ggstatsplot::grouped_ggwithinstats(.,x=Timepoint,type = "nonparametric",grouping.var = Run,
+                              y=Chao1,pairwise.comparisons = T,
+                              centrality.plotting=T,
+                              p.adjust.method = "BH",pairwise.display = T, 
+                              annotation.args = list(
+                                                         theme = ggplot2::theme(
+                                                                plot.subtitle = ggplot2::element_text(size = 13),
+                                                                plot.title = ggplot2::element_text(size = 14)
+                                                                )
+                                                         ))
+
+metadata_df %>% 
+  dplyr::arrange(Participante,Center) %>% 
+  dplyr::filter(Center=="CG") %>% 
+  ggstatsplot::grouped_ggwithinstats(.,x=Timepoint,type = "nonparametric",grouping.var = Run,
+                              y=Chao1,pairwise.comparisons = T,
+                              centrality.plotting=T,
+                              p.adjust.method = "BH",pairwise.display = T, 
+                              annotation.args = list(
+                                                         theme = ggplot2::theme(
+                                                                plot.subtitle = ggplot2::element_text(size = 13),
+                                                                plot.title = ggplot2::element_text(size = 14)
+                                                                )
+                                                         ))
+# 
+# metadata_df %>% 
+#   dplyr::filter(Center=="IG") %>% 
+#   lm(Shannon ~  Run,data=.) %>% summary()
+#   
+# metadata_df %>% 
+#   dplyr::filter(Center=="CG") %>% 
+#   glm(Shannon ~Timepoint + Run,data=.) %>% summary()
+```
+
+### Shannon
+
+```{r batch effects on alpha diversity chunk3,include=TRUE, echo=F, message=FALSE, warning=FALSE, paged.print=FALSE, tidy=T}
+
+metadata_df %>% 
+  dplyr::arrange(Participante,Center) %>% 
+  dplyr::filter(Center=="IG") %>% 
+  ggstatsplot::grouped_ggwithinstats(.,x=Timepoint,type = "nonparametric",grouping.var = Run,
+                              y=Shannon,pairwise.comparisons = T,
+                              centrality.plotting=T,
+                              p.adjust.method = "BH",pairwise.display = T, 
+                              annotation.args = list(
+                                                         theme = ggplot2::theme(
+                                                                plot.subtitle = ggplot2::element_text(size = 13),
+                                                                plot.title = ggplot2::element_text(size = 14)
+                                                                )
+                                                         ))
+
+metadata_df %>% 
+  dplyr::arrange(Participante,Center) %>% 
+  dplyr::filter(Center=="CG") %>% 
+  ggstatsplot::grouped_ggwithinstats(.,x=Timepoint,type = "nonparametric",grouping.var = Run,
+                              y=Shannon,pairwise.comparisons = T,
+                              centrality.plotting=T,
+                              p.adjust.method = "BH",pairwise.display = T, 
+                              annotation.args = list(
+                                                         theme = ggplot2::theme(
+                                                                plot.subtitle = ggplot2::element_text(size = 13),
+                                                                plot.title = ggplot2::element_text(size = 14)
+                                                                )
+                                                         ))
+# 
+# metadata_df %>% 
+#   dplyr::filter(Center=="IG") %>% 
+#   lm(Shannon ~  Run,data=.) %>% summary()
+#   
+# metadata_df %>% 
+#   dplyr::filter(Center=="CG") %>% 
+#   glm(Shannon ~Timepoint + Run,data=.) %>% summary()
+```
+### Phylogenetic diversity
+
+```{r batch effects on alpha diversity chunk3 i mig,include=TRUE, echo=F, message=FALSE, warning=FALSE, paged.print=FALSE, tidy=T}
+
+metadata_df %>% 
+  dplyr::arrange(Participante,Center) %>% 
+  dplyr::filter(Center=="IG") %>% 
+  ggstatsplot::grouped_ggwithinstats(.,x=Timepoint,type = "nonparametric",grouping.var = Run,
+                              y=PD,pairwise.comparisons = T,
+                              centrality.plotting=T,
+                              p.adjust.method = "BH",pairwise.display = T, 
+                              annotation.args = list(
+                                                         theme = ggplot2::theme(
+                                                                plot.subtitle = ggplot2::element_text(size = 13),
+                                                                plot.title = ggplot2::element_text(size = 14)
+                                                                )
+                                                         ))
+
+metadata_df %>% 
+  dplyr::arrange(Participante,Center) %>% 
+  dplyr::filter(Center=="CG") %>% 
+  ggstatsplot::grouped_ggwithinstats(.,x=Timepoint,type = "nonparametric",grouping.var = Run,
+                              y=PD,pairwise.comparisons = T,
+                              centrality.plotting=T,
+                              p.adjust.method = "BH",pairwise.display = T, 
+                              annotation.args = list(
+                                                         theme = ggplot2::theme(
+                                                                plot.subtitle = ggplot2::element_text(size = 13),
+                                                                plot.title = ggplot2::element_text(size = 14)
+                                                                )
+                                                         ))
+# 
+# metadata_df %>% 
+#   dplyr::filter(Center=="IG") %>% 
+#   lm(Shannon ~  Run,data=.) %>% summary()
+#   
+# metadata_df %>% 
+#   dplyr::filter(Center=="CG") %>% 
+#   glm(Shannon ~Timepoint + Run,data=.) %>% summary()
+```
+
+### Adjusted models
+
+In order to make sure that the IG vs CG comparisons are in order and not confounded by Run, we'll run an adjusted model, also including other variables that are unbalances (Age, Smoker, Alcohol consumption)
+
+#### Uni-variate
+```{r batch effects on alpha diversity chunk4,include=TRUE, echo=F, message=FALSE, warning=FALSE, paged.print=FALSE, tidy=T}
+
+### univariate model with no adjustment tells us that CG has a slight higher shannon diversity.
+
+metadata_df %>%
+  dplyr::filter(Timepoint=="BL") %>% 
+  lm(Chao1 ~  Center,data=.) %>% broom::tidy() %>% knitr::kable(
+    caption = "Univariate Linear model for Chao1 Diversity considering only workcenter.",
+    col.names = c("Predictor", "B", "SE", "t", "p"),
+    digits = c(0, 2, 3, 2, 3)
+  )
+metadata_df %>%
+  dplyr::filter(Timepoint=="BL") %>% 
+  lm(Shannon ~  Center,data=.) %>% broom::tidy() %>% knitr::kable(
+    caption = "Univariate Linear model for Shannon Diversity considering only workcenter.",
+    col.names = c("Predictor", "B", "SE", "t", "p"),
+    digits = c(0, 2, 3, 2, 3)
+  )
+metadata_df %>%
+  dplyr::filter(Timepoint=="BL") %>% 
+  lm(PD ~  Center,data=.) %>% broom::tidy() %>% knitr::kable(
+    caption = "Univariate Linear model for PhyloDiv Diversity considering only workcenter.",
+    col.names = c("Predictor", "B", "SE", "t", "p"),
+    digits = c(0, 2, 3, 2, 3)
+  )
+```
+
+#### Multi-variate
+
+For Baseline samples, there is no significant independent association between workcenter and any of the alpha diversity parameters.
+```{r batch effects on alpha diversity chunk5,include=TRUE, echo=F, message=FALSE, warning=FALSE, paged.print=FALSE, tidy=T}
+metadata_df<-metadata_df %>% 
+   dplyr::mutate(MDScore=MedDietscore) %>% 
+  dplyr::mutate(IPAQ=METActividadFisicabasaltotal) %>% 
+  dplyr::mutate(BMI=Peso/((Talla/100)^2))
+
+metadata_df %>%
+  dplyr::filter(Timepoint=="BL") %>% 
+  dplyr::rename(Age=Edad) %>% 
+  lm(Chao1 ~  Center+Gender+Age+Smoker+Run+UBE+IPAQ+MDScore+BMI,data=.) %>% broom::tidy() %>% knitr::kable(
+    caption = "Multivariate Linear model for Chao1 Diversity, adjusted for Age, Smoking, Alcohol Consumption and Sequencing Run.",
+    col.names = c("Predictor", "B", "SE", "t", "p"),
+    digits = c(0, 2, 3, 2, 3)
+  )
+
+metadata_df %>%
+  dplyr::filter(Timepoint=="BL") %>% 
+  dplyr::rename(Age=Edad) %>% 
+  lm(Shannon ~  Center+Gender+Age+Smoker+Run+UBE+IPAQ+MDScore+BMI,data=.) %>% broom::tidy() %>% knitr::kable(
+    caption = "Multivariate Linear model for Shannon Diversity, adjusted for Age, Smoking, Alcohol Consumption and Sequencing Run.",
+    col.names = c("Predictor", "B", "SE", "t", "p"),
+    digits = c(0, 2, 3, 2,4)
+  )
+
+metadata_df %>%
+  dplyr::filter(Timepoint=="BL") %>% 
+  dplyr::rename(Age=Edad) %>% 
+  lm(PD ~  Center+Gender+Age+Smoker+Run+UBE+IPAQ+MDScore+BMI,data=.) %>% broom::tidy() %>% knitr::kable(
+    caption = "Multivariate Linear model for PD Diversity, adjusted for Age, Smoking, Alcohol Consumption and Sequencing Run.",
+    col.names = c("Predictor", "B", "SE", "t", "p"),
+    digits = c(0, 2, 3, 2, 4)
+  )
+#   
+# metadata_df %>% 
+#   dplyr::filter(Center=="CG") %>% 
+#   glm(Shannon ~Timepoint + Run,data=.) %>% summary()
+```
+
+For Month8 samples
+
+```{r batch effects on alpha diversity chunk6,include=TRUE, echo=F, message=FALSE, warning=FALSE, paged.print=FALSE, tidy=T}
+
+
+metadata_df %>%
+  dplyr::filter(Timepoint=="Month8") %>% 
+  dplyr::rename(Age=Edad) %>% 
+  lm(Chao1 ~  Center+Gender+Age+Smoker+Run+UBE+IPAQ+MDScore+BMI,data=.) %>% broom::tidy() %>% knitr::kable(
+    caption = "Multivariate Linear model for Chao1 Diversity, adjusted for Age, Smoking, Alcohol Consumption and Sequencing Run.",
+    col.names = c("Predictor", "B", "SE", "t", "p"),
+    digits = c(0, 2, 3, 2, 3)
+  )
+
+metadata_df %>%
+  dplyr::filter(Timepoint=="Month8") %>% 
+  dplyr::rename(Age=Edad) %>% 
+  lm(Shannon ~  Center+Gender+Age+Smoker+Run+UBE+IPAQ+MDScore+BMI,data=.) %>% broom::tidy() %>% knitr::kable(
+    caption = "Multivariate Linear model for Shannon Diversity, adjusted for Age, Smoking, Alcohol Consumption and Sequencing Run.",
+    col.names = c("Predictor", "B", "SE", "t", "p"),
+    digits = c(0, 2, 3, 2,4)
+  )
+
+metadata_df %>%
+  dplyr::filter(Timepoint=="Month8") %>% 
+  dplyr::rename(Age=Edad) %>% 
+  lm(PD ~  Center+Gender+Age+Smoker+Run+UBE+IPAQ+MDScore+BMI,data=.) %>% broom::tidy() %>% knitr::kable(
+    caption = "Multivariate Linear model for PD Diversity, adjusted for Age, Smoking, Alcohol Consumption and Sequencing Run.",
+    col.names = c("Predictor", "B", "SE", "t", "p"),
+    digits = c(0, 2, 3, 2, 4)
+  )
+#   
+# metadata_df %>% 
+#   dplyr::filter(Center=="CG") %>% 
+#   glm(Shannon ~Timepoint + Run,data=.) %>% summary()
+```
+
+## Beta Diversity
+
+We are interested in checking if The taxonomical composition of the samples has been also significantly altered by the sequencing error profile that is linked to the run. This should not happen, or alteration should be marginal.
+
+### F/B ratio
+
+Since F/B ratio is one of the parameters we are discussing in the manuscript we will check it specifically. Results indicate that there is no significant difference among runs related to the F/B ratio either globally or at baseline
+
+```{r beta diversity chunk 1, echo=F, message=FALSE, warning=FALSE, paged.print=FALSE, tidy=T}
+suppressWarnings(require(phyloseq))
+suppressWarnings(require(ggstatsplot))
+# Load package from local copy
+suppressWarnings(devtools::load_all("~/Documents/Work/Development/WMGSPipeline/"))
+ps_silva<-readRDS("data/cfu/DADA2/ps_silva.rds")
+myMREObject<-readRDS("data/cfu/mreObject.rds")
+myMREObject@wd<-"output/mre_data/cfu"
+
+
+aux_df<-tax_glom(ps_silva,taxrank="Phylum", NArm = F) %>% 
+  phyloseq::psmelt( ) %>% 
+  dplyr::select(Center,Timepoint,Participante,Phylum, Abundance) %>% 
+  dplyr::filter(Phylum %in% c("Firmicutes","Bacteroidetes")) %>% 
+  tidyr::pivot_wider(names_from=Phylum,values_from = Abundance) %>% 
+  dplyr::arrange(Participante) %>% 
+  dplyr::mutate(ratio=Firmicutes/Bacteroidetes) %>% 
+  dplyr::left_join(metar::get_meta(myMREObject))
+
+aux_df %>% 
+  ggstatsplot::ggbetweenstats(Run, ratio,title = "F/B ratio vs Run",bf.message = F,type="np") ## There is no significant difference
+ 
+aux_df %>% 
+  dplyr::filter(Timepoint=="BL") %>% 
+  ggstatsplot::ggbetweenstats(Run, ratio,title = "F/B ratio vs Run at baseline",bf.message = F,type="np")
+```
+#### Multivariate models
+
+Anyhow, we'll run adjusted models for F/B ratio regarding Age, Gender, Smoking and Run
+```{r beta diversity chunk 2, echo=F, message=FALSE, warning=FALSE, paged.print=FALSE, tidy=T}
+aux_df<-aux_df %>% 
+   dplyr::mutate(MDScore=MedDietscore) %>% 
+  dplyr::mutate(IPAQ=METActividadFisicabasaltotal) %>% 
+  dplyr::mutate(BMI=Peso/((Talla/100)^2))
+
+aux_df %>%
+  dplyr::filter(Timepoint=="BL") %>% 
+  dplyr::rename(Age=Edad) %>% 
+  lm(ratio ~  Center+Gender+Age+Smoker+Run+UBE+IPAQ+MDScore+BMI,data=.)%>% broom::tidy() %>% knitr::kable(
+    caption = "BL | Multivariate Linear model for F/B ratio, adjusted for Age, Smoking, Alcohol Consumption and Sequencing Run.",
+    col.names = c("Predictor", "B", "SE", "t", "p"),
+    digits = c(0, 2, 3, 2, 4)
+  )
+
+aux_df %>%
+  dplyr::filter(Timepoint=="Month8") %>% 
+  dplyr::rename(Age=Edad) %>% 
+  lm(ratio ~  Center+Gender+Age+Smoker+Run+UBE+IPAQ+MDScore+BMI,data=.)%>% broom::tidy() %>% knitr::kable(
+    caption = "BL | Multivariate Linear model for F/B ratio, adjusted for Age, Smoking, Alcohol Consumption and Sequencing Run.",
+    col.names = c("Predictor", "B", "SE", "t", "p"),
+    digits = c(0, 2, 3, 2, 4)
+  )
+```
+### PERMANOVA
+
+We are interested in profiling the effect of Run variable onto global composition and to assess its magnitude. We run a multivariate permanova, in which we keep Center variable of interest in the last position. In previous position we use variable Run and others variables that we have detected imbalance for between CG and IG.
+
+Results indicate that, while univariate models all show a marginal effect off every single variable being considered, on the multivariate model, Center and Run become non-significant and ParticipantID es the variable most explaining microbiome composition (70%). Importantly, PERMANOVA at baseline, did not show any effect of Center variable in the multivariate or univariate model.
+
+```{r beta diversity chunk 3, echo=F, message=FALSE, warning=FALSE, paged.print=FALSE, tidy=F, fig.cap="NMDS ordination plot for baseline samples. Color ellipse indicates plot area containing 95% of sample  for each specific group"}
+suppressWarnings(require(phyloseq))
+suppressWarnings(require(phylosmith))
+suppressWarnings(require(patchwork))
+suppressWarnings(require(vegan))
+suppressWarnings(require(tribble))
+# Load package from local copy
+devtools::load_all("~/Documents/Work/Development/WMGSPipeline/")
+ps_silva<-readRDS("data/cfu/DADA2/ps_silva.rds")
+myMREObject<-readRDS("data/cfu/mreObject.rds")
+myMREObject@wd<-"output/mre_data/cfu"
+
+metadata_df<-metar::get_meta(myMREObject)
+
+# myMREObject@metadata@metadata_df$Run %>% summary()
+# myMREObject@taxa@dada2@nmds$Genus$top_50$categorical$Run
+# myMREObject@taxa@dada2@nmds$Genus$top_50$all_adonis
+
+# #### PERMUTATIONAL ANOVA (adonis()) on WUnifrac distance
+sampleData<-metar::get_meta(myMREObject)
+set.seed(1234)
+x.6.0.explanatory<-sampleData[,c("Timepoint","Gender","Smoker","Edad","Run","Center","Participante")] %>% 
+  dplyr::rename(Age=Edad) %>% 
+  dplyr::rename(ParticipantID=Participante)
+x.6.0.explanatory<-x.6.0.explanatory %>% 
+  dplyr::mutate(random=sample(c('A', 'B','C','D'), nrow(x.6.0.explanatory), replace=TRUE))
+### Univariate
+x.6.0.response<-phyloseq::distance((ps_silva),method="wunifrac")
+# vegan::adonis2(x.6.0.response~Run,data=x.6.0.explanatory) #Run        2    0.587 0.00923 4.5887  0.001 ***
+# vegan::adonis2(x.6.0.response~Center,data=x.6.0.explanatory)#Center     1    0.144 0.00226 2.238  0.019 *
+# vegan::adonis2(x.6.0.response~Timepoint,data=x.6.0.explanatory)#Timepoint   1    0.246 0.00387 3.8275  0.001 ***
+# vegan::adonis2(x.6.0.response~Gender,data=x.6.0.explanatory)#Gender     1    0.405 0.00636 6.3151  0.001 ***
+# vegan::adonis2(x.6.0.response~Smoker,data=x.6.0.explanatory)#Smoker     1    0.269 0.00422 4.1787  0.001 ***
+# vegan::adonis2(x.6.0.response~Age,data=x.6.0.explanatory)#Age        1    0.211 0.00332 3.2824  0.004 **
+# vegan::adonis2(x.6.0.response~ParticipantID,data=x.6.0.explanatory)# ParticipantID 
+# vegan::adonis2(x.6.0.response~random,data=x.6.0.explanatory)
+## Multivariate
+vegan::adonis2(x.6.0.response~.,data=x.6.0.explanatory) %>% broom::tidy() %>% knitr::kable(
+    caption = "Multivariate  PERMANOVA results",
+    col.names = c("Variable", "DF", "SumOfSqs", "R2", "F", "Pr<F"),
+    digits = c(0, 0, 3, 3, 3, 3)
+  )
+```
+
+
+Restricing the analysis for Baseline Samples:
+
+```{r beta diversity chunk 4, echo=F, message=FALSE, warning=FALSE, paged.print=FALSE, tidy=F}
+vegan::adonis2(phyloseq::distance((ps_silva %>% 
+                                     phyloseq::subset_samples(Timepoint=="BL")
+                                   ),method="wunifrac")~.,data=x.6.0.explanatory %>% 
+                 dplyr::filter(Timepoint=="BL")
+               ) %>% broom::tidy() %>% knitr::kable(
+                 caption = "Multivariate  PERMANOVA results",
+                 col.names = c("Variable", "DF", "SumOfSqs", "R2", "F", "Pr<F"),
+                 digits = c(0, 0, 3, 3, 3,3)
+               )
+
+```

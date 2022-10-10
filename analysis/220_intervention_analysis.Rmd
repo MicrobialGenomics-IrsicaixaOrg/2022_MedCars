@@ -1,0 +1,675 @@
+---
+site: workflowr::wflow_site
+title: "Intervention Analysis"
+author: "Marc Noguera-Julian, PhD. "
+date: "`r format(Sys.time(), '%Y-%m-%d')`"
+header-includes:
+- \usepackage{fancyhdr}
+- \usepackage{lipsum}
+- \pagestyle{fancy}
+- \fancyhead[CO,CE]{Microbioma intestinal en intervencion nutricional}
+- \fancyfoot[LO,RE]{Marc Noguera-Julian, IrsiCaixa}
+- \fancyhead[LE,RO]{\thepage}
+- \fancyfoot[CO,CE]{}
+- \usepackage[default]{sourcesanspro}
+- \usepackage[T1]{fontenc}
+- \usepackage{eso-pic,graphicx,transparent}
+mainfont: Helvetica
+output: html_document
+---
+
+```{r setup, include=TRUE, echo=F, message=FALSE, warning=FALSE, paged.print=FALSE, tidy=F}
+knitr::opts_chunk$set(echo = FALSE)
+knitr::opts_knit$set(root.dir = here::here())
+rmd_env <- "devel"
+```
+
+## Introduction
+
+The main purpose of this analysis is to characterize changes in the microbiome composition related to the nutritional intervention.
+
+## Alpha Diversity
+
+### Chao1 - Paired Comparison
+
+For every Center, we statistically test whether species richness, as assessed by Chao1 estimator is different between M0 and M6, after the nutrititional intervention. For that we use a paired t-test comparison. Chao1 index is an estimator of the number of different taxa that are found in the sample.
+
+Results indicate that in both centers there are slight decreases in Chao1-estimated taxa richness.
+
+```{r alpha diversity chunk 1, echo=F, message=FALSE, warning=FALSE, paged.print=FALSE, tidy=F}
+suppressWarnings(require(phyloseq))
+suppressWarnings(require(phylosmith))
+suppressWarnings(require(patchwork))
+suppressWarnings(require(vegan))
+suppressWarnings(require(ggstatsplot))
+# Load package from local copy
+suppressWarnings(devtools::load_all("~/Documents/Work/Development/WMGSPipeline/"))
+ps_silva<-readRDS("data/cfu/DADA2/ps_silva.rds")
+myMREObject<-readRDS("data/cfu/mreObject.rds")
+myMREObject@wd<-"output/mre_data/cfu"
+
+p0<-phyloseq::sample_data(ps_silva) %>% 
+  data.frame( ) %>% 
+  dplyr::filter(Center=="IG") %>% 
+  dplyr::select(SampleID,Timepoint,Center,Participante,chao1,diversity_shannon) %>% 
+  dplyr::group_by(Participante) %>% 
+  ggstatsplot::ggwithinstats(.,x=Timepoint,
+                              y=chao1,
+                              type = "parametric", 
+                              centrality.plotting=T,bf.message = FALSE,
+                              p.adjust.method = "BH",pairwise.display = F, title =  "Chao1 vs Timepoint / IG",
+                              annotation.args = list(title = "Shannon index vs Timepoint",
+                                                         theme = ggplot2::theme(
+                                                                plot.subtitle = ggplot2::element_text(size = 13),
+                                                                plot.title = ggplot2::element_text(size = 14)
+                                                                )
+                                                         ))
+
+p1<-phyloseq::sample_data(ps_silva) %>% 
+  data.frame( ) %>% 
+  dplyr::filter(Center=="CG") %>% 
+  dplyr::select(SampleID,Timepoint,Center,Participante,chao1,diversity_shannon) %>% 
+  dplyr::group_by(Participante) %>% 
+  ggstatsplot::ggwithinstats(.,x=Timepoint,
+                              y=chao1,
+                              type = "parametric", 
+                              centrality.plotting=T,bf.message = FALSE,
+                              p.adjust.method = "BH", pairwise.display = F, title =  "Chao1  vs Timepoint / CG",
+                              annotation.args = list(title = "Shannon index vs Timepoint",
+                                                         theme = ggplot2::theme(
+                                                                plot.subtitle = ggplot2::element_text(size = 13),
+                                                                plot.title = ggplot2::element_text(size = 14)
+                                                                )
+                                                         ))
+
+
+p0  / p1 + plot_layout(heights = c(25,25),guides="collect",nrow = 2)
+```
+
+
+### Shannon - Paired comparison
+
+For every Center, we statistically test whether alhpa diversity (Shannon Index) is different between M0 and M6, after the nutrititional intervention. For that we use a paired t-test comparison. Shannon Index is an estimator of how many different taxa are found in the sample and how evenely distributed are these taxa within the sample. The higher the index is, the higher the number of taxa and/or their evenness.
+
+Results indicate that in both centers there are slight decreases in the alpha diversity after the intervention.
+
+```{r alpha diversity chunk 2, echo=F, message=FALSE, warning=FALSE, paged.print=FALSE, tidy=F}
+suppressWarnings(require(phyloseq))
+suppressWarnings(require(phylosmith))
+suppressWarnings(require(patchwork))
+suppressWarnings(require(vegan))
+suppressWarnings(require(ggstatsplot))
+# Load package from local copy
+suppressWarnings(devtools::load_all("~/Documents/Work/Development/WMGSPipeline/"))
+ps_silva<-readRDS("data/cfu/DADA2/ps_silva.rds")
+myMREObject<-readRDS("data/cfu/mreObject.rds")
+myMREObject@wd<-"output/mre_data/cfu"
+
+p0<-phyloseq::sample_data(ps_silva) %>% 
+  data.frame( ) %>% 
+  dplyr::filter(Center=="IG") %>% 
+  dplyr::select(SampleID,Timepoint,Center,Participante,chao1,diversity_shannon) %>% 
+  dplyr::group_by(Participante) %>% 
+  ggstatsplot::ggwithinstats(.,x=Timepoint,
+                              y=diversity_shannon,
+                              type = "parametric", 
+                              centrality.plotting=T,bf.message = FALSE,
+                              p.adjust.method = "BH",pairwise.display = F, title =  "Shannon index vs Timepoint / IG",
+                              annotation.args = list(title = "Shannon index vs Timepoint",
+                                                         theme = ggplot2::theme(
+                                                                plot.subtitle = ggplot2::element_text(size = 13),
+                                                                plot.title = ggplot2::element_text(size = 14)
+                                                                )
+                                                         ))
+
+p1<-phyloseq::sample_data(ps_silva) %>% 
+  data.frame( ) %>% 
+  dplyr::filter(Center=="CG") %>% 
+  dplyr::select(SampleID,Timepoint,Center,Participante,chao1,diversity_shannon) %>% 
+  dplyr::group_by(Participante) %>% 
+  ggstatsplot::ggwithinstats(.,x=Timepoint,
+                              y=diversity_shannon,
+                              type = "parametric", 
+                              centrality.plotting=T,bf.message = FALSE,
+                              p.adjust.method = "BH", pairwise.display = F, title =  "Shannon index vs Timepoint / CG",
+                              annotation.args = list(title = "Shannon index vs Timepoint",
+                                                         theme = ggplot2::theme(
+                                                                plot.subtitle = ggplot2::element_text(size = 13),
+                                                                plot.title = ggplot2::element_text(size = 14)
+                                                                )
+                                                         ))
+
+
+p0  / p1 + plot_layout(heights = c(25,25),guides="collect",nrow = 2)
+```
+
+### Phylogenetic Distance - Paired Comparison
+
+For every Center, we statistically test whether alhpa diversity (Shannon Index) is different between M0 and M6, after the nutrititional intervention. For that we use a paired t-test comparison. Shannon Index is an estimator of how many different taxa are found in the sample and how evenely distributed are these taxa within the sample. The higher the index is, the higher the number of taxa and/or their evenness.
+
+Results indicate that in both centers there are no significant decreases in phylogenetic distance.
+
+```{r alpha diversity chunk 3, echo=F, message=FALSE, warning=FALSE, paged.print=FALSE, tidy=F}
+suppressWarnings(require(phyloseq))
+suppressWarnings(require(phylosmith))
+suppressWarnings(require(patchwork))
+suppressWarnings(require(vegan))
+suppressWarnings(require(ggstatsplot))
+# Load package from local copy
+suppressWarnings(devtools::load_all("~/Documents/Work/Development/WMGSPipeline/"))
+ps_silva<-readRDS("data/cfu/DADA2/ps_silva.rds")
+myMREObject<-readRDS("data/cfu/mreObject.rds")
+myMREObject@wd<-"output/mre_data/cfu"
+
+p0<-phyloseq::sample_data(ps_silva) %>% 
+  data.frame( ) %>% 
+  dplyr::filter(Center=="IG") %>% 
+  dplyr::select(SampleID,Timepoint,Center,Participante,chao1,diversity_shannon,PD) %>% 
+  dplyr::group_by(Participante) %>% 
+  ggstatsplot::ggwithinstats(.,x=Timepoint,
+                              y=PD,
+                              type = "parametric", 
+                              centrality.plotting=T,bf.message = FALSE,
+                              p.adjust.method = "BH",pairwise.display = F, title =  "PD vs Timepoint / IG",
+                              annotation.args = list(title = "Shannon index vs Timepoint",
+                                                         theme = ggplot2::theme(
+                                                                plot.subtitle = ggplot2::element_text(size = 13),
+                                                                plot.title = ggplot2::element_text(size = 14)
+                                                                )
+                                                         ))
+
+p1<-phyloseq::sample_data(ps_silva) %>% 
+  data.frame( ) %>% 
+  dplyr::filter(Center=="CG") %>% 
+  dplyr::select(SampleID,Timepoint,Center,Participante,chao1,diversity_shannon,PD) %>% 
+  dplyr::group_by(Participante) %>% 
+  ggstatsplot::ggwithinstats(.,x=Timepoint,
+                              y=PD,
+                              type = "parametric", 
+                              centrality.plotting=T,bf.message = FALSE,
+                              p.adjust.method = "BH", pairwise.display = F, title =  "PD vs Timepoint / CG",
+                              annotation.args = list(title = "Shannon index vs Timepoint",
+                                                         theme = ggplot2::theme(
+                                                                plot.subtitle = ggplot2::element_text(size = 13),
+                                                                plot.title = ggplot2::element_text(size = 14)
+                                                                )
+                                                         ))
+
+
+p0  / p1 + plot_layout(heights = c(25,25),guides="collect",nrow = 2)
+```
+
+## Beta Diversity
+
+### WUnifrac Comparison
+
+Using paired WUnifrac distances we'll assess the global change for every patient along the 6-month followup. We will calculate distances between M0 and M6 samples for every patient and check where these are difference between Center in order to reveal larger/smaller changes in any of the centers. As a reminder IG is the center where nutrititional intervention took place.
+
+Results indicate that the change in the gut microbiome after nutritional interventions is slightly but significantly higher in the IG center.
+
+```{r beta diversity chunk 1, echo=F, message=FALSE, warning=FALSE, paged.print=FALSE, tidy=F}
+
+suppressWarnings(require(phyloseq))
+suppressWarnings(require(phylosmith))
+suppressWarnings(require(patchwork))
+suppressWarnings(require(vegan))
+# Load package from local copy
+devtools::load_all("~/Documents/Work/Development/WMGSPipeline/")
+ps_silva<-readRDS("data/cfu/DADA2/ps_silva.rds")
+myMREObject<-readRDS("data/cfu/mreObject.rds")
+myMREObject@wd<-"output/mre_data/cfu"
+
+aux_dist<-read.csv("output/Deliverables/WUnifrac_Distances.csv") %>% 
+  dplyr::select(-X) %>% 
+  dplyr::rename(SampleID=Sample1,SampleID2=Sample2)
+
+
+pairwise_distances<-sample_data(ps_silva) %>% 
+  data.frame() %>% 
+  dplyr::filter(Timepoint=="BL") %>% 
+  dplyr::left_join(sample_data(ps_silva) %>%
+                     data.frame() %>% 
+                     dplyr::filter(Timepoint=="Month8") %>% 
+                     dplyr::select(SampleID,Participante) %>% 
+                     dplyr::rename(SampleID2=SampleID)) %>% 
+    dplyr::select(SampleID,SampleID2,Participante,Center)
+
+pairwise_distances %>% 
+  dplyr::left_join(.,aux_dist) %>% 
+  ggstatsplot::ggbetweenstats(x=Center,y=WUnifracDistance,type="non-parametric",centrality.plotting=T,
+                                      annotation.args = list(title = "Beta-diversity vs Center",
+                                                         theme = ggplot2::theme(
+                                                                plot.subtitle = ggplot2::element_text(size = 11),
+                                                                plot.title = ggplot2::element_text(size = 12)
+                                                                )
+                                                         ))
+
+```
+
+### NMDS Ordination
+
+In order to see differences between cneters in the longitudinal evolution of the gut microbiome of study participants, we'll generate the ordination(NMDS) plots for each separately and evaluate, bots visually and statistically, whether these changes exist and are of similar magnitude. 
+
+According to the NMDS plots for IG(IG) and CG(CG) projecting timepoint as colored ellipse, there is no apparent clustering associated to the intervention, while the ordination dominating genus are very similar.
+
+```{r beta diversity chunk 2, echo=F, message=FALSE, warning=FALSE, paged.print=FALSE, tidy=F}
+suppressWarnings(require(phyloseq))
+suppressWarnings(require(phylosmith))
+suppressWarnings(require(patchwork))
+suppressWarnings(require(vegan))
+# Load package from local copy
+devtools::load_all("~/Documents/Work/Development/WMGSPipeline/")
+ps_silva<-readRDS("data/cfu/DADA2/ps_silva.rds")
+myMREObject<-readRDS("data/cfu/mreObject.rds")
+myMREObject@wd<-"output/mre_data/cfu"
+
+### IG
+IG_samples<-myMREObject %>% 
+  metar::get_meta() %>% 
+  dplyr::filter(Center=="IG")
+
+auxMREObject<-myMREObject %>%
+  metar::filter_samples(.,IG_samples$SampleID %>% as.vector()) 
+auxMREObject@metadata@categorical_vals<-auxMREObject@metadata@categorical_vals %>% dplyr::filter(CategoricalVariable!="Center")
+
+# auxMREObject %>% 
+#   metar::get_phyloseq(type="dada2") %>% 
+#   phyloseq::otu_table() %>% 
+#   rowSums() 
+auxMREObject@wd<-"output/mre_data/treatment"
+auxMREObject<-metar::dada2_nmds(tax_level = "Genus", mre = auxMREObject,top_n = 50, save_files = T)
+
+p0<-auxMREObject@taxa@dada2@nmds$Genus$top_50$categorical$Timepoint+ggtitle("Intervention group")
+saveRDS(auxMREObject,"data/internal/treatment/mreObject.rds")
+
+### CG
+CG_samples<-myMREObject %>% 
+  metar::get_meta() %>% 
+  dplyr::filter(Center=="CG")
+
+auxMREObject<-myMREObject %>%
+  metar::filter_samples(.,CG_samples$SampleID %>% as.vector()) 
+auxMREObject@metadata@categorical_vals<-auxMREObject@metadata@categorical_vals %>% dplyr::filter(CategoricalVariable!="Center")
+auxMREObject@wd<-"output/mre_data/placebo"
+auxMREObject<-metar::dada2_nmds(tax_level = "Genus",mre = auxMREObject,top_n = 50, save_files = T)
+saveRDS(auxMREObject,"data/internal/placebo/mreObject.rds")
+p1<-auxMREObject@taxa@dada2@nmds$Genus$top_50$categorical$Timepoint+ggtitle("Control Group")
+
+
+p0
+p1
+
+```
+
+### PERMANOVA 
+
+To Statistically test if there is a significant change in the global structure related to the nutritional intervention in any of the working centers, we use permutational ANOVA(PERMANOVA). This will assess whethere there is an association between timepoint and microbiome composition.
+
+#### Intervention Group
+
+Results indicate there is a statistically significant effect of the intervention on the gut microbiome structure (p=0.001), but its magnitude is very low.(R2=0.007)
+
+```{r beta diversity chunk 3, echo=F, message=FALSE, warning=FALSE, paged.print=FALSE, tidy=F}
+suppressWarnings(require(phyloseq))
+suppressWarnings(require(phylosmith))
+suppressWarnings(require(patchwork))
+suppressWarnings(require(vegan))
+# Load package from local copy
+devtools::load_all("~/Documents/Work/Development/WMGSPipeline/")
+ps_silva<-readRDS("data/cfu/DADA2/ps_silva.rds") %>% phyloseq::transform_sample_counts(., function(x) ((x/sum(x))))
+myMREObject<-readRDS("data/cfu/mreObject.rds")
+myMREObject@wd<-"output/mre_data/cfu"
+
+
+# #### PERMUTATIONAL ANOVA (adonis()) on WUnifrac distance | IG
+ps_silva_c01<-phyloseq::subset_samples(ps_silva,Center=="IG")
+sampleData<-sampleData(ps_silva_c01) %>% data.frame()
+x.6.0.explanatory<-sampleData[,c("Timepoint","Fumador")]
+x.6.0.response<-phyloseq::distance((ps_silva_c01),method="wunifrac")
+
+suppressMessages(require(mmtable2))
+suppressMessages(require(tidyr))
+vegan::adonis2(x.6.0.response~Timepoint,data=x.6.0.explanatory) %>% broom::tidy() %>% gridExtra::tableGrob() %>% grid::grid.draw()
+```
+
+#### Control Group
+
+Results indicate no statistically significant association is found in the control group.
+
+```{r beta diversity chunk 4, echo=F, message=FALSE, warning=FALSE, paged.print=FALSE, tidy=F}
+suppressWarnings(require(phyloseq))
+suppressWarnings(require(phylosmith))
+suppressWarnings(require(patchwork))
+suppressWarnings(require(vegan))
+# Load package from local copy
+devtools::load_all("~/Documents/Work/Development/WMGSPipeline/")
+ps_silva<-readRDS("data/cfu/DADA2/ps_silva.rds") %>% phyloseq::transform_sample_counts(., function(x) ((x/sum(x))))
+myMREObject<-readRDS("data/cfu/mreObject.rds")
+myMREObject@wd<-"output/mre_data/cfu"
+# #### PERMUTATIONAL ANOVA (adonis()) on WUnifrac distance | CG
+ps_silva_c02<-phyloseq::subset_samples(ps_silva,Center=="CG")
+sampleData<-sampleData(ps_silva_c02) %>% data.frame()
+x.6.0.explanatory<-sampleData[,c("Timepoint","Fumador")]
+x.6.0.response<-phyloseq::distance((ps_silva_c02),method="wunifrac")
+
+suppressMessages(require(mmtable2))
+suppressMessages(require(tidyr))
+vegan::adonis2(x.6.0.response~Timepoint,data=x.6.0.explanatory) %>% broom::tidy() %>% gridExtra::tableGrob() %>% grid::grid.draw()
+
+```
+
+## Differential Abundance
+
+We have seen that there are no major changes along the nutritional intervention. We can further assess whether there are more subtle differences using differential abundance testing of Month8 vs BL.
+
+### LEFSe
+
+Lefse method uses a combination of non-parametric statistics to reveal those bacterial taxa that are either over- or under-represented in any of the timepoints. Note that we are rarefying to 95th percentile coverage in order to optimized sensitivity. This rarefaction process essentially discards the 5% samples with the lowest throughput,
+
+Results indicate that there several bacterial genera that either over or under abundant in Month8 when compared to BL samples. These changes are specific to IG only, since there are no significant changes in CG. Differentually abundant bacterial taxa are shown in the plot:
+
+* Bacteroides, Odoribacter and Clostridiales_vadinBB60 group genus are enriched in Baseline sample. Thus, their abundance is reduced after the nutritional intervention.
+* Roseburia, Faecalibacterium and Lachnospira are found to have increased abundance after the nutritional intervention. All of these genus, belong to the Firmicutes phylum and are known butyrate producers.
+
+```{r differential abundance chunk 1, echo=F, message=FALSE, warning=FALSE, paged.print=FALSE, tidy=F, fig.cap="LDA Lefse plot, showing enrichment of several general in labelled group"}
+suppressWarnings(require(phyloseq))
+suppressWarnings(require(phylosmith))
+suppressWarnings(require(patchwork))
+suppressWarnings(require(vegan))
+suppressWarnings(require(lefser))
+# Load package from local copy
+devtools::load_all("~/Documents/Work/Development/WMGSPipeline/")
+ps_silva<-readRDS("data/cfu/DADA2/ps_silva.rds")
+myMREObject<-readRDS("data/cfu/mreObject.rds")
+myMREObject@wd<-"output/mre_data/cfu"
+threshold<-ps_silva %>% otu_table( ) %>% colSums() %>% quantile(.,0.05)
+# threshold<-ps_silva %>% otu_table( ) %>% colSums() %>% min()
+
+set.seed(1234)
+x.2.0 <-phyloseq::rarefy_even_depth(ps_silva,sample.size = threshold)
+# x.2.0<-ps_silva
+### IG
+### d samples
+x.2.0 <- x.2.0 %>% 
+  phyloseq::subset_samples(Center=="IG")
+  # microbiome::transform(transform="compositional")
+
+se_ps<-SummarizedExperiment::SummarizedExperiment(assays = list(counts=as.matrix(otu_table(x.2.0))),
+                                                  colData=sample_data(x.2.0),
+                                                  rowData=tax_table(x.2.0))
+aux_res<-lefser(expr=se_ps,groupCol="Timepoint",blockCol = NULL,lda.threshold = 1)
+aux_res<- merge(aux_res,tax_table(x.2.0),by.x="Names",by.y="row.names")%>% 
+  dplyr::select(Names,Phylum,Class,Order,Family,Genus,scores) %>% 
+  dplyr::mutate(Class=ifelse(is.na(Class),Phylum,Class)) %>% 
+  dplyr::mutate(Order=ifelse(is.na(Order),Class,Order)) %>% 
+  dplyr::mutate(Family=ifelse(is.na(Family),Order,Family)) %>% 
+  dplyr::mutate(Genus=ifelse(is.na(Genus),paste0(Family,"_spp"),Genus)) %>% 
+  dplyr::filter(! is.na(Genus)) %>% 
+  dplyr::mutate(otu=Names) %>% 
+  dplyr::mutate(Names=Genus) %>% 
+  dplyr::select(otu,Names,scores) %>% 
+  dplyr::mutate(Names = forcats::fct_reorder(Names, scores)) %>% 
+  dplyr::mutate(time_point=ifelse(scores>0,"Month8","BL"))
+p0<-aux_res %>% 
+    ggplot(.,aes(x=Names,y=scores,fill=time_point))+geom_bar(stat="identity")+coord_flip()+
+    theme_classic()+ggtitle("Month8 vs BL | IG")+
+    scale_fill_brewer(palette="Dark2") 
+    ggsave(plot=p0,"output/Deliverables/DifferentialAbundance/lefse/lefser_Month8_vs_BL_IG_samples.pdf")
+    
+for(otu_name in aux_res$otu){
+  my_ps <- x.2.0
+  my_ps<-ps_silva %>% phyloseq::subset_samples(Center=="IG")
+  title <- aux_res %>% 
+    dplyr::filter(otu==otu_name) 
+  my_ps %>% 
+  microbiome::transform(.,transform="Z") %>% 
+  phyloseq::psmelt()%>% 
+  dplyr::filter(OTU==otu_name) %>% 
+  dplyr::arrange(Participante) %>% 
+  ggstatsplot::ggwithinstats(data = .,x=Timepoint,y=Abundance,
+                                       xlab=NULL,ylab=NULL,centrality.plotting=T,
+                                       bf.message=F,title=paste0(title$Names," | IG"),
+                                       type="parametric",palette="Dark2") %>% 
+  
+   ggsave(.,filename=paste0("output/Deliverables/DifferentialAbundance/lefse/boxplots/",title$Names,"_vs_Timepoint_IG_Samples.pdf"),width=7, height=7)
+}
+
+    
+### CG
+### d samples
+set.seed(1234)
+x.2.0 <-phyloseq::rarefy_even_depth(ps_silva,sample.size = threshold)
+x.2.0 <- x.2.0 %>% 
+  phyloseq::subset_samples(Center=="CG")
+  # microbiome::transform(transform="compositional")
+
+se_ps<-SummarizedExperiment::SummarizedExperiment(assays = list(counts=as.matrix(otu_table(x.2.0))),
+                                                  colData=sample_data(x.2.0),
+                                                  rowData=tax_table(x.2.0))
+aux_res<-lefser(expr=se_ps,groupCol="Timepoint",blockCol = NULL,lda.threshold = 1)
+
+if(nrow(aux_res)>0){
+  aux_res<- merge(aux_res,tax_table(x.2.0),by.x="Names",by.y="row.names")%>% 
+  dplyr::select(Names,Phylum,Class,Order,Family,Genus,scores) %>% 
+  dplyr::mutate(Class=ifelse(is.na(Class),Phylum,Class)) %>% 
+  dplyr::mutate(Order=ifelse(is.na(Order),Class,Order)) %>% 
+  dplyr::mutate(Family=ifelse(is.na(Family),Order,Family)) %>% 
+  dplyr::mutate(Genus=ifelse(is.na(Genus),paste0(Family,"_spp"),Genus)) %>% 
+  dplyr::filter(! is.na(Genus)) %>% 
+  dplyr::mutate(otu=Names) %>% 
+  dplyr::mutate(Names=Genus) %>% 
+  dplyr::select(otu,Names,scores) %>% 
+  dplyr::mutate(Names = forcats::fct_reorder(Names, scores)) %>% 
+  dplyr::mutate(time_point=ifelse(scores>0,"Month8","BL"))
+  p1<-aux_res %>% 
+    ggplot(.,aes(x=Names,y=scores,fill=time_point))+geom_bar(stat="identity")+coord_flip()+
+    theme_classic()+ggtitle("Month8 vs BL | CG")+
+    scale_fill_brewer(palette="Dark2") 
+  ggsave(plot=p0,"output/Deliverables/DifferentialAbundance/lefse/lefser_Month8_vs_BL_CG_samples.pdf")
+  
+  for(otu_name in aux_res$otu){
+    my_ps <- x.2.0
+    title <- aux_res %>% 
+      dplyr::filter(otu==otu_name) 
+    my_ps %>% 
+      phyloseq::psmelt()%>% 
+      dplyr::filter(OTU==otu_name) %>% 
+      ggstatsplot::ggbetweenstats(data = .,x=Timepoint,y=Abundance,
+                                  xlab=NULL,ylab=NULL,centrality.plotting=T,
+                                  bf.message=F,title=paste0(title$Names," | CG"),
+                                  method="non-parametric",palette="Dark2") %>% 
+      
+      ggsave(.,filename=paste0("output/Deliverables/DifferentialAbundance/lefse/boxplots/",title$Names,"_vs_Timepoint_CG_Samples.pdf"),width=7, height=7)
+  }
+}
+
+p0
+```
+
+
+### MaasLin
+
+MaasLin provides and independent differential abundance test framework, which is arguably more adapted to microbiome data and data specificities. In addition, within the statistical model, we can account for random effect and longitudinal design, in the differential testing.
+
+REsults are pretty equivalent to those obtained with LeFSE, 
+
+```{r DA species maaslin2 IG/IG, include=TRUE, echo=F, message=FALSE, warning=FALSE, paged.print=FALSE, tidy=T,eval=T}
+suppressMessages(require(dplyr))
+suppressMessages(require(phyloseq))
+suppressMessages(require(lefser))
+suppressMessages(require(ggplot2))
+suppressMessages(require(patchwork))
+suppressMessages(require(Maaslin2))
+
+set.seed(1234)
+### Species Level
+
+devtools::load_all("~/Documents/Work/Development/WMGSPipeline/")
+myMREObject<-readRDS("data/cfu/mreObject.rds")
+
+### Genus Level IG/IG
+input_data<-myMREObject@taxa@dada2@phyloseq %>% 
+  phyloseq::subset_samples(Center=="IG") %>% tax_glom(.,taxrank="Genus",NArm = F) %>% otu_table() %>% t()
+
+colnames(input_data)<-myMREObject@taxa@dada2@phyloseq %>% 
+  phyloseq::subset_samples(Center=="IG") %>% 
+  tax_glom(.,taxrank="Genus",NArm = F) %>% 
+  phyloseq::tax_table() %>% data.frame() %>% 
+  dplyr::pull(Genus)
+
+input_metadata<-metar::get_meta(myMREObject) %>% as.data.frame()
+rownames(input_metadata)<-input_metadata$SampleID
+
+dir.create("output/Deliverables/DifferentialAbundance/maaslin/", showWarnings = FALSE,recursive = T)
+if(file.exists("output/Deliverables/DifferentialAbundance/maaslin/Volcano_Month8_vs_BL_IGsamples.rds")){
+  fit_data<-readRDS("output/Deliverables/DifferentialAbundance/maaslin/Volcano_Month8_vs_BL_IGsamples.rds")
+} else {
+  suppressWarnings(fit_data <- Maaslin2::Maaslin2(input_data=input_data,input_metadata=input_metadata,
+                                                output="output/Deliverables/DifferentialAbundance/maaslin/genusIG",
+                                                fixed_effects = c("Timepoint"),min_prevalence = 0.2,
+                                                random_effects = c("Participante","Gender","UBE","Edad","IPAQ","Run"),
+                                                cores=4,plot_heatmap = T, plot_scatter = T))
+  saveRDS(fit_data,file="output/Deliverables/DifferentialAbundance/maaslin/Volcano_Month8_vs_BL_IGsamples.rds")
+}
+
+plot_data<-fit_data$results %>% 
+  dplyr::mutate('-log(qval)'=-log10(qval)) %>% 
+  dplyr::mutate(significant=ifelse(qval<0.1,"q<0.1","ns")) %>% 
+  dplyr::mutate(labels=ifelse(significant=="ns",FALSE,TRUE)) %>% 
+  dplyr::mutate(feature=ifelse(significant=="ns","",feature)) 
+  
+p0<-ggplot(plot_data)+
+    geom_point(aes(x=coef,y=`-log(qval)`,color=significant))+
+    ggrepel::geom_text_repel(aes(x=coef,y=`-log(qval)`),size=3,
+                                 label = plot_data$feature,
+                                 box.padding = unit(0.25, "lines"),
+                                  hjust = 1)+
+    ggtitle("Month8 vs BL | IG")
+
+source("code/902_themes.R")
+
+p1<-p0+theme(plot.title = element_text(face = "bold",
+                                      size = rel(1.2), hjust = 0.5),
+            text = element_text(),
+            panel.background = element_rect(colour = NA),
+            plot.background = element_rect(colour = NA),
+            # panel.border = element_rect(colour = NA),
+            axis.title = element_text(face = "bold",size = rel(1)),
+            axis.title.y = element_text(angle=90,vjust =2),
+            axis.title.x = element_text(vjust = -0.2),
+            axis.text = element_text(),
+            axis.line = element_line(colour="black"),
+            axis.ticks = element_line(),
+            panel.grid.major = element_line(colour="#f0f0f0"),
+            panel.grid.minor = element_blank(),
+            legend.key = element_rect(colour = NA),
+            legend.position = "bottom",
+            legend.direction = "horizontal",
+            legend.key.size= unit(0.2, "cm"),
+            legend.margin = unit(0, "cm"),
+            legend.title = element_text(face="italic"),
+            plot.margin=unit(c(10,5,5,5),"mm"),
+            strip.background=element_rect(colour="#f0f0f0",fill="#f0f0f0"),
+            strip.text = element_text(face="bold")
+    )+scale_colour_Publication() +scale_fill_Publication()
+                             
+ggsave(p1,filename="output/Deliverables/DifferentialAbundance/maaslin/Volcano_Month8_vs_BL_IGsamples.pdf")             
+
+```
+
+
+```{r DA species maaslin2 CG/CG, include=TRUE, echo=F, message=FALSE, warning=FALSE, paged.print=FALSE, tidy=T,eval=T}
+suppressMessages(require(dplyr))
+suppressMessages(require(phyloseq))
+suppressMessages(require(lefser))
+suppressMessages(require(ggplot2))
+suppressMessages(require(patchwork))
+suppressMessages(require(Maaslin2))
+
+set.seed(1234)
+### Species Level
+
+devtools::load_all("~/Documents/Work/Development/WMGSPipeline/")
+myMREObject<-readRDS("data/cfu/mreObject.rds")
+
+### Genus Level IG/IG
+input_data<-myMREObject@taxa@dada2@phyloseq %>% 
+  phyloseq::subset_samples(Center=="CG") %>% tax_glom(.,taxrank="Genus",NArm = F) %>% otu_table() %>% t()
+
+colnames(input_data)<-myMREObject@taxa@dada2@phyloseq %>% 
+  phyloseq::subset_samples(Center=="CG") %>% 
+  tax_glom(.,taxrank="Genus",NArm = F) %>% 
+  phyloseq::tax_table() %>% data.frame() %>% 
+  dplyr::pull(Genus)
+
+input_metadata<-metar::get_meta(myMREObject) %>% as.data.frame()
+rownames(input_metadata)<-input_metadata$SampleID
+
+dir.create("output/Deliverables/DifferentialAbundance/maaslin/", showWarnings = FALSE,recursive = T)
+if(file.exists("output/Deliverables/DifferentialAbundance/maaslin/Volcano_Month8_vs_BL_CGsamples.rds")){
+  fit_data<-readRDS("output/Deliverables/DifferentialAbundance/maaslin/Volcano_Month8_vs_BL_CGsamples.rds")
+} else {
+  suppressWarnings(fit_data <- Maaslin2::Maaslin2(input_data=input_data,
+                                                input_metadata=input_metadata,
+                                                output="output/Deliverables/DifferentialAbundance/maaslin/genusCG",
+                                                fixed_effects = c("Timepoint"),
+                                                random_effects = c("Participante","Gender","UBE","Edad","IPAQ","Run"),
+                                                cores=4,plot_heatmap = T,
+                                                min_prevalence = 0.2,
+                                                plot_scatter = T)) 
+  saveRDS(fit_data,file="output/Deliverables/DifferentialAbundance/maaslin/Volcano_Month8_vs_BL_CGsamples.rds")
+}  
+
+# plot_data<-fit_data$results %>% 
+#   dplyr::filter(qval<0.1) %>% 
+#   dplyr::arrange(coef) %>% 
+#   dplyr::rename(Genus=feature) %>% 
+#   dplyr::left_join(get_phyloseq(myMREObject,type="dada2") %>% 
+#                      phyloseq::tax_table() %>% 
+#                      as.data.frame() %>% 
+#                      dplyr::mutate(Genus=gsub("-",".",Genus)))
+# 
+# p0<-ggplot(plot_data)+
+#     geom_point(aes(x=coef,y=`-log(qval)`,color=significant))+
+#     ggrepel::geom_text_repel(aes(x=coef,y=`-log(qval)`),size=3,
+#                                  label = plot_data$feature,
+#                                  box.padding = unit(0.25, "lines"),
+#                                   hjust = 1)+
+#     ggtitle("Month8 vs BL | CG")
+# 
+# source("code/902_themes.R")
+# 
+# p1<-p0+theme(plot.title = element_text(face = "bold",
+#                                       size = rel(1.2), hjust = 0.5),
+#             text = element_text(),
+#             panel.background = element_rect(colour = NA),
+#             plot.background = element_rect(colour = NA),
+#             # panel.border = element_rect(colour = NA),
+#             axis.title = element_text(face = "bold",size = rel(1)),
+#             axis.title.y = element_text(angle=90,vjust =2),
+#             axis.title.x = element_text(vjust = -0.2),
+#             axis.text = element_text(),
+#             axis.line = element_line(colour="black"),
+#             axis.ticks = element_line(),
+#             panel.grid.major = element_line(colour="#f0f0f0"),
+#             panel.grid.minor = element_blank(),
+#             legend.key = element_rect(colour = NA),
+#             legend.position = "bottom",
+#             legend.direction = "horizontal",
+#             legend.key.size= unit(0.2, "cm"),
+#             legend.margin = unit(0, "cm"),
+#             legend.title = element_text(face="italic"),
+#             plot.margin=unit(c(10,5,5,5),"mm"),
+#             strip.background=element_rect(colour="#f0f0f0",fill="#f0f0f0"),
+#             strip.text = element_text(face="bold")
+#     )+scale_colour_Publication() +scale_fill_Publication()
+#                              
+# ggsave(p1,filename="output/Deliverables/DifferentialAbundance/maaslin/Volcano_Month8_vs_BL_CGsamples.pdf")             
+
+```
+
+
+
+### Beta Diversity
+
+### Differential Abundance

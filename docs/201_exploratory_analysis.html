@@ -11,7 +11,7 @@
 
 <meta name="author" content="Marc Noguera-Julian, PhD." />
 
-<meta name="date" content="2022-08-19" />
+<meta name="date" content="2022-10-06" />
 
 <title>Data Exploration</title>
 
@@ -349,6 +349,24 @@ div.tocify {
   <a href="230_MedDietScore.html">Mediterranean Diet</a>
 </li>
 <li>
+  <a href="240_fatty_acids.html">Fatty Acids</a>
+</li>
+<li>
+  <a href="250_PhysicalActivity.html">Physical Activity</a>
+</li>
+<li>
+  <a href="260_FirmicutesBacteroides.html">Firmicutes/Bacteroidetes</a>
+</li>
+<li>
+  <a href="270_PairingAnalysis.html">Paired Analysis</a>
+</li>
+<li>
+  <a href="300_FunctionalAnalysis.html">Functional Analysis</a>
+</li>
+<li>
+  <a href="320_BatchEffect.html">Batch Effects</a>
+</li>
+<li>
   <a href="about.html">About</a>
 </li>
 <li>
@@ -368,7 +386,7 @@ div.tocify {
 
 <h1 class="title toc-ignore">Data Exploration</h1>
 <h4 class="author">Marc Noguera-Julian, PhD.</h4>
-<h4 class="date">2022-08-19</h4>
+<h4 class="date">2022-10-06</h4>
 
 </div>
 
@@ -393,7 +411,7 @@ div.tocify {
 <div class="tab-content">
 <div id="summary" class="tab-pane fade in active">
 <p>
-<strong>Last updated:</strong> 2022-08-19
+<strong>Last updated:</strong> 2022-10-06
 </p>
 <p>
 <strong>Checks:</strong> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> 6 <span class="glyphicon glyphicon-exclamation-sign text-danger" aria-hidden="true"></span> 1
@@ -417,7 +435,7 @@ This reproducible <a href="https://rmarkdown.rstudio.com">R Markdown</a> analysi
 </div>
 <div id="strongRMarkdownfilestronguncommittedchanges" class="panel-collapse collapse">
 <div class="panel-body">
-<p>The R Markdown is ignored by Git. To know which version of the R Markdown file created these results, you’ll want to first commit it to the Git repo. If you’re still working on the analysis, you can ignore this warning. When you’re finished, you can run <code>wflow_publish</code> to commit the R Markdown file and build the HTML.</p>
+<p>The R Markdown file has unstaged changes. To know which version of the R Markdown file created these results, you’ll want to first commit it to the Git repo. If you’re still working on the analysis, you can ignore this warning. When you’re finished, you can run <code>wflow_publish</code> to commit the R Markdown file and build the HTML.</p>
 </div>
 </div>
 </div>
@@ -484,16 +502,16 @@ This reproducible <a href="https://rmarkdown.rstudio.com">R Markdown</a> analysi
 <div class="panel panel-default">
 <div class="panel-heading">
 <p class="panel-title">
-<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomMicrobialGenomicsIrsicaixaOrg2022MedCarstreeb2e81d90ff3d7d8015d9d448b4455eee48bf5ca7targetblankb2e81d9a"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Repository version:</strong> <a href="https://github.com/MicrobialGenomics-IrsicaixaOrg/2022_MedCars/tree/b2e81d90ff3d7d8015d9d448b4455eee48bf5ca7" target="_blank">b2e81d9</a> </a>
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomMicrobialGenomicsIrsicaixaOrg2022MedCarstree136c267de0ff399e395309b721fd13d2fdc4cbe4targetblank136c267a"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Repository version:</strong> <a href="https://github.com/MicrobialGenomics-IrsicaixaOrg/2022_MedCars/tree/136c267de0ff399e395309b721fd13d2fdc4cbe4" target="_blank">136c267</a> </a>
 </p>
 </div>
-<div id="strongRepositoryversionstrongahrefhttpsgithubcomMicrobialGenomicsIrsicaixaOrg2022MedCarstreeb2e81d90ff3d7d8015d9d448b4455eee48bf5ca7targetblankb2e81d9a" class="panel-collapse collapse">
+<div id="strongRepositoryversionstrongahrefhttpsgithubcomMicrobialGenomicsIrsicaixaOrg2022MedCarstree136c267de0ff399e395309b721fd13d2fdc4cbe4targetblank136c267a" class="panel-collapse collapse">
 <div class="panel-body">
 <p>
 Great! You are using Git for version control. Tracking code development and connecting the code version to the results is critical for reproducibility.
 </p>
 <p>
-The results in this page were generated with repository version <a href="https://github.com/MicrobialGenomics-IrsicaixaOrg/2022_MedCars/tree/b2e81d90ff3d7d8015d9d448b4455eee48bf5ca7" target="_blank">b2e81d9</a>. See the <em>Past versions</em> tab to see a history of the changes made to the R Markdown and HTML files.
+The results in this page were generated with repository version <a href="https://github.com/MicrobialGenomics-IrsicaixaOrg/2022_MedCars/tree/136c267de0ff399e395309b721fd13d2fdc4cbe4" target="_blank">136c267</a>. See the <em>Past versions</em> tab to see a history of the changes made to the R Markdown and HTML files.
 </p>
 <p>
 Note that you need to be careful to ensure that all relevant files for the analysis have been committed to Git prior to generating the results (you can use <code>wflow_publish</code> or <code>wflow_git_commit</code>). workflowr only checks the R Markdown file, but you know if there are other scripts or data files that it depends on. Below is the status of the Git repository when the results were generated:
@@ -504,10 +522,6 @@ Ignored files:
     Ignored:    .Rhistory
     Ignored:    .Rproj.user/
     Ignored:    analysis/.DS_Store
-    Ignored:    analysis/201_exploratory_analysis.Rmd
-    Ignored:    analysis/210_baseline_analysis.Rmd
-    Ignored:    analysis/220_intervention_analysis.Rmd
-    Ignored:    analysis/230_MedDietScore.Rmd
     Ignored:    data/.DS_Store
     Ignored:    data/cfu/
     Ignored:    data/internal/
@@ -518,9 +532,18 @@ Ignored files:
     Ignored:    output/Deliverables/
     Ignored:    output/mre_data/
 
-Untracked files:
-    Untracked:  code/901_Abstract.Rmd
-    Untracked:  code/901_Abstract.docx
+Unstaged changes:
+    Modified:   analysis/201_exploratory_analysis.Rmd
+    Modified:   analysis/210_baseline_analysis.Rmd
+    Modified:   analysis/215_Month6_analysis.Rmd
+    Modified:   analysis/220_intervention_analysis.Rmd
+    Modified:   analysis/230_MedDietScore.Rmd
+    Modified:   analysis/260_FirmicutesBacteroides.Rmd
+    Modified:   analysis/270_PairingAnalysis.Rmd
+    Modified:   analysis/300_FunctionalAnalysis.Rmd
+    Modified:   analysis/320_BatchEffect.Rmd
+    Modified:   code/006_DataPreprocessing.Rmd
+    Modified:   code/006_DataPreprocessing.html
 
 </code></pre>
 <p>
@@ -559,6 +582,125 @@ Message
 </tr>
 </thead>
 <tbody>
+<tr>
+<td>
+html
+</td>
+<td>
+<a href="https://rawcdn.githack.com/MicrobialGenomics-IrsicaixaOrg/2022_MedCars/136c267de0ff399e395309b721fd13d2fdc4cbe4/docs/201_exploratory_analysis.html" target="_blank">136c267</a>
+</td>
+<td>
+Marc Noguera-Julian
+</td>
+<td>
+2022-10-06
+</td>
+<td>
+final analysis
+</td>
+</tr>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/MicrobialGenomics-IrsicaixaOrg/2022_MedCars/blob/4ccdb4cfd6d67a16afbcc4bf4c6e5f54a1b44bd3/analysis/201_exploratory_analysis.Rmd" target="_blank">4ccdb4c</a>
+</td>
+<td>
+Marc Noguera-Julian
+</td>
+<td>
+2022-09-30
+</td>
+<td>
+additional analysis
+</td>
+</tr>
+<tr>
+<td>
+html
+</td>
+<td>
+<a href="https://rawcdn.githack.com/MicrobialGenomics-IrsicaixaOrg/2022_MedCars/4ccdb4cfd6d67a16afbcc4bf4c6e5f54a1b44bd3/docs/201_exploratory_analysis.html" target="_blank">4ccdb4c</a>
+</td>
+<td>
+Marc Noguera-Julian
+</td>
+<td>
+2022-09-30
+</td>
+<td>
+additional analysis
+</td>
+</tr>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/MicrobialGenomics-IrsicaixaOrg/2022_MedCars/blob/9594b4b1eee834d1666dba133ec4ba2e68d2e3c9/analysis/201_exploratory_analysis.Rmd" target="_blank">9594b4b</a>
+</td>
+<td>
+Marc Noguera-Julian
+</td>
+<td>
+2022-09-23
+</td>
+<td>
+maaslin and batch effects
+</td>
+</tr>
+<tr>
+<td>
+html
+</td>
+<td>
+<a href="https://rawcdn.githack.com/MicrobialGenomics-IrsicaixaOrg/2022_MedCars/9594b4b1eee834d1666dba133ec4ba2e68d2e3c9/docs/201_exploratory_analysis.html" target="_blank">9594b4b</a>
+</td>
+<td>
+Marc Noguera-Julian
+</td>
+<td>
+2022-09-23
+</td>
+<td>
+maaslin and batch effects
+</td>
+</tr>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/MicrobialGenomics-IrsicaixaOrg/2022_MedCars/blob/1c2dd47bf64409ce32bc85e3c96b5452d29e8fc1/analysis/201_exploratory_analysis.Rmd" target="_blank">1c2dd47</a>
+</td>
+<td>
+Marc Noguera-Julian
+</td>
+<td>
+2022-09-14
+</td>
+<td>
+added analysis
+</td>
+</tr>
+<tr>
+<td>
+html
+</td>
+<td>
+<a href="https://rawcdn.githack.com/MicrobialGenomics-IrsicaixaOrg/2022_MedCars/940511c512797f8ef952c0b2e1224cd2cde0b938/docs/201_exploratory_analysis.html" target="_blank">940511c</a>
+</td>
+<td>
+Marc Noguera-Julian
+</td>
+<td>
+2022-08-19
+</td>
+<td>
+Update 201_exploratory_analysis.html
+</td>
+</tr>
 <tr>
 <td>
 html
@@ -603,8 +745,8 @@ Initial Commit
 <div id="quality-and-throughput" class="section level2">
 <h2>Quality and <em>throughput</em></h2>
 <pre><code>suggested package selbal ✔suggested package DataExplorer ✔suggested package lme4 ✔suggested package merTools ✔</code></pre>
-<p>A total of 1098 samples have been sequenced. The plot shows that median throughput is around 1.14675^{4} (max: 2.8756^{4}, min:3874), after going through quality filters. This a limited but acceptable throughput. In addition there are no significant diffences between groups formed by primary variables (<em>Center</em>), although throughput from baseline(BL) samples is generally higher than that of Month 6 samples, although the magnitude of the differences is low.</p>
-<p>There were a total of 579 of which 494(85.3195164%) had complete follow-up with baseline at month 6 fecal sample. These will be used for downstream analysis.</p>
+<p>A total of 988 samples have been sequenced. The plot shows that median throughput is around 1.13945^{4} (max: 2.8743^{4}, min:5664), after going through quality filters. This a limited but acceptable throughput. In addition there are no significant diffences between groups formed by primary variables (<em>Center</em>), although throughput from baseline(BL) samples is generally higher than that of Month 6 samples, although the magnitude of the differences is low.</p>
+<p>There were a total of 494 of which 494(100%) had complete follow-up with baseline at month 6 fecal sample. These will be used for downstream analysis.</p>
 <p><img src="figure/201_exploratory_analysis.Rmd/Quality%20Control-1.png" width="672" style="display: block; margin: auto;" /></p>
 <p>
 <button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-no-spaces-Quality-Control-1">
@@ -628,6 +770,17 @@ Date
 </tr>
 </thead>
 <tbody>
+<tr>
+<td>
+<a href="https://github.com/MicrobialGenomics-IrsicaixaOrg/2022_MedCars/blob/136c267de0ff399e395309b721fd13d2fdc4cbe4/docs/figure/201_exploratory_analysis.Rmd/Quality Control-1.png" target="_blank">136c267</a>
+</td>
+<td>
+Marc Noguera-Julian
+</td>
+<td>
+2022-10-06
+</td>
+</tr>
 <tr>
 <td>
 <a href="https://github.com/MicrobialGenomics-IrsicaixaOrg/2022_MedCars/blob/6006450f6f52b347dfce2287c8f9feb88be7173f/docs/figure/201_exploratory_analysis.Rmd/Quality Control-1.png" target="_blank">6006450</a>
@@ -668,6 +821,17 @@ Date
 <tbody>
 <tr>
 <td>
+<a href="https://github.com/MicrobialGenomics-IrsicaixaOrg/2022_MedCars/blob/136c267de0ff399e395309b721fd13d2fdc4cbe4/docs/figure/201_exploratory_analysis.Rmd/Quality Control-2.png" target="_blank">136c267</a>
+</td>
+<td>
+Marc Noguera-Julian
+</td>
+<td>
+2022-10-06
+</td>
+</tr>
+<tr>
+<td>
 <a href="https://github.com/MicrobialGenomics-IrsicaixaOrg/2022_MedCars/blob/6006450f6f52b347dfce2287c8f9feb88be7173f/docs/figure/201_exploratory_analysis.Rmd/Quality Control-2.png" target="_blank">6006450</a>
 </td>
 <td>
@@ -689,17 +853,17 @@ Marc Noguera-Julian
 <p>In order to represent the bacterial composition of the analyzes samples in a simple way, we will use stacked barplots. Each vertical bar is a sample. Withi each bar, each color represents a different bacterial genus, according to the legend. The area of this color in a particular samples represents the relativa abundance of that genus in that particular sample.</p>
 <p>Bacterial composition is clearly dominated by prevotella and bacteroides genus, as expected in healthy gut microbiomes. Other bacterial genera that are represented in the data are Faecalibacterium, Agathobacter and Bifidobacterium.</p>
 <div class="figure" style="text-align: center">
-<img src="figure/201_exploratory_analysis.Rmd/Representacion%20grafica%20de%20las%20abundancias%20de%20genero%20y%20filo%20bacteriano-1.png" alt="Stacked barplots representing relative abundances for bacterial genus" width="672" />
+<img src="figure/201_exploratory_analysis.Rmd/graphical%20representantion%20of%20bacterial%20genus-1.png" alt="Stacked barplots representing relative abundances for bacterial genus" width="672" />
 <p class="caption">
 Stacked barplots representing relative abundances for bacterial genus
 </p>
 </div>
 <p>
-<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-no-spaces-Representacion-grafica-de-las-abundancias-de-genero-y-filo-bacteriano-1">
-Past versions of "Representacion grafica de las abundancias de genero y filo bacteriano-1.png"
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-no-spaces-graphical-representantion-of-bacterial-genus-1">
+Past versions of "graphical representantion of bacterial genus-1.png"
 </button>
 </p>
-<div id="fig-no-spaces-Representacion-grafica-de-las-abundancias-de-genero-y-filo-bacteriano-1" class="collapse">
+<div id="fig-no-spaces-graphical-representantion-of-bacterial-genus-1" class="collapse">
 <div class="table-responsive">
 <table class="table table-condensed table-hover">
 <thead>
@@ -718,13 +882,24 @@ Date
 <tbody>
 <tr>
 <td>
-<a href="https://github.com/MicrobialGenomics-IrsicaixaOrg/2022_MedCars/blob/6006450f6f52b347dfce2287c8f9feb88be7173f/docs/figure/201_exploratory_analysis.Rmd/Representacion grafica de las abundancias de genero y filo bacteriano-1.png" target="_blank">6006450</a>
+<a href="https://github.com/MicrobialGenomics-IrsicaixaOrg/2022_MedCars/blob/136c267de0ff399e395309b721fd13d2fdc4cbe4/docs/figure/201_exploratory_analysis.Rmd/graphical representantion of bacterial genus-1.png" target="_blank">136c267</a>
 </td>
 <td>
 Marc Noguera-Julian
 </td>
 <td>
-2022-08-02
+2022-10-06
+</td>
+</tr>
+<tr>
+<td>
+<a href="https://github.com/MicrobialGenomics-IrsicaixaOrg/2022_MedCars/blob/9594b4b1eee834d1666dba133ec4ba2e68d2e3c9/docs/figure/201_exploratory_analysis.Rmd/graphical representantion of bacterial genus-1.png" target="_blank">9594b4b</a>
+</td>
+<td>
+Marc Noguera-Julian
+</td>
+<td>
+2022-09-23
 </td>
 </tr>
 </tbody>
@@ -767,6 +942,28 @@ Date
 </tr>
 </thead>
 <tbody>
+<tr>
+<td>
+<a href="https://github.com/MicrobialGenomics-IrsicaixaOrg/2022_MedCars/blob/136c267de0ff399e395309b721fd13d2fdc4cbe4/docs/figure/201_exploratory_analysis.Rmd/Dendrograms based on WUnifrac-1.png" target="_blank">136c267</a>
+</td>
+<td>
+Marc Noguera-Julian
+</td>
+<td>
+2022-10-06
+</td>
+</tr>
+<tr>
+<td>
+<a href="https://github.com/MicrobialGenomics-IrsicaixaOrg/2022_MedCars/blob/9594b4b1eee834d1666dba133ec4ba2e68d2e3c9/docs/figure/201_exploratory_analysis.Rmd/Dendrograms based on WUnifrac-1.png" target="_blank">9594b4b</a>
+</td>
+<td>
+Marc Noguera-Julian
+</td>
+<td>
+2022-09-23
+</td>
+</tr>
 <tr>
 <td>
 <a href="https://github.com/MicrobialGenomics-IrsicaixaOrg/2022_MedCars/blob/6006450f6f52b347dfce2287c8f9feb88be7173f/docs/figure/201_exploratory_analysis.Rmd/Dendrograms based on WUnifrac-1.png" target="_blank">6006450</a>
@@ -820,6 +1017,28 @@ Date
 <tbody>
 <tr>
 <td>
+<a href="https://github.com/MicrobialGenomics-IrsicaixaOrg/2022_MedCars/blob/136c267de0ff399e395309b721fd13d2fdc4cbe4/docs/figure/201_exploratory_analysis.Rmd/Ordination Analysis-1.png" target="_blank">136c267</a>
+</td>
+<td>
+Marc Noguera-Julian
+</td>
+<td>
+2022-10-06
+</td>
+</tr>
+<tr>
+<td>
+<a href="https://github.com/MicrobialGenomics-IrsicaixaOrg/2022_MedCars/blob/9594b4b1eee834d1666dba133ec4ba2e68d2e3c9/docs/figure/201_exploratory_analysis.Rmd/Ordination Analysis-1.png" target="_blank">9594b4b</a>
+</td>
+<td>
+Marc Noguera-Julian
+</td>
+<td>
+2022-09-23
+</td>
+</tr>
+<tr>
+<td>
 <a href="https://github.com/MicrobialGenomics-IrsicaixaOrg/2022_MedCars/blob/6006450f6f52b347dfce2287c8f9feb88be7173f/docs/figure/201_exploratory_analysis.Rmd/Ordination Analysis-1.png" target="_blank">6006450</a>
 </td>
 <td>
@@ -861,6 +1080,28 @@ Date
 </tr>
 </thead>
 <tbody>
+<tr>
+<td>
+<a href="https://github.com/MicrobialGenomics-IrsicaixaOrg/2022_MedCars/blob/136c267de0ff399e395309b721fd13d2fdc4cbe4/docs/figure/201_exploratory_analysis.Rmd/Ordination Analysis-2.png" target="_blank">136c267</a>
+</td>
+<td>
+Marc Noguera-Julian
+</td>
+<td>
+2022-10-06
+</td>
+</tr>
+<tr>
+<td>
+<a href="https://github.com/MicrobialGenomics-IrsicaixaOrg/2022_MedCars/blob/9594b4b1eee834d1666dba133ec4ba2e68d2e3c9/docs/figure/201_exploratory_analysis.Rmd/Ordination Analysis-2.png" target="_blank">9594b4b</a>
+</td>
+<td>
+Marc Noguera-Julian
+</td>
+<td>
+2022-09-23
+</td>
+</tr>
 <tr>
 <td>
 <a href="https://github.com/MicrobialGenomics-IrsicaixaOrg/2022_MedCars/blob/6006450f6f52b347dfce2287c8f9feb88be7173f/docs/figure/201_exploratory_analysis.Rmd/Ordination Analysis-2.png" target="_blank">6006450</a>
@@ -910,6 +1151,17 @@ Date
 <tbody>
 <tr>
 <td>
+<a href="https://github.com/MicrobialGenomics-IrsicaixaOrg/2022_MedCars/blob/136c267de0ff399e395309b721fd13d2fdc4cbe4/docs/figure/201_exploratory_analysis.Rmd/pam clustering-1.png" target="_blank">136c267</a>
+</td>
+<td>
+Marc Noguera-Julian
+</td>
+<td>
+2022-10-06
+</td>
+</tr>
+<tr>
+<td>
 <a href="https://github.com/MicrobialGenomics-IrsicaixaOrg/2022_MedCars/blob/601ea51e3b21ba0ec3870ef5008c6c222470b0fc/docs/figure/201_exploratory_analysis.Rmd/pam clustering-1.png" target="_blank">601ea51</a>
 </td>
 <td>
@@ -955,70 +1207,72 @@ other attached packages:
 loaded via a namespace (and not attached):
   [1] coda_0.19-4            ragg_1.2.2             bit64_4.0.5           
   [4] knitr_1.39             wesanderson_0.3.6      data.table_1.14.2     
-  [7] DataExplorer_0.8.2     RCurl_1.98-1.7         doParallel_1.0.17     
+  [7] DataExplorer_0.8.2     RCurl_1.98-1.8         doParallel_1.0.17     
  [10] generics_0.1.3         BiocGenerics_0.40.0    callr_3.7.1           
  [13] usethis_2.1.6          proxy_0.4-27           future_1.27.0         
  [16] correlation_0.8.1      bit_4.0.4              tzdb_0.3.0            
- [19] xml2_1.3.3             httpuv_1.6.5           assertthat_0.2.1      
- [22] viridis_0.6.2          xfun_0.31              rJava_1.0-6           
- [25] jquerylib_0.1.4        evaluate_0.15          promises_1.2.0.1      
- [28] fansi_1.0.3            igraph_1.3.4           DBI_1.1.3             
- [31] htmlwidgets_1.5.4      stats4_4.1.1           paletteer_1.4.0       
- [34] purrr_0.3.4            ellipsis_0.3.2         backports_1.4.1       
- [37] insight_0.18.0         prismatic_1.1.0        RcppParallel_5.1.5    
- [40] vctrs_0.4.1            Biobase_2.54.0         remotes_2.4.2         
- [43] here_1.0.1             abind_1.4-5            cachem_1.0.6          
- [46] withr_2.5.0            ggforce_0.3.3          vroom_1.5.7           
- [49] prettyunits_1.1.1      cluster_2.1.3          ape_5.6-2             
- [52] crayon_1.5.1           pkgconfig_2.0.3        labeling_0.4.2        
- [55] units_0.8-0            tweenr_1.0.2           GenomeInfoDb_1.30.1   
- [58] nlme_3.1-158           statsExpressions_1.3.2 pkgload_1.3.0         
- [61] blme_1.0-5             devtools_2.4.4         rlang_1.0.4           
- [64] globals_0.15.1         lifecycle_1.0.1        miniUI_0.1.1.1        
- [67] MatrixModels_0.5-0     selbal_0.1.0           rprojroot_2.0.3       
- [70] polyclip_1.10-0        matrixStats_0.62.0     datawizard_0.4.1      
- [73] Matrix_1.4-1           carData_3.0-5          Rhdf5lib_1.16.0       
- [76] boot_1.3-28            GlobalOptions_0.1.2    whisker_0.4           
- [79] processx_3.7.0         rjson_0.2.21           png_0.1-7             
- [82] viridisLite_0.4.0      parameters_0.18.1      bitops_1.0-7          
- [85] KernSmooth_2.23-20     rhdf5filters_1.6.0     Biostrings_2.62.0     
- [88] workflowr_1.7.0        shape_1.4.6            classInt_0.4-7        
- [91] stringr_1.4.0          arm_1.12-2             parallelly_1.32.1     
- [94] rstatix_0.7.0          S4Vectors_0.32.4       ggsignif_0.6.3        
- [97] scales_1.2.0           memoise_2.0.1          magrittr_2.0.3        
-[100] plyr_1.8.7             zlibbioc_1.40.0        compiler_4.1.1        
-[103] RColorBrewer_1.1-3     clue_0.3-61            lme4_1.1-30           
-[106] cli_3.3.0              ade4_1.7-19            XVector_0.34.0        
-[109] urlchecker_1.0.1       listenv_0.8.0          pbapply_1.5-0         
-[112] ps_1.7.1               ggside_0.2.1           MASS_7.3-58           
-[115] mgcv_1.8-40            tidyselect_1.1.2       stringi_1.7.8         
-[118] forcats_0.5.1          textshaping_0.3.6      highr_0.9             
-[121] yaml_2.3.5             ggrepel_0.9.1          sass_0.4.2            
-[124] tools_4.1.1            parallel_4.1.1         circlize_0.4.15       
-[127] rstudioapi_0.13        foreach_1.5.2          logging_0.10-108      
-[130] git2r_0.30.1           gridExtra_2.3          farver_2.1.1          
-[133] Rtsne_0.16             ggraph_2.0.5           digest_0.6.29         
-[136] shiny_1.7.2            networkD3_0.4          Rcpp_1.0.9            
-[139] car_3.1-0              broom_1.0.0            xlsx_0.6.5            
-[142] BayesFactor_0.9.12-4.4 performance_0.9.1      later_1.3.0           
-[145] sf_1.0-7               effectsize_0.7.0       colorspace_2.0-3      
-[148] brio_1.1.3             fs_1.5.2               IRanges_2.28.0        
-[151] splines_4.1.1          rematch2_2.1.2         graphlayouts_0.8.0    
-[154] xlsxjars_0.6.1         multtest_2.50.0        sessioninfo_1.2.2     
-[157] systemfonts_1.0.4      xtable_1.8-4           jsonlite_1.8.0        
-[160] nloptr_2.0.3           tidygraph_1.2.1        zeallot_0.1.0         
-[163] gt_0.6.0               R6_2.5.1               profvis_0.3.7         
-[166] broom.mixed_0.2.9.4    pillar_1.8.0           htmltools_0.5.3       
-[169] mime_0.12              glue_1.6.2             fastmap_1.1.0         
-[172] minqa_1.2.4            class_7.3-20           codetools_0.2-18      
-[175] pkgbuild_1.3.1         mvtnorm_1.1-3          furrr_0.3.0           
-[178] utf8_1.2.2             bslib_0.4.0            tibble_3.1.8          
-[181] logger_0.2.2           survival_3.3-1         rmarkdown_2.14        
-[184] desc_1.4.1             biomformat_1.22.0      merTools_0.5.2        
-[187] munsell_0.5.0          GetoptLong_1.0.5       e1071_1.7-11          
-[190] rhdf5_2.38.1           GenomeInfoDbData_1.2.7 iterators_1.0.14      
-[193] ggstatsplot_0.9.3      reshape2_1.4.4         gtable_0.3.0          
-[196] bayestestR_0.12.1     </code></pre>
+ [19] xml2_1.3.3             lubridate_1.8.0        httpuv_1.6.5          
+ [22] assertthat_0.2.1       viridis_0.6.2          xfun_0.31             
+ [25] rJava_1.0-6            jquerylib_0.1.4        evaluate_0.15         
+ [28] promises_1.2.0.1       fansi_1.0.3            caTools_1.18.2        
+ [31] igraph_1.3.5           DBI_1.1.3              htmlwidgets_1.5.4     
+ [34] stats4_4.1.1           paletteer_1.4.0        purrr_0.3.4           
+ [37] ellipsis_0.3.2         backports_1.4.1        insight_0.18.0        
+ [40] prismatic_1.1.0        RcppParallel_5.1.5     vctrs_0.4.1           
+ [43] Biobase_2.54.0         remotes_2.4.2          here_1.0.1            
+ [46] abind_1.4-5            cachem_1.0.6           withr_2.5.0           
+ [49] ggforce_0.3.3          vroom_1.5.7            prettyunits_1.1.1     
+ [52] cluster_2.1.3          ape_5.6-2              crayon_1.5.1          
+ [55] pkgconfig_2.0.3        labeling_0.4.2         units_0.8-0           
+ [58] tweenr_1.0.2           GenomeInfoDb_1.30.1    nlme_3.1-158          
+ [61] statsExpressions_1.3.2 pkgload_1.3.0          blme_1.0-5            
+ [64] devtools_2.4.4         rlang_1.0.6            globals_0.15.1        
+ [67] lifecycle_1.0.2        miniUI_0.1.1.1         MatrixModels_0.5-0    
+ [70] selbal_0.1.0           rprojroot_2.0.3        polyclip_1.10-0       
+ [73] matrixStats_0.62.0     datawizard_0.4.1       Matrix_1.4-1          
+ [76] carData_3.0-5          Rhdf5lib_1.16.0        boot_1.3-28           
+ [79] GlobalOptions_0.1.2    whisker_0.4            processx_3.7.0        
+ [82] rjson_0.2.21           png_0.1-7              viridisLite_0.4.1     
+ [85] parameters_0.18.1      bitops_1.0-7           KernSmooth_2.23-20    
+ [88] rhdf5filters_1.6.0     Biostrings_2.62.0      workflowr_1.7.0       
+ [91] shape_1.4.6            classInt_0.4-7         stringr_1.4.1         
+ [94] arm_1.12-2             parallelly_1.32.1      rstatix_0.7.0         
+ [97] S4Vectors_0.32.4       ggsignif_0.6.3         scales_1.2.1          
+[100] memoise_2.0.1          magrittr_2.0.3         plyr_1.8.7            
+[103] gplots_3.1.3           zlibbioc_1.40.0        compiler_4.1.1        
+[106] RColorBrewer_1.1-3     clue_0.3-61            lme4_1.1-30           
+[109] snakecase_0.11.0       cli_3.4.1              ade4_1.7-19           
+[112] XVector_0.34.0         urlchecker_1.0.1       listenv_0.8.0         
+[115] pbapply_1.5-0          ps_1.7.1               ggside_0.2.1          
+[118] MASS_7.3-58            mgcv_1.8-40            tidyselect_1.1.2      
+[121] stringi_1.7.8          forcats_0.5.1          textshaping_0.3.6     
+[124] highr_0.9              yaml_2.3.5             ggrepel_0.9.1         
+[127] sass_0.4.2             tools_4.1.1            parallel_4.1.1        
+[130] circlize_0.4.15        rstudioapi_0.13        foreach_1.5.2         
+[133] logging_0.10-108       git2r_0.30.1           janitor_2.1.0         
+[136] gridExtra_2.3          farver_2.1.1           Rtsne_0.16            
+[139] ggraph_2.0.5           digest_0.6.29          shiny_1.7.2           
+[142] networkD3_0.4          Rcpp_1.0.9             car_3.1-0             
+[145] broom_1.0.0            xlsx_0.6.5             BayesFactor_0.9.12-4.4
+[148] performance_0.9.1      later_1.3.0            sf_1.0-7              
+[151] effectsize_0.7.0       colorspace_2.0-3       brio_1.1.3            
+[154] fs_1.5.2               IRanges_2.28.0         splines_4.1.1         
+[157] rematch2_2.1.2         graphlayouts_0.8.0     xlsxjars_0.6.1        
+[160] multtest_2.50.0        sessioninfo_1.2.2      systemfonts_1.0.4     
+[163] xtable_1.8-4           jsonlite_1.8.0         nloptr_2.0.3          
+[166] tidygraph_1.2.1        zeallot_0.1.0          gt_0.6.0              
+[169] R6_2.5.1               profvis_0.3.7          broom.mixed_0.2.9.4   
+[172] pillar_1.8.1           htmltools_0.5.3        mime_0.12             
+[175] glue_1.6.2             fastmap_1.1.0          minqa_1.2.4           
+[178] class_7.3-20           codetools_0.2-18       pkgbuild_1.3.1        
+[181] mvtnorm_1.1-3          furrr_0.3.0            utf8_1.2.2            
+[184] bslib_0.4.0            tibble_3.1.8           logger_0.2.2          
+[187] gtools_3.9.3           magick_2.7.3           survival_3.3-1        
+[190] rmarkdown_2.14         desc_1.4.1             biomformat_1.22.0     
+[193] merTools_0.5.2         munsell_0.5.0          GetoptLong_1.0.5      
+[196] e1071_1.7-11           rhdf5_2.38.1           GenomeInfoDbData_1.2.7
+[199] iterators_1.0.14       ggstatsplot_0.9.3      reshape2_1.4.4        
+[202] gtable_0.3.1           bayestestR_0.12.1     </code></pre>
 </div>
 </div>
 </div>

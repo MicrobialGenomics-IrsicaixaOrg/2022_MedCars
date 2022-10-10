@@ -11,7 +11,7 @@
 
 <meta name="author" content="Marc Noguera-Julian, PhD." />
 
-<meta name="date" content="2022-09-02" />
+<meta name="date" content="2022-10-06" />
 
 <title>Microbiome association with Physical Activity</title>
 
@@ -349,10 +349,22 @@ div.tocify {
   <a href="230_MedDietScore.html">Mediterranean Diet</a>
 </li>
 <li>
+  <a href="240_fatty_acids.html">Fatty Acids</a>
+</li>
+<li>
   <a href="250_PhysicalActivity.html">Physical Activity</a>
 </li>
 <li>
   <a href="260_FirmicutesBacteroides.html">Firmicutes/Bacteroidetes</a>
+</li>
+<li>
+  <a href="270_PairingAnalysis.html">Paired Analysis</a>
+</li>
+<li>
+  <a href="300_FunctionalAnalysis.html">Functional Analysis</a>
+</li>
+<li>
+  <a href="320_BatchEffect.html">Batch Effects</a>
 </li>
 <li>
   <a href="about.html">About</a>
@@ -374,7 +386,7 @@ div.tocify {
 
 <h1 class="title toc-ignore">Microbiome association with Physical Activity</h1>
 <h4 class="author">Marc Noguera-Julian, PhD.</h4>
-<h4 class="date">2022-09-02</h4>
+<h4 class="date">2022-10-06</h4>
 
 </div>
 
@@ -399,7 +411,7 @@ div.tocify {
 <div class="tab-content">
 <div id="summary" class="tab-pane fade in active">
 <p>
-<strong>Last updated:</strong> 2022-09-02
+<strong>Last updated:</strong> 2022-10-06
 </p>
 <p>
 <strong>Checks:</strong> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> 6 <span class="glyphicon glyphicon-exclamation-sign text-danger" aria-hidden="true"></span> 1
@@ -423,7 +435,7 @@ This reproducible <a href="https://rmarkdown.rstudio.com">R Markdown</a> analysi
 </div>
 <div id="strongRMarkdownfilestronguncommittedchanges" class="panel-collapse collapse">
 <div class="panel-body">
-<p>The R Markdown is ignored by Git. To know which version of the R Markdown file created these results, you’ll want to first commit it to the Git repo. If you’re still working on the analysis, you can ignore this warning. When you’re finished, you can run <code>wflow_publish</code> to commit the R Markdown file and build the HTML.</p>
+<p>The R Markdown file has unstaged changes. To know which version of the R Markdown file created these results, you’ll want to first commit it to the Git repo. If you’re still working on the analysis, you can ignore this warning. When you’re finished, you can run <code>wflow_publish</code> to commit the R Markdown file and build the HTML.</p>
 </div>
 </div>
 </div>
@@ -490,16 +502,16 @@ This reproducible <a href="https://rmarkdown.rstudio.com">R Markdown</a> analysi
 <div class="panel panel-default">
 <div class="panel-heading">
 <p class="panel-title">
-<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomMicrobialGenomicsIrsicaixaOrg2022MedCarstree4f5607f5f77c14fbdd942aaf9b02c3f3a3ad774btargetblank4f5607fa"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Repository version:</strong> <a href="https://github.com/MicrobialGenomics-IrsicaixaOrg/2022_MedCars/tree/4f5607f5f77c14fbdd942aaf9b02c3f3a3ad774b" target="_blank">4f5607f</a> </a>
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomMicrobialGenomicsIrsicaixaOrg2022MedCarstree136c267de0ff399e395309b721fd13d2fdc4cbe4targetblank136c267a"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Repository version:</strong> <a href="https://github.com/MicrobialGenomics-IrsicaixaOrg/2022_MedCars/tree/136c267de0ff399e395309b721fd13d2fdc4cbe4" target="_blank">136c267</a> </a>
 </p>
 </div>
-<div id="strongRepositoryversionstrongahrefhttpsgithubcomMicrobialGenomicsIrsicaixaOrg2022MedCarstree4f5607f5f77c14fbdd942aaf9b02c3f3a3ad774btargetblank4f5607fa" class="panel-collapse collapse">
+<div id="strongRepositoryversionstrongahrefhttpsgithubcomMicrobialGenomicsIrsicaixaOrg2022MedCarstree136c267de0ff399e395309b721fd13d2fdc4cbe4targetblank136c267a" class="panel-collapse collapse">
 <div class="panel-body">
 <p>
 Great! You are using Git for version control. Tracking code development and connecting the code version to the results is critical for reproducibility.
 </p>
 <p>
-The results in this page were generated with repository version <a href="https://github.com/MicrobialGenomics-IrsicaixaOrg/2022_MedCars/tree/4f5607f5f77c14fbdd942aaf9b02c3f3a3ad774b" target="_blank">4f5607f</a>. See the <em>Past versions</em> tab to see a history of the changes made to the R Markdown and HTML files.
+The results in this page were generated with repository version <a href="https://github.com/MicrobialGenomics-IrsicaixaOrg/2022_MedCars/tree/136c267de0ff399e395309b721fd13d2fdc4cbe4" target="_blank">136c267</a>. See the <em>Past versions</em> tab to see a history of the changes made to the R Markdown and HTML files.
 </p>
 <p>
 Note that you need to be careful to ensure that all relevant files for the analysis have been committed to Git prior to generating the results (you can use <code>wflow_publish</code> or <code>wflow_git_commit</code>). workflowr only checks the R Markdown file, but you know if there are other scripts or data files that it depends on. Below is the status of the Git repository when the results were generated:
@@ -510,13 +522,6 @@ Ignored files:
     Ignored:    .Rhistory
     Ignored:    .Rproj.user/
     Ignored:    analysis/.DS_Store
-    Ignored:    analysis/201_exploratory_analysis.Rmd
-    Ignored:    analysis/210_baseline_analysis.Rmd
-    Ignored:    analysis/220_intervention_analysis.Rmd
-    Ignored:    analysis/230_MedDietScore.Rmd
-    Ignored:    analysis/240_fatty_acids.Rmd
-    Ignored:    analysis/250_PhysicalActivity.Rmd
-    Ignored:    analysis/260_FirmicutesBacteroides.Rmd
     Ignored:    data/.DS_Store
     Ignored:    data/cfu/
     Ignored:    data/internal/
@@ -528,7 +533,19 @@ Ignored files:
     Ignored:    output/mre_data/
 
 Unstaged changes:
-    Modified:   analysis/_site.yml
+    Modified:   analysis/201_exploratory_analysis.Rmd
+    Modified:   analysis/210_baseline_analysis.Rmd
+    Modified:   analysis/215_Month6_analysis.Rmd
+    Modified:   analysis/220_intervention_analysis.Rmd
+    Modified:   analysis/230_MedDietScore.Rmd
+    Modified:   analysis/240_fatty_acids.Rmd
+    Modified:   analysis/250_PhysicalActivity.Rmd
+    Modified:   analysis/260_FirmicutesBacteroides.Rmd
+    Modified:   analysis/270_PairingAnalysis.Rmd
+    Modified:   analysis/300_FunctionalAnalysis.Rmd
+    Modified:   analysis/320_BatchEffect.Rmd
+    Modified:   code/006_DataPreprocessing.Rmd
+    Modified:   code/006_DataPreprocessing.html
 
 </code></pre>
 <p>
@@ -572,6 +589,91 @@ Message
 html
 </td>
 <td>
+<a href="https://rawcdn.githack.com/MicrobialGenomics-IrsicaixaOrg/2022_MedCars/136c267de0ff399e395309b721fd13d2fdc4cbe4/docs/250_PhysicalActivity.html" target="_blank">136c267</a>
+</td>
+<td>
+Marc Noguera-Julian
+</td>
+<td>
+2022-10-06
+</td>
+<td>
+final analysis
+</td>
+</tr>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/MicrobialGenomics-IrsicaixaOrg/2022_MedCars/blob/4ccdb4cfd6d67a16afbcc4bf4c6e5f54a1b44bd3/analysis/250_PhysicalActivity.Rmd" target="_blank">4ccdb4c</a>
+</td>
+<td>
+Marc Noguera-Julian
+</td>
+<td>
+2022-09-30
+</td>
+<td>
+additional analysis
+</td>
+</tr>
+<tr>
+<td>
+html
+</td>
+<td>
+<a href="https://rawcdn.githack.com/MicrobialGenomics-IrsicaixaOrg/2022_MedCars/4ccdb4cfd6d67a16afbcc4bf4c6e5f54a1b44bd3/docs/250_PhysicalActivity.html" target="_blank">4ccdb4c</a>
+</td>
+<td>
+Marc Noguera-Julian
+</td>
+<td>
+2022-09-30
+</td>
+<td>
+additional analysis
+</td>
+</tr>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/MicrobialGenomics-IrsicaixaOrg/2022_MedCars/blob/1c2dd47bf64409ce32bc85e3c96b5452d29e8fc1/analysis/250_PhysicalActivity.Rmd" target="_blank">1c2dd47</a>
+</td>
+<td>
+Marc Noguera-Julian
+</td>
+<td>
+2022-09-14
+</td>
+<td>
+added analysis
+</td>
+</tr>
+<tr>
+<td>
+html
+</td>
+<td>
+<a href="https://rawcdn.githack.com/MicrobialGenomics-IrsicaixaOrg/2022_MedCars/0d009c51e0c61fded4501cb7cc0dbca05191691d/docs/250_PhysicalActivity.html" target="_blank">0d009c5</a>
+</td>
+<td>
+Marc Noguera-Julian
+</td>
+<td>
+2022-09-02
+</td>
+<td>
+phyisical activity analysis update
+</td>
+</tr>
+<tr>
+<td>
+html
+</td>
+<td>
 <a href="https://rawcdn.githack.com/MicrobialGenomics-IrsicaixaOrg/2022_MedCars/04e10466a28ac8248c1bc5f7d6409de0355524f4/docs/250_PhysicalActivity.html" target="_blank">04e1046</a>
 </td>
 <td>
@@ -598,7 +700,153 @@ analysis updaet
 <h3>Alpha Diversity - Baseline</h3>
 <p>We will check, at baseline, if IPAQ shows any association with Alpha diversity measures (Chao1, Shannon, PD). Results indicate no correlation between any of the alpha-diversity parameters and MedDietScore.</p>
 <pre><code>suggested package selbal ✔suggested package DataExplorer ✔suggested package lme4 ✔suggested package merTools ✔</code></pre>
-<p><img src="figure/250_PhysicalActivity.Rmd/BL%20Alpha%20Diversity%20Chunk%201-1.png" width="672" style="display: block; margin: auto;" /><img src="figure/250_PhysicalActivity.Rmd/BL%20Alpha%20Diversity%20Chunk%201-2.png" width="672" style="display: block; margin: auto;" /><img src="figure/250_PhysicalActivity.Rmd/BL%20Alpha%20Diversity%20Chunk%201-3.png" width="672" style="display: block; margin: auto;" /></p>
+<p><img src="figure/250_PhysicalActivity.Rmd/BL%20Alpha%20Diversity%20Chunk%201-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-no-spaces-BL-Alpha-Diversity-Chunk-1-1">
+Past versions of "BL Alpha Diversity Chunk 1-1.png"
+</button>
+</p>
+<div id="fig-no-spaces-BL-Alpha-Diversity-Chunk-1-1" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/MicrobialGenomics-IrsicaixaOrg/2022_MedCars/blob/136c267de0ff399e395309b721fd13d2fdc4cbe4/docs/figure/250_PhysicalActivity.Rmd/BL Alpha Diversity Chunk 1-1.png" target="_blank">136c267</a>
+</td>
+<td>
+Marc Noguera-Julian
+</td>
+<td>
+2022-10-06
+</td>
+</tr>
+<tr>
+<td>
+<a href="https://github.com/MicrobialGenomics-IrsicaixaOrg/2022_MedCars/blob/0d009c51e0c61fded4501cb7cc0dbca05191691d/docs/figure/250_PhysicalActivity.Rmd/BL Alpha Diversity Chunk 1-1.png" target="_blank">0d009c5</a>
+</td>
+<td>
+Marc Noguera-Julian
+</td>
+<td>
+2022-09-02
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<p><img src="figure/250_PhysicalActivity.Rmd/BL%20Alpha%20Diversity%20Chunk%201-2.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-no-spaces-BL-Alpha-Diversity-Chunk-1-2">
+Past versions of "BL Alpha Diversity Chunk 1-2.png"
+</button>
+</p>
+<div id="fig-no-spaces-BL-Alpha-Diversity-Chunk-1-2" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/MicrobialGenomics-IrsicaixaOrg/2022_MedCars/blob/136c267de0ff399e395309b721fd13d2fdc4cbe4/docs/figure/250_PhysicalActivity.Rmd/BL Alpha Diversity Chunk 1-2.png" target="_blank">136c267</a>
+</td>
+<td>
+Marc Noguera-Julian
+</td>
+<td>
+2022-10-06
+</td>
+</tr>
+<tr>
+<td>
+<a href="https://github.com/MicrobialGenomics-IrsicaixaOrg/2022_MedCars/blob/0d009c51e0c61fded4501cb7cc0dbca05191691d/docs/figure/250_PhysicalActivity.Rmd/BL Alpha Diversity Chunk 1-2.png" target="_blank">0d009c5</a>
+</td>
+<td>
+Marc Noguera-Julian
+</td>
+<td>
+2022-09-02
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<p><img src="figure/250_PhysicalActivity.Rmd/BL%20Alpha%20Diversity%20Chunk%201-3.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-no-spaces-BL-Alpha-Diversity-Chunk-1-3">
+Past versions of "BL Alpha Diversity Chunk 1-3.png"
+</button>
+</p>
+<div id="fig-no-spaces-BL-Alpha-Diversity-Chunk-1-3" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/MicrobialGenomics-IrsicaixaOrg/2022_MedCars/blob/136c267de0ff399e395309b721fd13d2fdc4cbe4/docs/figure/250_PhysicalActivity.Rmd/BL Alpha Diversity Chunk 1-3.png" target="_blank">136c267</a>
+</td>
+<td>
+Marc Noguera-Julian
+</td>
+<td>
+2022-10-06
+</td>
+</tr>
+<tr>
+<td>
+<a href="https://github.com/MicrobialGenomics-IrsicaixaOrg/2022_MedCars/blob/0d009c51e0c61fded4501cb7cc0dbca05191691d/docs/figure/250_PhysicalActivity.Rmd/BL Alpha Diversity Chunk 1-3.png" target="_blank">0d009c5</a>
+</td>
+<td>
+Marc Noguera-Julian
+</td>
+<td>
+2022-09-02
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
 </div>
 </div>
 <div id="including-plots" class="section level2">
@@ -606,6 +854,54 @@ analysis updaet
 <p>You can also embed plots, for example:</p>
 <pre><code>suggested package selbal ✔suggested package DataExplorer ✔suggested package lme4 ✔suggested package merTools ✔</code></pre>
 <p><img src="figure/250_PhysicalActivity.Rmd/BL%20Ordination%20chunk%201-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-no-spaces-BL-Ordination-chunk-1-1">
+Past versions of "BL Ordination chunk 1-1.png"
+</button>
+</p>
+<div id="fig-no-spaces-BL-Ordination-chunk-1-1" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/MicrobialGenomics-IrsicaixaOrg/2022_MedCars/blob/136c267de0ff399e395309b721fd13d2fdc4cbe4/docs/figure/250_PhysicalActivity.Rmd/BL Ordination chunk 1-1.png" target="_blank">136c267</a>
+</td>
+<td>
+Marc Noguera-Julian
+</td>
+<td>
+2022-10-06
+</td>
+</tr>
+<tr>
+<td>
+<a href="https://github.com/MicrobialGenomics-IrsicaixaOrg/2022_MedCars/blob/0d009c51e0c61fded4501cb7cc0dbca05191691d/docs/figure/250_PhysicalActivity.Rmd/BL Ordination chunk 1-1.png" target="_blank">0d009c5</a>
+</td>
+<td>
+Marc Noguera-Julian
+</td>
+<td>
+2022-09-02
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
 </div>
 <div id="intervention" class="section level2">
 <h2>Intervention</h2>
@@ -614,6 +910,54 @@ analysis updaet
 <p>We want to assess it there ar changes in physical activity after the intervention and if there are any differences between groups in order to assess the effectivity of the intervention. We can see that the median change in IPAQ score is close to 0 in both IG and CG, without significant differences between them.</p>
 <pre><code>suggested package selbal ✔suggested package DataExplorer ✔suggested package lme4 ✔suggested package merTools ✔</code></pre>
 <p><img src="figure/250_PhysicalActivity.Rmd/Intervention%20chunk%201-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-no-spaces-Intervention-chunk-1-1">
+Past versions of "Intervention chunk 1-1.png"
+</button>
+</p>
+<div id="fig-no-spaces-Intervention-chunk-1-1" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/MicrobialGenomics-IrsicaixaOrg/2022_MedCars/blob/136c267de0ff399e395309b721fd13d2fdc4cbe4/docs/figure/250_PhysicalActivity.Rmd/Intervention chunk 1-1.png" target="_blank">136c267</a>
+</td>
+<td>
+Marc Noguera-Julian
+</td>
+<td>
+2022-10-06
+</td>
+</tr>
+<tr>
+<td>
+<a href="https://github.com/MicrobialGenomics-IrsicaixaOrg/2022_MedCars/blob/0d009c51e0c61fded4501cb7cc0dbca05191691d/docs/figure/250_PhysicalActivity.Rmd/Intervention chunk 1-1.png" target="_blank">0d009c5</a>
+</td>
+<td>
+Marc Noguera-Julian
+</td>
+<td>
+2022-09-02
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
 <br>
 <p>
 <button type="button" class="btn btn-default btn-workflowr btn-workflowr-sessioninfo" data-toggle="collapse" data-target="#workflowr-sessioninfo" style="display: block;">
@@ -650,7 +994,7 @@ loaded via a namespace (and not attached):
  [19] tzdb_0.3.0             lubridate_1.8.0        httpuv_1.6.5          
  [22] assertthat_0.2.1       viridis_0.6.2          WRS2_1.1-4            
  [25] xfun_0.31              jquerylib_0.1.4        evaluate_0.15         
- [28] promises_1.2.0.1       fansi_1.0.3            igraph_1.3.4          
+ [28] promises_1.2.0.1       fansi_1.0.3            igraph_1.3.5          
  [31] DBI_1.1.3              htmlwidgets_1.5.4      reshape_0.8.9         
  [34] stats4_4.1.1           paletteer_1.4.0        purrr_0.3.4           
  [37] ellipsis_0.3.2         dplyr_1.0.9            ggpubr_0.4.0          
@@ -663,7 +1007,7 @@ loaded via a namespace (and not attached):
  [58] labeling_0.4.2         units_0.8-0            tweenr_1.0.2          
  [61] GenomeInfoDb_1.30.1    nlme_3.1-158           statsExpressions_1.3.2
  [64] pkgload_1.3.0          blme_1.0-5             devtools_2.4.4        
- [67] rlang_1.0.4            globals_0.15.1         lifecycle_1.0.1       
+ [67] rlang_1.0.6            globals_0.15.1         lifecycle_1.0.2       
  [70] miniUI_0.1.1.1         selbal_0.1.0           rprojroot_2.0.3       
  [73] polyclip_1.10-0        matrixStats_0.62.0     datawizard_0.4.1      
  [76] Matrix_1.4-1           mc2d_0.1-21            carData_3.0-5         
@@ -677,7 +1021,7 @@ loaded via a namespace (and not attached):
 [100] ggsignif_0.6.3         scales_1.2.1           memoise_2.0.1         
 [103] magrittr_2.0.3         plyr_1.8.7             zlibbioc_1.40.0       
 [106] compiler_4.1.1         RColorBrewer_1.1-3     clue_0.3-61           
-[109] lme4_1.1-30            snakecase_0.11.0       cli_3.3.0             
+[109] lme4_1.1-30            snakecase_0.11.0       cli_3.4.1             
 [112] ade4_1.7-19            XVector_0.34.0         urlchecker_1.0.1      
 [115] listenv_0.8.0          ps_1.7.1               MASS_7.3-58           
 [118] mgcv_1.8-40            ggside_0.2.1           tidyselect_1.1.2      
@@ -690,7 +1034,7 @@ loaded via a namespace (and not attached):
 [139] ggraph_2.0.5           digest_0.6.29          shiny_1.7.2           
 [142] networkD3_0.4          Rcpp_1.0.9             car_3.1-0             
 [145] broom_1.0.0            performance_0.9.1      later_1.3.0           
-[148] httr_1.4.3             sf_1.0-7               ComplexHeatmap_2.10.0 
+[148] httr_1.4.4             sf_1.0-7               ComplexHeatmap_2.10.0 
 [151] effectsize_0.7.0       colorspace_2.0-3       brio_1.1.3            
 [154] fs_1.5.2               IRanges_2.28.0         splines_4.1.1         
 [157] rematch2_2.1.2         graphlayouts_0.8.0     multtest_2.50.0       
@@ -706,7 +1050,7 @@ loaded via a namespace (and not attached):
 [187] biomformat_1.22.0      merTools_0.5.2         munsell_0.5.0         
 [190] e1071_1.7-11           GetoptLong_1.0.5       rhdf5_2.38.1          
 [193] GenomeInfoDbData_1.2.7 iterators_1.0.14       reshape2_1.4.4        
-[196] gtable_0.3.0           bayestestR_0.12.1     </code></pre>
+[196] gtable_0.3.1           bayestestR_0.12.1     </code></pre>
 </div>
 </div>
 </div>
